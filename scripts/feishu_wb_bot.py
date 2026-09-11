@@ -275,18 +275,22 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
     failed_count = 0
 
     for i, sku in enumerate(unique_skus, 1):
-        ok = execute_single_listing_task(
-            chat_id=chat_id,
-            sku=sku,
-            multiplier=multiplier,
-            discount=discount,
-            stock=stock,
-            task_progress=f"[{i}/{total}]"
-        )
-        if ok:
-            success_count += 1
-        else:
+        try:
+            ok = execute_single_listing_task(
+                chat_id=chat_id,
+                sku=sku,
+                multiplier=multiplier,
+                discount=discount,
+                stock=stock,
+                task_progress=f"[{i}/{total}]"
+            )
+            if ok:
+                success_count += 1
+            else:
+                failed_count += 1
+        except Exception as e:
             failed_count += 1
+            send_feishu_reply(chat_id, f"❌ [{i}/{total}] SKU {sku} 运行异常: {e}")
             
         if i < total:
             time.sleep(2.0)
@@ -437,9 +441,10 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             if handle_text_commands(chat_id, raw_text):
                 return
 
-            # 匹配 SKU 数字列表 (7~12 位数字)
-            found_skus = re.findall(r"\d{7,12}", raw_text)
-            if found_skus:
+            # 匹配 SKU 数字列表 (7~12 位数字，完美支持换行、空格、逗号等各类分隔符)
+            found_skus = re.findall(r"(?<!\d)\d{7,12}(?!\d)", raw_text)
+            unique_skus = list(dict.fromkeys(found_skus))
+            if unique_skus:
                 cfg = load_bot_config()
                 def_m = float(cfg.get("default_multiplier", 5.0))
                 def_d = int(cfg.get("default_discount", 50))
@@ -447,7 +452,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                 m, d, s = parse_inline_params(raw_text, def_m, def_d, def_s)
                 
                 # 启动后台批量执行线程
-                threading.Thread(target=batch_listing_worker, args=(chat_id, found_skus, m, d, s)).start()
+                threading.Thread(target=batch_listing_worker, args=(chat_id, unique_skus, m, d, s)).start()
             else:
                 help_card = [
                     "👋 **我是 Wildberries 全自动极速上架助手！**",
@@ -487,7 +492,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                 if download_message_resource(msg.message_id, file_key, save_path):
                     with open(save_path, "r", encoding="utf-8", errors="ignore") as tf:
                         content = tf.read()
-                    skus = re.findall(r"\d{7,12}", content)
+                    skus = re.findall(r"(?<!\d)\d{7,12}(?!\d)", content)
                     unique_skus = list(dict.fromkeys(skus))
                     if unique_skus:
                         cfg = load_bot_config()

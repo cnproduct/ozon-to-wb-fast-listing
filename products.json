@@ -336,5 +336,39 @@
     "strike_price": 20870,
     "barcode": "2056458906560",
     "nmID": 1566289874
+  },
+  {
+    "sku": "2665684789",
+    "vendorCode": "OZON-2665684789-v2",
+    "subjectID": 138,
+    "title": "Рюкзак мужской городской спортивный влагозащитный 36 л",
+    "ozon_price": 2187.0,
+    "length_cm": 15,
+    "width_cm": 18,
+    "height_cm": 47,
+    "weight_g": 530,
+    "photos": [
+      "https://ir.ozone.ru/s3/multimedia-1-l/c50/7803411429.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-l/c100/7803411429.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-r/c50/7813793583.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-r/c100/7813793583.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-7/c50/7813489579.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-7/c100/7813489579.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-c/c50/7813489620.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-c/c100/7813489620.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-0/c50/7813488852.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-0/c100/7813488852.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-m/c50/7813489702.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-m/c100/7813489702.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-x/c50/7813489605.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-x/c100/7813489605.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-h/c50/7813489301.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-h/c100/7813489301.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-s/c50/7813489492.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-s/c100/7813489492.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-7/c50/7813489183.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-7/c100/7813489183.jpg"
+    ],
+    "description": "Спортивный мужской городской рюкзак 36 л с отделением для ноутбука 15.6 дюймов. Изготовлен из прочного водонепроницаемого материала Polyoxford 1680D с дышащей анатомической спинкой. Мягкие эргономичные лямки снижают нагрузку на позвоночник. Идеально подходит для работы, учебы, спорта и путешествий."
   }
 ]
