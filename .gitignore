@@ -1,0 +1,38 @@
+# Wildberries Fast Listing .gitignore
+
+# Credentials & Sensitive Configs
+config.json
+.env
+*.env
+*.pem
+*.key
+
+# Logs & Runtime
+*.log
+logs/
+.system_generated/
+
+# Python Cache & Virtual Environments
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Operating System & IDE Artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+
+# Build & Zip Artifacts
+*.zip
