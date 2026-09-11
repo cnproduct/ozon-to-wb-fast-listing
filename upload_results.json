@@ -186,5 +186,29 @@
     "sell_price": 2355,
     "stock": 10,
     "warehouse_id": 2200658
+  },
+  {
+    "sku": "5540637596",
+    "title": "Пена для замши и кожи очиститель обуви 150 мл",
+    "nmID": 1567964519,
+    "barcode": "2056489123462",
+    "vendorCode": "OZON-5540637596-v1",
+    "strike_price": 5240,
+    "discount": 50,
+    "sell_price": 2620,
+    "stock": 10,
+    "warehouse_id": 2200658
+  },
+  {
+    "sku": "1423256024",
+    "title": "Водоотталкивающая пропитка спрей для обуви 400 мл",
+    "nmID": 1567965115,
+    "barcode": "2056489129747",
+    "vendorCode": "OZON-1423256024-v1",
+    "strike_price": 15480,
+    "discount": 50,
+    "sell_price": 7740,
+    "stock": 10,
+    "warehouse_id": 2200658
   }
 ]

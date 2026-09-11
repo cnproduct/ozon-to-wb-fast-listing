@@ -466,5 +466,49 @@
     "strike_price": 4710,
     "barcode": "2056487662130",
     "nmID": 1567855485
+  },
+  {
+    "sku": "5540637596",
+    "title": "Пена для замши и кожи очиститель обуви 150 мл",
+    "subjectID": 677,
+    "vendorCode": "OZON-5540637596-v1",
+    "ozon_price": 524.0,
+    "length_cm": 5,
+    "width_cm": 5,
+    "height_cm": 18,
+    "weight_g": 260,
+    "brand": "",
+    "tnved": "3405100000",
+    "description": "Пена очиститель для обуви из кожи, замши, нубука и велюра. Эффективно удаляет загрязнения, восстанавливает структуру материала и сохраняет безупречный внешний вид обуви.",
+    "photos": [
+      "https://ir.ozone.ru/s3/multimedia-1-x/wc1000/14922118797.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-r/wc1000/13392620415.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-3/wc1000/13392620403.jpg"
+    ],
+    "strike_price": 5240,
+    "barcode": "2056489123462",
+    "nmID": 1567964519
+  },
+  {
+    "sku": "1423256024",
+    "title": "Водоотталкивающая пропитка спрей для обуви 400 мл",
+    "subjectID": 645,
+    "vendorCode": "OZON-1423256024-v1",
+    "ozon_price": 1548.0,
+    "length_cm": 6,
+    "width_cm": 6,
+    "height_cm": 23,
+    "weight_g": 320,
+    "brand": "",
+    "tnved": "3405100000",
+    "description": "Водоотталкивающая пропитка для всех типов обуви, одежды и снаряжения. Защищает от воды, грязи, реагентов и солевых разводов. Подходит для мембранных тканей, кожи, замши и текстиля.",
+    "photos": [
+      "https://ir.ozone.ru/s3/multimedia-1-6/wc1000/14820130626.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-a/wc1000/8086810834.jpg",
+      "https://ir.ozone.ru/s3/multimedia-1-8/wc1000/14820130628.jpg"
+    ],
+    "strike_price": 15480,
+    "barcode": "2056489129747",
+    "nmID": 1567965115
   }
 ]
