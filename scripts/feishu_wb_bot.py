@@ -408,9 +408,14 @@ def handle_text_commands(chat_id: str, raw_text: str) -> bool:
     if text_lower in ["状态", "配置", "查看配置", "wb状态"]:
         cfg = load_bot_config()
         token_set = bool((cfg.get("wb_api_token") or os.getenv("WB_API_TOKEN") or "").strip() not in ["", "YOUR_WB_API_TOKEN_HERE"])
-        wh_id = cfg.get("wb_warehouse_id") or os.getenv("WB_WAREHOUSE_ID") or 2156484
+        wh_id = cfg.get("wb_warehouse_id") or os.getenv("WB_WAREHOUSE_ID") or 2200658
+        store_name = cfg.get("store_name", "RR007")
+        operator = cfg.get("operator", "程智鹏")
+        owner = cfg.get("owner", "许惹人")
         lines = [
-            f"**Wildberries API Token**: {'✅ 已配置有效密钥' if token_set else '❌ 未配置 (请在 config.json 填入)'}",
+            f"**当前绑定店铺**: `{store_name}` (FBS 销售模式)",
+            f"**店铺负责人 / 老板**: `{operator}` / `{owner}`",
+            f"**Wildberries API Token**: {'✅ 已配置有效密钥' if token_set else '❌ 未配置'}",
             f"**履约仓库 ID**: `{wh_id}` (莫斯科1仓)",
             f"**默认售价倍数**: `{cfg.get('default_multiplier', 5.0)} 倍`",
             f"**默认官方折扣**: `{cfg.get('default_discount', 50)}%`",
