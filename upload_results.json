@@ -174,5 +174,17 @@
     "discount": 50,
     "sell_price": 3830,
     "stock": 10
+  },
+  {
+    "sku": "1417379421",
+    "title": "Универсальная пена для обуви и кроссовок очиститель 250 мл",
+    "nmID": 1567855485,
+    "barcode": "2056487662130",
+    "vendorCode": "OZON-1417379421-v1",
+    "strike_price": 4710,
+    "discount": 50,
+    "sell_price": 2355,
+    "stock": 10,
+    "warehouse_id": 2200658
   }
 ]

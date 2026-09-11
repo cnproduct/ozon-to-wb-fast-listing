@@ -196,9 +196,17 @@ class OzonCrawler:
         for u in photo_urls:
             if '/wc50/' in u or '/wc100/' in u:
                 continue
-            u_hd = re.sub(r'/wc\d+/', '/wc1000/', u)
+            u_hd = re.sub(r'/[c|wc]\d+/', '/wc1000/', u)
             if u_hd not in data['photos']:
                 data['photos'].append(u_hd)
+
+        # 4.1 全文图片兜底抽取 (若 webGallery 容器未包含多图)
+        if len(data['photos']) < 3:
+            all_raw_urls = re.findall(r'https://ir[^\s\"\'<>]+/multimedia[^\s\"\'<>]+\.(?:jpg|jpeg|png|webp)', html)
+            for u in all_raw_urls:
+                u_hd = re.sub(r'/[c|wc]\d+/', '/wc1000/', u)
+                if u_hd not in data['photos']:
+                    data['photos'].append(u_hd)
 
         # 5. 实时价格正则兜底
         if data['ozon_price'] <= 0:
