@@ -1,5 +1,27 @@
 [
   {
+    "sku": "3092284111",
+    "vendorCode": "OZON-3092284111-v2",
+    "subjectID": 80,
+    "title": "Детский игровой музыкальный набор 4 инструмента",
+    "ozon_price": 2941.0,
+    "length_cm": 28,
+    "width_cm": 20,
+    "height_cm": 8,
+    "weight_g": 650,
+    "photos": [
+      "https://ir-20.ozone.ru/s3/multimedia-1-y/wc1000/11180409190.jpg",
+      "https://ir-20.ozone.ru/s3/multimedia-1-w/wc1000/11180409188.jpg",
+      "https://ir-20.ozone.ru/s3/multimedia-1-0/wc1000/11180409192.jpg",
+      "https://ir-20.ozone.ru/s3/multimedia-1-2/wc1000/11180409194.jpg",
+      "https://ir-20.ozone.ru/s3/multimedia-1-1/wc1000/11180409193.jpg"
+    ],
+    "description": "Детский развивающий игровой музыкальный набор 4 в 1. Включает ксилофон, бубен, маракас и кастаньеты. Способствует развитию чувства ритма, мелкой моторики и слуха у детей.",
+    "strike_price": 29410,
+    "barcode": "2056461615923",
+    "nmID": 1566428507
+  },
+  {
     "sku": "3461665428",
     "vendorCode": "OZON-3461665428-v1",
     "subjectID": 80,
