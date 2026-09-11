@@ -152,5 +152,27 @@
     "discount": 50,
     "sell_price": 10935,
     "stock": 10
+  },
+  {
+    "sku": "724574142",
+    "title": "Рюкзак мужской городской спортивный для путешествий 40 л",
+    "nmID": 1567166226,
+    "barcode": "2056477280870",
+    "vendorCode": "OZON-724574142-v1",
+    "strike_price": 83670,
+    "discount": 50,
+    "sell_price": 41835,
+    "stock": 10
+  },
+  {
+    "sku": "3700858399",
+    "title": "Спрей для обуви антибактериальный от запаха Helmetex 100 мл",
+    "nmID": 1567170097,
+    "barcode": "2056477330896",
+    "vendorCode": "OZON-3700858399-v1",
+    "strike_price": 7660,
+    "discount": 50,
+    "sell_price": 3830,
+    "stock": 10
   }
 ]
