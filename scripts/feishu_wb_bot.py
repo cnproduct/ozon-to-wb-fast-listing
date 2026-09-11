@@ -60,31 +60,45 @@ if FEISHU_APP_ID and FEISHU_APP_SECRET:
 
 wb_client = WildberriesAPIClient()
 
-def send_feishu_reply(chat_id: str, text: str):
+def send_feishu_reply(chat_id: str, text: str, open_id: Optional[str] = None):
     """向指定飞书聊天窗口发送文本消息"""
     if not lark_client:
         print(f"[-] [飞书未配置] 无法发送消息给 {chat_id}: {text}")
         return
     try:
+        receive_type = "open_id" if str(chat_id).startswith("ou_") else "chat_id"
         req = lark.BaseRequest()
         req.http_method = lark.HttpMethod.POST
-        req.uri = "/open-apis/im/v1/messages?receive_id_type=chat_id"
+        req.uri = f"/open-apis/im/v1/messages?receive_id_type={receive_type}"
         req.token_types = {lark.AccessTokenType.TENANT}
         req.body = {
             "receive_id": chat_id,
             "msg_type": "text",
             "content": json.dumps({"text": text}, ensure_ascii=False)
         }
-        lark_client.request(req)
+        resp = lark_client.request(req)
+        if resp.code == 0:
+            print(f"[+] 飞书消息发送成功: {text[:30]}...")
+            return
+        print(f"[-] 飞书发送失败 (receive_id={chat_id}, type={receive_type}): code={resp.code}, msg={resp.msg}")
+        if open_id and open_id != chat_id:
+            req.uri = "/open-apis/im/v1/messages?receive_id_type=open_id"
+            req.body["receive_id"] = open_id
+            resp_fb = lark_client.request(req)
+            if resp_fb.code == 0:
+                print(f"[+] 飞书消息通过 open_id 发送成功: {text[:30]}...")
+            else:
+                print(f"[-] 飞书 open_id 备选发送亦失败: code={resp_fb.code}, msg={resp_fb.msg}")
     except Exception as e:
         print(f"[-] 发送飞书文本消息异常: {e}")
 
-def send_feishu_card(chat_id: str, title: str, content_lines: List[str], color: str = "blue"):
+def send_feishu_card(chat_id: str, title: str, content_lines: List[str], color: str = "blue", open_id: Optional[str] = None):
     """发送排版优雅的飞书消息卡片"""
     if not lark_client:
         print(f"[-] [飞书未配置] 无法发送卡片给 {chat_id}: {title}")
         return
     try:
+        receive_type = "open_id" if str(chat_id).startswith("ou_") else "chat_id"
         elements = [{"tag": "markdown", "content": "\n".join(content_lines)}]
         card = {
             "config": {"wide_screen_mode": True},
@@ -96,10 +110,22 @@ def send_feishu_card(chat_id: str, title: str, content_lines: List[str], color: 
         }
         req = lark.BaseRequest()
         req.http_method = lark.HttpMethod.POST
-        req.uri = "/open-apis/im/v1/messages?receive_id_type=chat_id"
+        req.uri = f"/open-apis/im/v1/messages?receive_id_type={receive_type}"
         req.token_types = {lark.AccessTokenType.TENANT}
         req.body = {"receive_id": chat_id, "msg_type": "interactive", "content": json.dumps(card, ensure_ascii=False)}
-        lark_client.request(req)
+        resp = lark_client.request(req)
+        if resp.code == 0:
+            print(f"[+] 飞书卡片发送成功: {title}")
+            return
+        print(f"[-] 飞书卡片发送失败 (receive_id={chat_id}, type={receive_type}): code={resp.code}, msg={resp.msg}")
+        if open_id and open_id != chat_id:
+            req.uri = "/open-apis/im/v1/messages?receive_id_type=open_id"
+            req.body["receive_id"] = open_id
+            resp_fb = lark_client.request(req)
+            if resp_fb.code == 0:
+                print(f"[+] 飞书卡片通过 open_id 发送成功: {title}")
+            else:
+                print(f"[-] 飞书卡片 open_id 备选发送亦失败: code={resp_fb.code}, msg={resp_fb.msg}")
     except Exception as e:
         print(f"[-] 发送飞书卡片异常: {e}")
 
@@ -156,12 +182,12 @@ def parse_inline_params(text: str, default_m: float = 5.0, default_d: int = 50, 
 
     return m, d, s
 
-def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0, discount: int = 50, stock: int = 10, custom_dims: Dict = None, task_progress: str = "") -> bool:
+def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0, discount: int = 50, stock: int = 10, custom_dims: Dict = None, task_progress: str = "", open_id: Optional[str] = None) -> bool:
     """后台执行单个 SKU 上架流水线"""
     prefix = f"{task_progress} " if task_progress else ""
     try:
         if not wb_client.token or wb_client.token == "YOUR_WB_API_TOKEN_HERE":
-            send_feishu_reply(chat_id, f"❌ 上架失败 (SKU: {sku}): 未配置有效 WB_API_TOKEN！请在 config.json 中配置您的 Wildberries 卖家 Token。")
+            send_feishu_reply(chat_id, f"❌ 上架失败 (SKU: {sku}): 未配置有效 WB_API_TOKEN！请在 config.json 中配置您的 Wildberries 卖家 Token。", open_id=open_id)
             return False
 
         # 1. 优先从本地 products.json 档案获取 (秒级命中)
@@ -192,13 +218,13 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
 
         # 3. 若抓取不到真实信息，安全阻断并提示，绝不盲目套用假数据
         if not product_data or not product_data.get("photos"):
-            send_feishu_reply(chat_id, f"⚠️ {prefix}SKU [{sku}] 未能从 Ozon 提取到真实标题或高清相册（可能触发了 Ozon 防爬挑战验证或商品已下架）。\n💡 建议：可直接将包含该 SKU 的 Excel 货盘表发送给机器人一键导入！")
+            send_feishu_reply(chat_id, f"⚠️ {prefix}SKU [{sku}] 未能从 Ozon 提取到真实标题或高清相册（可能触发了 Ozon 防爬挑战验证或商品已下架）。\n💡 建议：可直接将包含该 SKU 的 Excel 货盘表发送给机器人一键导入！", open_id=open_id)
             return False
 
         if custom_dims:
             product_data.update(custom_dims)
 
-        send_feishu_reply(chat_id, f"🚀 {prefix}正在为 SKU [{sku}]《{product_data['title'][:25]}...》启动 WB 官方 API 极速建卡流水线...")
+        send_feishu_reply(chat_id, f"🚀 {prefix}正在为 SKU [{sku}]《{product_data['title'][:25]}...》启动 WB 官方 API 极速建卡流水线...", open_id=open_id)
 
         # 4. 调用 WB 客户端一键上架（带自动货号冲突递增与 60 字标题安全截断）
         res = wb_client.upload_single_product(
@@ -245,20 +271,20 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
             f"---",
             f"✅ [点击直接在 WB 官网查看商品前台详情](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)"
         ]
-        send_feishu_card(chat_id, f"🎉 {prefix}商品上架成功 (SKU: {sku})", card_lines, color="green")
+        send_feishu_card(chat_id, f"🎉 {prefix}商品上架成功 (SKU: {sku})", card_lines, color="green", open_id=open_id)
         return True
 
     except Exception as e:
-        send_feishu_reply(chat_id, f"❌ {prefix}上架失败 (SKU: {sku}):\n{str(e)}")
+        send_feishu_reply(chat_id, f"❌ {prefix}上架失败 (SKU: {sku}):\n{str(e)}", open_id=open_id)
         return False
 
-def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0, discount: int = 50, stock: int = 10):
+def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0, discount: int = 50, stock: int = 10, open_id: Optional[str] = None):
     """批量上架任务工作线程 (支持列表文本与 TXT 文件)"""
     unique_skus = list(dict.fromkeys(skus))
     total = len(unique_skus)
 
     if total == 0:
-        send_feishu_reply(chat_id, "⚠️ 未检测到有效数字 SKU 列表。")
+        send_feishu_reply(chat_id, "⚠️ 未检测到有效数字 SKU 列表。", open_id=open_id)
         return
 
     start_card = [
@@ -269,7 +295,7 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
         "---",
         "🚀 **流水线已启动，机器人正在按顺序逐一抓取、合规建卡、挂图与激活现货...**"
     ]
-    send_feishu_card(chat_id, "📋 批量上架流水线启动", start_card, color="blue")
+    send_feishu_card(chat_id, "📋 批量上架流水线启动", start_card, color="blue", open_id=open_id)
 
     success_count = 0
     failed_count = 0
@@ -282,7 +308,8 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
                 multiplier=multiplier,
                 discount=discount,
                 stock=stock,
-                task_progress=f"[{i}/{total}]"
+                task_progress=f"[{i}/{total}]",
+                open_id=open_id
             )
             if ok:
                 success_count += 1
@@ -290,7 +317,7 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
                 failed_count += 1
         except Exception as e:
             failed_count += 1
-            send_feishu_reply(chat_id, f"❌ [{i}/{total}] SKU {sku} 运行异常: {e}")
+            send_feishu_reply(chat_id, f"❌ [{i}/{total}] SKU {sku} 运行异常: {e}", open_id=open_id)
             
         if i < total:
             time.sleep(2.0)
@@ -304,7 +331,7 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
         "💡 所有成功上架的商品均已实时配置售价、促销大促折与现货库存，买家端立即可搜！"
     ]
     summary_color = "green" if failed_count == 0 else "orange"
-    send_feishu_card(chat_id, "🏁 批量上架任务处理完毕", summary_lines, color=summary_color)
+    send_feishu_card(chat_id, "🏁 批量上架任务处理完毕", summary_lines, color=summary_color, open_id=open_id)
 
 def handle_excel_file_task(chat_id: str, file_path: str):
     """解析 Excel 表格并批量上架"""
@@ -356,7 +383,7 @@ def get_sensitive_brands_path() -> str:
         return p1
     return os.path.join(SCRIPT_DIR, '..', 'references', 'sensitive_brands.txt')
 
-def handle_text_commands(chat_id: str, raw_text: str) -> bool:
+def handle_text_commands(chat_id: str, raw_text: str, open_id: Optional[str] = None) -> bool:
     """处理避坑词库、配置状态等指令。如果处理了返回 True，否则返回 False"""
     text_lower = raw_text.lower().strip()
 
@@ -376,7 +403,7 @@ def handle_text_commands(chat_id: str, raw_text: str) -> bool:
             "---",
             "💡 如需新增品牌，可发送：`添加避坑: 品牌A, 品牌B`"
         ]
-        send_feishu_card(chat_id, "🛡️ 品牌避坑知识库", lines, color="blue")
+        send_feishu_card(chat_id, "🛡️ 品牌避坑知识库", lines, color="blue", open_id=open_id)
         return True
 
     # 2. 添加避坑品牌
@@ -384,7 +411,7 @@ def handle_text_commands(chat_id: str, raw_text: str) -> bool:
         raw_names = re.sub(r"^(?:添加避坑|[\+]避坑)[:：\s]+", "", raw_text)
         new_brands = [b.strip() for b in re.split(r"[,，\s\n]+", raw_names) if b.strip()]
         if not new_brands:
-            send_feishu_reply(chat_id, "⚠️ 请提供要添加的品牌名称，例如：`添加避坑: Nike, Adidas`")
+            send_feishu_reply(chat_id, "⚠️ 请提供要添加的品牌名称，例如：`添加避坑: Nike, Adidas`", open_id=open_id)
             return True
             
         brands_file = get_sensitive_brands_path()
@@ -399,9 +426,9 @@ def handle_text_commands(chat_id: str, raw_text: str) -> bool:
             with open(brands_file, "a", encoding="utf-8") as f:
                 for b in to_add:
                     f.write(f"\n{b}")
-            send_feishu_reply(chat_id, f"✅ 成功添加 {len(to_add)} 个品牌到避坑库：{', '.join(to_add)}！后续上架将自动执行脱敏。")
+            send_feishu_reply(chat_id, f"✅ 成功添加 {len(to_add)} 个品牌到避坑库：{', '.join(to_add)}！后续上架将自动执行脱敏。", open_id=open_id)
         else:
-            send_feishu_reply(chat_id, f"ℹ️ 这些品牌已存在于避坑库中：{', '.join(new_brands)}")
+            send_feishu_reply(chat_id, f"ℹ️ 这些品牌已存在于避坑库中：{', '.join(new_brands)}", open_id=open_id)
         return True
 
     # 3. 店铺与系统状态
@@ -423,7 +450,7 @@ def handle_text_commands(chat_id: str, raw_text: str) -> bool:
             "---",
             "💡 如需上架商品，直接输入 SKU 列表、包含参数的指令，或将 TXT/Excel 文件拖入聊天框。"
         ]
-        send_feishu_card(chat_id, "⚙️ 系统与店铺配置状态", lines, color="blue")
+        send_feishu_card(chat_id, "⚙️ 系统与店铺配置状态", lines, color="blue", open_id=open_id)
         return True
 
     return False
@@ -435,15 +462,18 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
         msg = data.event.message
         chat_id = msg.chat_id
         msg_type = msg.message_type
+        sender = getattr(data.event, "sender", None)
+        sender_id = getattr(sender, "sender_id", None) if sender else None
+        open_id = getattr(sender_id, "open_id", None) if sender_id else None
 
         # 1. 用户发送文本
         if msg_type == "text":
             text_json = json.loads(msg.content)
             raw_text = text_json.get("text", "").strip()
-            print(f"[+] 收到飞书文本消息: {raw_text}")
+            print(f"[+] 收到飞书文本消息 (chat_id={chat_id}, open_id={open_id}): {raw_text}")
 
             # 先检查是否为管理指令 (避坑词库、状态等)
-            if handle_text_commands(chat_id, raw_text):
+            if handle_text_commands(chat_id, raw_text, open_id=open_id):
                 return
 
             # 匹配 SKU 数字列表 (7~12 位数字，完美支持换行、空格、逗号等各类分隔符)
@@ -457,7 +487,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                 m, d, s = parse_inline_params(raw_text, def_m, def_d, def_s)
                 
                 # 启动后台批量执行线程
-                threading.Thread(target=batch_listing_worker, args=(chat_id, unique_skus, m, d, s)).start()
+                threading.Thread(target=batch_listing_worker, args=(chat_id, unique_skus, m, d, s, open_id)).start()
             else:
                 help_card = [
                     "👋 **我是 Wildberries 全自动极速上架助手！**",
@@ -470,7 +500,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                     "5️⃣ **管理品牌避坑库**：发送 `查看避坑` 或 `添加避坑: 品牌1, 品牌2`",
                     "6️⃣ **查看状态**：发送 `状态` 查看店铺 API 与参数配置。"
                 ]
-                send_feishu_card(chat_id, "💡 WB 极速上架助手使用指南", help_card, color="blue")
+                send_feishu_card(chat_id, "💡 WB 极速上架助手使用指南", help_card, color="blue", open_id=open_id)
 
         # 2. 用户发送文件 (Excel / TXT / CSV)
         elif msg_type == "file":

@@ -210,5 +210,60 @@
     "sell_price": 7740,
     "stock": 10,
     "warehouse_id": 2200658
+  },
+  {
+    "sku": "1873753217",
+    "title": "Футболка Mono Up Оверсайз 1 шт",
+    "vendorCode": "OZON-1873753217-v1",
+    "nmID": 1568949013,
+    "barcode": "2056502790954",
+    "sell_price": 4460,
+    "strike_price": 8920,
+    "stock": 12,
+    "status": "SUCCESS"
+  },
+  {
+    "sku": "1871835158",
+    "title": "Футболка NAIPACHE Heavyweight T-Shirt футболка из плотного хлопка",
+    "vendorCode": "OZON-1871835158-v1",
+    "nmID": 1568949765,
+    "barcode": "2056502794907",
+    "sell_price": 38642,
+    "strike_price": 77284,
+    "stock": 12,
+    "status": "SUCCESS"
+  },
+  {
+    "sku": "4785785657",
+    "title": "Футболка Reebok ID LOGO WASHED T-SHIRT 1 шт",
+    "vendorCode": "OZON-4785785657-v1",
+    "nmID": 1568950041,
+    "barcode": "2056502798776",
+    "sell_price": 16826,
+    "strike_price": 33652,
+    "stock": 12,
+    "status": "SUCCESS"
+  },
+  {
+    "sku": "4785796098",
+    "title": "Футболка Reebok ID LOGO WASHED T-SHIRT 1 шт",
+    "vendorCode": "OZON-4785796098-v1",
+    "nmID": 1568950368,
+    "barcode": "2056502801070",
+    "sell_price": 16826,
+    "strike_price": 33652,
+    "stock": 12,
+    "status": "SUCCESS"
+  },
+  {
+    "sku": "5589117004",
+    "title": "Футболка Reebok ATH SPEED T-SHIRT 1 шт",
+    "vendorCode": "OZON-5589117004-v1",
+    "nmID": 1568950829,
+    "barcode": "2056502803456",
+    "sell_price": 16826,
+    "strike_price": 33652,
+    "stock": 12,
+    "status": "SUCCESS"
   }
 ]
