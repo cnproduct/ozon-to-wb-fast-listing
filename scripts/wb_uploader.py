@@ -71,10 +71,17 @@ class WildberriesAPIClient:
             weight_kg = 0.1
 
         # 属性列表：无品牌授权严禁带 brand/Бренд，保持白牌合规
+        # 映射内部 subjectID 到 Wildberries 分类 ID
+        subject_map = {246: 192}  # 246 (内部) → 192 (WB Футболки)
+        wb_subject = subject_map.get(int(product.get('subjectID', 0)), int(product['subjectID']))
         chars = product.get('characteristics', [
-            {'Предмет': int(product['subjectID'])},
+            {'Предмет': wb_subject},
             {'ТНВЭД': str(product.get('tnved', '9504400000'))}
         ])
+        # 修正 characteristics 中的 Предмет 字段（如已包含错误的内部 ID）
+        for ch in chars:
+            if 'Предмет' in ch and int(ch['Предмет']) in subject_map:
+                ch['Предмет'] = subject_map[int(ch['Предмет'])]
 
         # 严格标题长度限制 (WB 官方限制 <= 60 字符)
         raw_title = str(product.get('title', ''))
@@ -105,7 +112,7 @@ class WildberriesAPIClient:
         for attempt in range(max_attempts):
             curr_vc = str(product['vendorCode'])
             payload = [{
-                'subjectID': int(product['subjectID']),
+                'subjectID': wb_subject,
                 'variants': [{
                     'vendorCode': curr_vc,
                     'title': title,
