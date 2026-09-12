@@ -34,6 +34,7 @@ sys.path.insert(0, SCRIPT_DIR)
 from wb_uploader import WildberriesAPIClient
 from ozon_crawler import OzonCrawler
 from store_manager import store_manager, decode_jwt_expiry
+from store_analytics import store_analytics
 
 def load_bot_config() -> Dict[str, Any]:
     candidates = [
@@ -536,6 +537,14 @@ def handle_text_commands(chat_id: str, raw_text: str, open_id: Optional[str] = N
         send_feishu_reply(chat_id, msg, open_id=open_id)
         return True
 
+    # 6. 跨境运营问答与实时数据中枢 (销量/出单/待发货/库存盘点/单品诊断/利润测算/避坑法规)
+    store_cfg = store_manager.get_store_for_chat(chat_id)
+    op_res = store_analytics.handle_operations_query(raw_text, store_cfg)
+    if op_res:
+        title, lines, color = op_res
+        send_feishu_card(chat_id, title, lines, color=color, open_id=open_id)
+        return True
+
     return False
 
 # ================= 飞书长连接消息事件监听 =================
@@ -555,7 +564,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             raw_text = text_json.get("text", "").strip()
             print(f"[+] 收到飞书文本消息 (chat_id={chat_id}, open_id={open_id}): {raw_text}")
 
-            # 先检查是否为管理指令 (避坑词库、状态、店铺绑定等)
+            # 先检查是否为管理指令 (避坑词库、状态、店铺绑定、运营数据查询等)
             if handle_text_commands(chat_id, raw_text, open_id=open_id):
                 return
 
@@ -574,17 +583,18 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             else:
                 curr_store = store_manager.get_store_for_chat(chat_id)
                 help_card = [
-                    "👋 **我是 Wildberries 全自动极速上架助手！**",
+                    "👋 **我是 Wildberries 全自动极速上架与智能运营管家！**",
                     f"🏢 **当前群绑定店铺**: `{curr_store.get('store_name')}` ({curr_store.get('warehouse_name')} `{curr_store.get('wb_warehouse_id')}`)",
                     "",
-                    "你可以通过以下方式随时指挥我：",
-                    "1️⃣ **直接发 SKU 列表**：直接发一个或多个 Ozon SKU（如 `1873753217 1871835158`），自动批量抓取并上架！",
-                    "2️⃣ **带参数快捷上架**：发送 `1873753217 1871835158 上架，价格按售价*4.5倍，库存设置12`！",
-                    "3️⃣ **拖入 TXT 文档**：把包含 SKU 列表的 `.txt` 文件直接发给机器人，自动批量处理！",
-                    "4️⃣ **拖入 Excel 货盘表**：把包含 SKU 及规格属性的 `.xlsx` 表格发给机器人，自动批量上架！",
-                    "5️⃣ **绑定专属店铺 (多群隔离)**：发送 `绑定店铺 店铺名 密钥:eyJ... 仓库:ID`",
-                    "6️⃣ **管理品牌避坑库**：发送 `查看避坑` 或 `添加避坑: 品牌1, 品牌2`",
-                    "7️⃣ **查看当前状态**：发送 `状态` 查看本群绑定的店铺、仓库与参数配置。"
+                    "你可以随时通过自然语言在群内向我提问：",
+                    "📈 **销售大盘**：发送 `今日销量`、`近7天销售额`、`出单`、`爆款排行`",
+                    "🚚 **履约发货**：发送 `待发货`、`新订单`、`发货截止时间` (严防 50% 违约罚款)",
+                    "📦 **现货库存**：发送 `查库存`、`剩余库存`、`缺货预警`",
+                    "🗂️ **商品健康**：发送 `卡片总数`、`审核状态`、`被拒原因` 或直接发送 `查 1873753217`",
+                    "🧮 **利润测算**：发送 `测算利润 990 4.5倍` 实时核算到手卢布与折合人民币净利",
+                    "🛡️ **运营合规**：发送 `罚款规则`、`类目佣金`、`俄罗斯尺码`、`查看避坑`",
+                    "⚙️ **店铺路由**：发送 `状态` 或 `绑定店铺 店铺名 密钥:eyJ... 仓库:ID`",
+                    "🚀 **极速上架**：直接发送 SKU 列表、自然语言带参数，或将 TXT/Excel 文件拖入聊天框！"
                 ]
                 send_feishu_card(chat_id, "💡 WB 极速上架助手使用指南", help_card, color="blue", open_id=open_id)
 
