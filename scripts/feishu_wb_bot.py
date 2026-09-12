@@ -33,6 +33,7 @@ sys.path.insert(0, SCRIPT_DIR)
 
 from wb_uploader import WildberriesAPIClient
 from ozon_crawler import OzonCrawler
+from store_manager import store_manager, decode_jwt_expiry
 
 def load_bot_config() -> Dict[str, Any]:
     candidates = [
@@ -182,13 +183,23 @@ def parse_inline_params(text: str, default_m: float = 5.0, default_d: int = 50, 
 
     return m, d, s
 
-def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0, discount: int = 50, stock: int = 10, custom_dims: Dict = None, task_progress: str = "", open_id: Optional[str] = None) -> bool:
-    """后台执行单个 SKU 上架流水线"""
+def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0, discount: int = 50, stock: int = 10, custom_dims: Dict = None, task_progress: str = "", open_id: Optional[str] = None, store_cfg: Optional[Dict] = None) -> bool:
+    """后台执行单个 SKU 上架流水线 (支持按 chat_id 动态路由目标店铺与凭据)"""
     prefix = f"{task_progress} " if task_progress else ""
     try:
-        if not wb_client.token or wb_client.token == "YOUR_WB_API_TOKEN_HERE":
-            send_feishu_reply(chat_id, f"❌ 上架失败 (SKU: {sku}): 未配置有效 WB_API_TOKEN！请在 config.json 中配置您的 Wildberries 卖家 Token。", open_id=open_id)
+        if not store_cfg:
+            store_cfg = store_manager.get_store_for_chat(chat_id)
+
+        target_token = store_cfg.get("wb_api_token", "").strip()
+        target_wh_id = int(store_cfg.get("wb_warehouse_id") or 2200658)
+        target_store_name = store_cfg.get("store_name", "默认店铺")
+        target_wh_name = store_cfg.get("warehouse_name", "履约仓")
+
+        if not target_token or target_token == "YOUR_WB_API_TOKEN_HERE":
+            send_feishu_reply(chat_id, f"❌ 上架失败 (SKU: {sku}): 本群尚未绑定有效 WB API 密钥！\n👉 请在群内发送：`绑定店铺 店铺名 密钥:eyJ... 仓库:ID` 进行配置。", open_id=open_id)
             return False
+
+        wb_client = WildberriesAPIClient(api_token=target_token, warehouse_id=target_wh_id)
 
         # 1. 优先从本地 products.json 档案获取 (秒级命中)
         product_data = None
@@ -224,7 +235,7 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
         if custom_dims:
             product_data.update(custom_dims)
 
-        send_feishu_reply(chat_id, f"🚀 {prefix}正在为 SKU [{sku}]《{product_data['title'][:25]}...》启动 WB 官方 API 极速建卡流水线...", open_id=open_id)
+        send_feishu_reply(chat_id, f"🚀 {prefix}正在为 SKU [{sku}]《{product_data['title'][:25]}...》上架至店铺【{target_store_name}】...", open_id=open_id)
 
         # 4. 调用 WB 客户端一键上架（带自动货号冲突递增与 60 字标题安全截断）
         res = wb_client.upload_single_product(
@@ -246,12 +257,14 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
                         item['nmID'] = res['nmID']
                         item['barcode'] = res['barcode']
                         item['vendorCode'] = res['vendorCode']
+                        item['target_store'] = target_store_name
                         updated = True
                         break
                 if not updated:
                     product_data['nmID'] = res['nmID']
                     product_data['barcode'] = res['barcode']
                     product_data['vendorCode'] = res['vendorCode']
+                    product_data['target_store'] = target_store_name
                     all_p.append(product_data)
                 with open(json_path, 'w', encoding='utf-8') as pf:
                     json.dump(all_p, pf, ensure_ascii=False, indent=2)
@@ -260,13 +273,14 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
 
         # 6. 组装飞书高亮卡片通知
         card_lines = [
+            f"**目标店铺**: `{target_store_name}` ({target_wh_name} `ID:{target_wh_id}`)",
             f"**商品标题**: {product_data['title']}",
             f"**商家货号**: `{res['vendorCode']}`",
             f"**WB 官方 nmID**: [{res['nmID']}](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)",
             f"**官方条形码**: `{res['barcode']}`",
             f"---",
             f"💰 **实售价格**: **{res['sell_price']} ₽** (划线标价 {res['strike_price']} ₽，立享 {res['discount']}% 官方大促折)",
-            f"📦 **莫斯科现货**: **{res['stock']} 件** (现货在售已秒级激活)",
+            f"📦 **现货库存**: **{res['stock']} 件** (现货在售已秒级激活)",
             f"📐 **包装规格**: {product_data.get('length_cm', 10)}×{product_data.get('width_cm', 10)}×{product_data.get('height_cm', 10)} cm | 毛重 {product_data.get('weight_g', 500)}g",
             f"---",
             f"✅ [点击直接在 WB 官网查看商品前台详情](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)"
@@ -280,6 +294,12 @@ def execute_single_listing_task(chat_id: str, sku: str, multiplier: float = 5.0,
 
 def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0, discount: int = 50, stock: int = 10, open_id: Optional[str] = None):
     """批量上架任务工作线程 (支持列表文本与 TXT 文件)"""
+    store_cfg = store_manager.get_store_for_chat(chat_id)
+    target_store_name = store_cfg.get("store_name", "默认店铺")
+    target_wh_name = store_cfg.get("warehouse_name", "履约仓")
+    target_wh_id = store_cfg.get("wb_warehouse_id", 2200658)
+    is_custom = store_cfg.get("is_custom_binding", False)
+
     unique_skus = list(dict.fromkeys(skus))
     total = len(unique_skus)
 
@@ -288,10 +308,12 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
         return
 
     start_card = [
+        f"**目标店铺**: `{target_store_name}` {'(专属绑定)' if is_custom else '(全局默认)'}",
+        f"**履约仓库**: `{target_wh_name}` (ID: `{target_wh_id}`)",
         f"**任务总数**: 共识别到 **{total}** 款商品 SKU",
         f"**实售倍数**: **{multiplier} 倍** (到手实付 = Ozon原价 × {multiplier})",
         f"**促销折扣**: **{discount}%** (前台高吸引力大促划线标价)",
-        f"**现货库存**: **{stock} 件** (莫斯科1仓现货秒级注入)",
+        f"**现货库存**: **{stock} 件** (现货秒级注入)",
         "---",
         "🚀 **流水线已启动，机器人正在按顺序逐一抓取、合规建卡、挂图与激活现货...**"
     ]
@@ -309,7 +331,8 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
                 discount=discount,
                 stock=stock,
                 task_progress=f"[{i}/{total}]",
-                open_id=open_id
+                open_id=open_id,
+                store_cfg=store_cfg
             )
             if ok:
                 success_count += 1
@@ -324,6 +347,7 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
 
     # 最终汇总卡片
     summary_lines = [
+        f"**目标店铺**: `{target_store_name}` (仓号: `{target_wh_id}`)",
         f"**处理结果**: 共 **{total}** 款商品",
         f"✅ **成功入库**: **{success_count}** 款",
         f"❌ **上架失败**: **{failed_count}** 款",
@@ -333,12 +357,13 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 5.0,
     summary_color = "green" if failed_count == 0 else "orange"
     send_feishu_card(chat_id, "🏁 批量上架任务处理完毕", summary_lines, color=summary_color, open_id=open_id)
 
-def handle_excel_file_task(chat_id: str, file_path: str):
+def handle_excel_file_task(chat_id: str, file_path: str, open_id: Optional[str] = None):
     """解析 Excel 表格并批量上架"""
     try:
+        store_cfg = store_manager.get_store_for_chat(chat_id)
         df = pd.read_excel(file_path)
         total = len(df)
-        send_feishu_reply(chat_id, f"📊 成功读取表格，共检测到 {total} 行商品数据，开始批量流水线处理...")
+        send_feishu_reply(chat_id, f"📊 成功读取表格，共检测到 {total} 行商品数据，将上架至店铺【{store_cfg.get('store_name')}】，开始批量流水线处理...", open_id=open_id)
         
         success = 0
         failed = 0
@@ -360,11 +385,13 @@ def handle_excel_file_task(chat_id: str, file_path: str):
             ok = execute_single_listing_task(
                 chat_id=chat_id,
                 sku=sku,
-                multiplier=float(row.get("售价倍数(默认5)", 5.0)),
-                discount=int(row.get("折扣百分比(默认50)", 50)),
-                stock=int(row.get("现货库存(默认10)", 10)),
+                multiplier=float(row.get("售价倍数(默认5)", store_cfg.get("default_multiplier", 5.0))),
+                discount=int(row.get("折扣百分比(默认50)", store_cfg.get("default_discount", 50))),
+                stock=int(row.get("现货库存(默认10)", store_cfg.get("default_stock", 10))),
                 custom_dims=custom_dims,
-                task_progress=f"[{idx+1}/{total}]"
+                task_progress=f"[{idx+1}/{total}]",
+                open_id=open_id,
+                store_cfg=store_cfg
             )
             if ok:
                 success += 1
@@ -372,9 +399,9 @@ def handle_excel_file_task(chat_id: str, file_path: str):
                 failed += 1
             time.sleep(2.0)
 
-        send_feishu_reply(chat_id, f"🏁 恭喜！当前表格中的全部商品已批量处理完毕 (成功: {success}, 失败: {failed})！")
+        send_feishu_reply(chat_id, f"🏁 恭喜！当前表格中的全部商品已批量处理完毕 (成功: {success}, 失败: {failed})！", open_id=open_id)
     except Exception as e:
-        send_feishu_reply(chat_id, f"❌ 处理 Excel 表格失败: {e}")
+        send_feishu_reply(chat_id, f"❌ 处理 Excel 表格失败: {e}", open_id=open_id)
 
 def get_sensitive_brands_path() -> str:
     """获取敏感品牌知识库路径"""
@@ -431,26 +458,82 @@ def handle_text_commands(chat_id: str, raw_text: str, open_id: Optional[str] = N
             send_feishu_reply(chat_id, f"ℹ️ 这些品牌已存在于避坑库中：{', '.join(new_brands)}", open_id=open_id)
         return True
 
-    # 3. 店铺与系统状态
-    if text_lower in ["状态", "配置", "查看配置", "wb状态"]:
-        cfg = load_bot_config()
-        token_set = bool((cfg.get("wb_api_token") or os.getenv("WB_API_TOKEN") or "").strip() not in ["", "YOUR_WB_API_TOKEN_HERE"])
-        wh_id = cfg.get("wb_warehouse_id") or os.getenv("WB_WAREHOUSE_ID") or 2200658
-        store_name = cfg.get("store_name", "RR007")
-        operator = cfg.get("operator", "程智鹏")
-        owner = cfg.get("owner", "许惹人")
+    # 3. 店铺与系统状态 (支持群级别独立显示)
+    if text_lower in ["状态", "配置", "查看配置", "wb状态", "店铺状态", "查看店铺"]:
+        store_cfg = store_manager.get_store_for_chat(chat_id)
+        is_custom = store_cfg.get("is_custom_binding", False)
+        token_set = bool(store_cfg.get("wb_api_token") and "YOUR_WB_API_TOKEN" not in store_cfg.get("wb_api_token"))
+        wh_id = store_cfg.get("wb_warehouse_id", 2200658)
+        wh_name = store_cfg.get("warehouse_name", "莫斯科1仓")
+        store_name = store_cfg.get("store_name", "RR007")
+        exp = store_cfg.get("token_expiry") or decode_jwt_expiry(store_cfg.get("wb_api_token", ""))
+        bound_at = store_cfg.get("bound_at", "初始系统预置")
+        
         lines = [
-            f"**当前绑定店铺**: `{store_name}` (FBS 销售模式)",
-            f"**店铺负责人 / 老板**: `{operator}` / `{owner}`",
-            f"**Wildberries API Token**: {'✅ 已配置有效密钥' if token_set else '❌ 未配置'}",
-            f"**履约仓库 ID**: `{wh_id}` (莫斯科1仓)",
-            f"**默认售价倍数**: `{cfg.get('default_multiplier', 5.0)} 倍`",
-            f"**默认官方折扣**: `{cfg.get('default_discount', 50)}%`",
-            f"**默认备货库存**: `{cfg.get('default_stock', 10)} 件`",
+            f"**当前会话 ID**: `{chat_id}`",
+            f"**店铺绑定状态**: {'🟢 **专属店铺绑定** (多租户独立隔离)' if is_custom else '⚪ **全局默认店铺** (兜底共享)'}",
+            f"**当前目标店铺**: `{store_name}`",
+            f"**履约仓库信息**: `{wh_name}` (ID: `{wh_id}`)",
+            f"**Wildberries 密钥**: {'✅ 已配置有效密钥' if token_set else '❌ 未配置'} (有效期至: `{exp}`)",
+            f"**默认售价倍数**: `{store_cfg.get('default_multiplier', 5.0)} 倍`",
+            f"**默认官方折扣**: `{store_cfg.get('default_discount', 50)}%`",
+            f"**默认现货库存**: `{store_cfg.get('default_stock', 10)} 件`",
+            f"**配置绑定时间**: `{bound_at}`",
             "---",
-            "💡 如需上架商品，直接输入 SKU 列表、包含参数的指令，或将 TXT/Excel 文件拖入聊天框。"
+            "💡 **多群路由指令**：",
+            "👉 绑定/更换本群店铺：`绑定店铺 店铺名 密钥:eyJ... 仓库:ID 4.5倍 50折 12库存`",
+            "👉 解绑恢复全局默认：`解绑店铺`"
         ]
         send_feishu_card(chat_id, "⚙️ 系统与店铺配置状态", lines, color="blue", open_id=open_id)
+        return True
+
+    # 4. 绑定专属店铺 (支持自然语言多字段提取与官方 API 实时验真)
+    if raw_text.startswith("绑定店铺") or raw_text.startswith("+店铺") or raw_text.startswith("绑定"):
+        parsed = store_manager.parse_binding_command(raw_text)
+        if parsed and parsed.get("token"):
+            send_feishu_reply(chat_id, "⏳ 正在通过 Wildberries 官方 API 验真您的店铺密钥与可用仓库列表，请稍候...", open_id=open_id)
+            ok, msg, store = store_manager.bind_store(
+                chat_id=chat_id,
+                store_name=parsed.get("store_name", ""),
+                token=parsed["token"],
+                warehouse_id=parsed.get("warehouse_id"),
+                multiplier=parsed.get("multiplier", 5.0),
+                discount=parsed.get("discount", 50),
+                stock=parsed.get("stock", 10),
+                bound_by=str(open_id or chat_id)
+            )
+            if ok:
+                send_feishu_reply(chat_id, msg, open_id=open_id)
+            else:
+                send_feishu_reply(chat_id, msg, open_id=open_id)
+            return True
+        else:
+            curr_store = store_manager.get_store_for_chat(chat_id)
+            guide_lines = [
+                "🏢 **Wildberries 多群多租户店铺绑定指南**",
+                f"当前群绑定状态: **{'【专属店铺】' if curr_store.get('is_custom_binding') else '【全局默认店铺】'}** `{curr_store.get('store_name')}`",
+                f"当前履约仓: `{curr_store.get('warehouse_name', '仓库')}` (ID: `{curr_store.get('wb_warehouse_id')}`)",
+                "---",
+                "👉 **在本群直接发送绑定指令（任选一种格式即可）：**",
+                "",
+                "1️⃣ **自然语言式（最灵活）**：",
+                "`绑定店铺 店铺简称:RR008 密钥:eyJ... 仓库:2200658 4.5倍 50折 12库存`",
+                "",
+                "2️⃣ **快捷简短式（最快速）**：",
+                "`绑定店铺 RR008 eyJhbGciOi... 2200658`",
+                "---",
+                "🔒 **安全与隔离保障**：",
+                "• 机器人自动通过 WB 官方 API 验真 Token 有效性，验证失败绝不保存。",
+                "• 绑定成功后，本群所有成员发送的 SKU / 表格将 100% 自动上架至该专属店铺！",
+                "• 如需恢复默认共享店铺，直接发送：`解绑店铺`"
+            ]
+            send_feishu_card(chat_id, "📋 店铺绑定操作向导", guide_lines, color="blue", open_id=open_id)
+            return True
+
+    # 5. 解绑专属店铺
+    if text_lower in ["解绑店铺", "解绑", "重置店铺", "清除店铺"]:
+        ok, msg = store_manager.unbind_store(chat_id)
+        send_feishu_reply(chat_id, msg, open_id=open_id)
         return True
 
     return False
@@ -472,7 +555,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             raw_text = text_json.get("text", "").strip()
             print(f"[+] 收到飞书文本消息 (chat_id={chat_id}, open_id={open_id}): {raw_text}")
 
-            # 先检查是否为管理指令 (避坑词库、状态等)
+            # 先检查是否为管理指令 (避坑词库、状态、店铺绑定等)
             if handle_text_commands(chat_id, raw_text, open_id=open_id):
                 return
 
@@ -480,25 +563,28 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             found_skus = re.findall(r"(?<!\d)\d{7,12}(?!\d)", raw_text)
             unique_skus = list(dict.fromkeys(found_skus))
             if unique_skus:
-                cfg = load_bot_config()
-                def_m = float(cfg.get("default_multiplier", 5.0))
-                def_d = int(cfg.get("default_discount", 50))
-                def_s = int(cfg.get("default_stock", 10))
+                store_cfg = store_manager.get_store_for_chat(chat_id)
+                def_m = float(store_cfg.get("default_multiplier", 5.0))
+                def_d = int(store_cfg.get("default_discount", 50))
+                def_s = int(store_cfg.get("default_stock", 10))
                 m, d, s = parse_inline_params(raw_text, def_m, def_d, def_s)
                 
                 # 启动后台批量执行线程
                 threading.Thread(target=batch_listing_worker, args=(chat_id, unique_skus, m, d, s, open_id)).start()
             else:
+                curr_store = store_manager.get_store_for_chat(chat_id)
                 help_card = [
                     "👋 **我是 Wildberries 全自动极速上架助手！**",
+                    f"🏢 **当前群绑定店铺**: `{curr_store.get('store_name')}` ({curr_store.get('warehouse_name')} `{curr_store.get('wb_warehouse_id')}`)",
                     "",
                     "你可以通过以下方式随时指挥我：",
-                    "1️⃣ **直接发 SKU 列表**：直接发一个或多个 Ozon SKU（如 `3461665428 5355581747`），自动批量抓取并上架！",
-                    "2️⃣ **带参数快捷上架**：发送 `3461665428 5355581747 上架，价格按售价*5倍，库存设置10`！",
+                    "1️⃣ **直接发 SKU 列表**：直接发一个或多个 Ozon SKU（如 `1873753217 1871835158`），自动批量抓取并上架！",
+                    "2️⃣ **带参数快捷上架**：发送 `1873753217 1871835158 上架，价格按售价*4.5倍，库存设置12`！",
                     "3️⃣ **拖入 TXT 文档**：把包含 SKU 列表的 `.txt` 文件直接发给机器人，自动批量处理！",
                     "4️⃣ **拖入 Excel 货盘表**：把包含 SKU 及规格属性的 `.xlsx` 表格发给机器人，自动批量上架！",
-                    "5️⃣ **管理品牌避坑库**：发送 `查看避坑` 或 `添加避坑: 品牌1, 品牌2`",
-                    "6️⃣ **查看状态**：发送 `状态` 查看店铺 API 与参数配置。"
+                    "5️⃣ **绑定专属店铺 (多群隔离)**：发送 `绑定店铺 店铺名 密钥:eyJ... 仓库:ID`",
+                    "6️⃣ **管理品牌避坑库**：发送 `查看避坑` 或 `添加避坑: 品牌1, 品牌2`",
+                    "7️⃣ **查看当前状态**：发送 `状态` 查看本群绑定的店铺、仓库与参数配置。"
                 ]
                 send_feishu_card(chat_id, "💡 WB 极速上架助手使用指南", help_card, color="blue", open_id=open_id)
 
@@ -512,17 +598,17 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
             if file_name.endswith((".xlsx", ".xls")):
                 os.makedirs("./downloads", exist_ok=True)
                 save_path = os.path.join("./downloads", file_name)
-                send_feishu_reply(chat_id, f"📥 收到上架表格【{file_name}】，正在下载并解析...")
+                send_feishu_reply(chat_id, f"📥 收到上架表格【{file_name}】，正在下载并解析...", open_id=open_id)
                 
                 if download_message_resource(msg.message_id, file_key, save_path):
-                    threading.Thread(target=handle_excel_file_task, args=(chat_id, save_path)).start()
+                    threading.Thread(target=handle_excel_file_task, args=(chat_id, save_path, open_id)).start()
                 else:
-                    send_feishu_reply(chat_id, f"❌ 下载表格文件【{file_name}】失败，请检查机器人文件下载权限。")
+                    send_feishu_reply(chat_id, f"❌ 下载表格文件【{file_name}】失败，请检查机器人文件下载权限。", open_id=open_id)
 
             elif file_name.endswith((".txt", ".csv")):
                 os.makedirs("./downloads", exist_ok=True)
                 save_path = os.path.join("./downloads", file_name)
-                send_feishu_reply(chat_id, f"📥 收到 SKU 文本文件【{file_name}】，正在下载并提取...")
+                send_feishu_reply(chat_id, f"📥 收到 SKU 文本文件【{file_name}】，正在下载并提取...", open_id=open_id)
                 
                 if download_message_resource(msg.message_id, file_key, save_path):
                     with open(save_path, "r", encoding="utf-8", errors="ignore") as tf:
@@ -530,24 +616,25 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                     skus = re.findall(r"(?<!\d)\d{7,12}(?!\d)", content)
                     unique_skus = list(dict.fromkeys(skus))
                     if unique_skus:
-                        cfg = load_bot_config()
-                        def_m = float(cfg.get("default_multiplier", 5.0))
-                        def_d = int(cfg.get("default_discount", 50))
-                        def_s = int(cfg.get("default_stock", 10))
+                        store_cfg = store_manager.get_store_for_chat(chat_id)
+                        def_m = float(store_cfg.get("default_multiplier", 5.0))
+                        def_d = int(store_cfg.get("default_discount", 50))
+                        def_s = int(store_cfg.get("default_stock", 10))
                         m, d, s = parse_inline_params(file_name, def_m, def_d, def_s)
 
-                        send_feishu_reply(chat_id, f"📄 从【{file_name}】成功提取出 {len(unique_skus)} 个有效商品 SKU，正在启动批量流水线！")
+                        send_feishu_reply(chat_id, f"📄 从【{file_name}】成功提取出 {len(unique_skus)} 个有效商品 SKU，正在启动批量流水线！", open_id=open_id)
                         threading.Thread(target=batch_listing_worker, args=(
                             chat_id, 
                             unique_skus, 
                             m, 
                             d, 
-                            s
+                            s,
+                            open_id
                         )).start()
                     else:
-                        send_feishu_reply(chat_id, f"⚠️ 在文本文件【{file_name}】中未识别到有效数字 SKU。")
+                        send_feishu_reply(chat_id, f"⚠️ 在文本文件【{file_name}】中未识别到有效数字 SKU。", open_id=open_id)
                 else:
-                    send_feishu_reply(chat_id, f"❌ 下载文本文件【{file_name}】失败。")
+                    send_feishu_reply(chat_id, f"❌ 下载文本文件【{file_name}】失败。", open_id=open_id)
 
     except Exception as e:
         print(f"[-] 消息处理异常: {e}")
