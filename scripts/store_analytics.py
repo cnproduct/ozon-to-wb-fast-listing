@@ -168,15 +168,15 @@ class StoreAnalytics:
                 pass
 
         total_skus = len(items)
-        total_units = sum(int(it.get('stock', 0)) for it in items)
-        low_stock_items = [it for it in items if int(it.get('stock', 0)) < 5 and it.get('nmID')]
+        total_units = sum(int(it.get('stock') or 0) for it in items)
+        low_stock_items = [it for it in items if int(it.get('stock') or 0) < 5 and it.get('nmID')]
 
         return {
             "total_skus": total_skus,
             "total_units": total_units,
             "low_stock_count": len(low_stock_items),
             "low_stock_list": [
-                f"{it.get('title')[:20]}... (SKU: {it.get('sku')}, 仅剩 {it.get('stock')} 件)"
+                f"{it.get('title', '')[:20]}... (SKU: {it.get('sku')}, 仅剩 {it.get('stock') if it.get('stock') is not None else 0} 件)"
                 for it in low_stock_items[:5]
             ]
         }
@@ -233,6 +233,10 @@ class StoreAnalytics:
         wh_id = store_cfg.get("wb_warehouse_id", 2200658)
         store_name = store_cfg.get("store_name", "默认店铺")
 
+        # 如果包含明显的“上架”操作意图（且不是问“上架了多少/上架总数”），直接放行给上架引擎，绝不拦截！
+        if "上架" in text and not any(q in text for q in ["上架了多少", "上架总数", "上架数量", "上架进度"]):
+            return None
+
         # ---------------- 场景 A: 销量与业绩统计 ----------------
         if any(w in text for w in ["销量", "销售额", "出单", "卖了多少", "今天卖了", "业绩", "今日数据"]):
             days = 7 if any(w in text for w in ["周", "7天", "近七天"]) else (30 if any(w in text for w in ["月", "30天"]) else 1)
@@ -262,7 +266,7 @@ class StoreAnalytics:
             return f"📈 店铺销售业绩报告 ({time_label})", lines, "green" if rep['order_count'] > 0 else "blue"
 
         # ---------------- 场景 B: 待发货与物流履约 ----------------
-        if any(w in text for w in ["待发货", "发货", "新订单", "有订单吗", "发货截止", "物流"]):
+        if any(w in text for w in ["待发货", "新订单", "有订单吗", "发货截止", "物流时效"]):
             orders_res = self.get_pending_orders(token)
             if "error" in orders_res:
                 return "🚚 待发货订单查询", [f"⚠️ 获取店铺【{store_name}】待发货订单失败：", f"`{orders_res['error']}`"], "red"
@@ -292,7 +296,11 @@ class StoreAnalytics:
                 return f"🚨 待发货紧急提醒 ({cnt} 单待处理)", lines, "orange"
 
         # ---------------- 场景 C: 库存盘点与缺货预警 ----------------
-        if any(w in text for w in ["库存", "剩余库存", "查库存", "缺货", "补货", "断货"]):
+        is_stock_query = (
+            any(w in text for w in ["查库存", "查看库存", "剩余库存", "看库存", "库存盘点", "缺货预警", "补货清单", "断货", "缺货", "有多少库存"])
+            or text in ["库存", "店铺库存", "现货库存", "剩余", "在库库存"]
+        )
+        if is_stock_query and not any(op in text for op in ["设置", "改", "改为", "修改", "倍", "折", "*", "售价"]):
             inv = self.get_inventory_summary(token, wh_id)
             lines = [
                 f"**目标店铺**: `{store_name}` | **履约仓 ID**: `{wh_id}`",
