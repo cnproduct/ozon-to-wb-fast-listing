@@ -29,6 +29,7 @@ def get_active_config():
     """多级配置智能加载：命令行 > 环境变量 > config.json (绝不写死任何本机硬编码路径)"""
     token = os.getenv('WB_API_TOKEN')
     warehouse_id = os.getenv('WB_WAREHOUSE_ID')
+    config_dict = {}
     
     # 纯相对路径与通用路径探测
     search_paths = [
@@ -42,18 +43,21 @@ def get_active_config():
             try:
                 with open(p, 'r', encoding='utf-8') as f:
                     data = json.load(f)
+                    config_dict = data
                     if not token and data.get('wb_api_token') and 'YOUR_WB_API_TOKEN' not in data.get('wb_api_token'):
                         token = data.get('wb_api_token')
                     if not warehouse_id and data.get('wb_warehouse_id'):
                         warehouse_id = data.get('wb_warehouse_id')
             except Exception:
                 pass
-    return token, int(warehouse_id) if warehouse_id else 2156484
+            break
+    return token, int(warehouse_id) if warehouse_id else 2156484, config_dict
 
-ACTIVE_TOKEN, ACTIVE_WAREHOUSE_ID = get_active_config()
+ACTIVE_TOKEN, ACTIVE_WAREHOUSE_ID, ACTIVE_CONFIG = get_active_config()
 
 DEFAULT_TOKEN = ACTIVE_TOKEN
 DEFAULT_WAREHOUSE_ID = ACTIVE_WAREHOUSE_ID
+DEFAULT_CONFIG = ACTIVE_CONFIG
 
 class ListingValidationError(Exception):
     """上架前置数据质量校验异常"""
@@ -88,14 +92,35 @@ def smart_truncate_description(text: str, max_chars: int = 1950) -> str:
     return truncated.rstrip() + '.'
 
 class WBListingStudio:
-    def __init__(self, token: Optional[str] = None, warehouse_id: Optional[int] = None):
+    def __init__(self, token: Optional[str] = None, warehouse_id: Optional[int] = None, config: Optional[Dict[str, Any]] = None):
         self.token = token or DEFAULT_TOKEN
         self.warehouse_id = warehouse_id or DEFAULT_WAREHOUSE_ID
+        self.config = config or DEFAULT_CONFIG or {}
         self.headers = {
             'Authorization': self.token or '',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
+        self._cached_store_currency = None
+
+    def get_store_currency(self) -> str:
+        """检测并缓存当前 WB 店铺结算币种 (如 CNY, RUB 等)"""
+        if self._cached_store_currency:
+            return self._cached_store_currency
+        if self.config.get('store_currency'):
+            self._cached_store_currency = str(self.config.get('store_currency')).upper()
+            return self._cached_store_currency
+        try:
+            url = 'https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter?limit=1'
+            r = requests.get(url, headers=self.headers, timeout=10).json()
+            goods = r.get('data', {}).get('listGoods', [])
+            if goods and 'currencyIsoCode4217' in goods[0]:
+                self._cached_store_currency = goods[0]['currencyIsoCode4217'].upper()
+                return self._cached_store_currency
+        except Exception:
+            pass
+        self._cached_store_currency = 'CNY'  # 跨境店铺默认币种 CNY
+        return self._cached_store_currency
 
     def validate_product_data(self, p: Dict[str, Any]) -> None:
         """
@@ -119,27 +144,78 @@ class WBListingStudio:
         if not subject_id or int(subject_id) <= 0:
             raise ListingValidationError(f"[ERROR] [数据阻断] SKU [{sku}] 未能匹配到有效的 WB 官方类目 ID (subjectID)，上架终止！")
 
-        # 4. 尺寸与重量智能适配（优先真实数据，缺失时按品类智能安全补全，绝不中断上架）
-        title_lower = title.lower()
-        if not p.get('length_cm') or float(p.get('length_cm', 0)) <= 0:
-            if any(w in title_lower for w in ['дрель', 'шуруповерт', 'пылесос', 'электро', 'набор инструментов']):
-                p['length_cm'], p['width_cm'], p['height_cm'] = 28, 22, 10
-            elif any(w in title_lower for w in ['футболка', 'одежда', 'рубашка', 'платье', 'штаны']):
-                p['length_cm'], p['width_cm'], p['height_cm'] = 30, 20, 3
-            elif any(w in title_lower for w in ['чехол', 'кабель', 'аксессуар', 'мелочь']):
-                p['length_cm'], p['width_cm'], p['height_cm'] = 15, 10, 3
+        # 4. 尺寸与重量高拟真物理包装计算 (严格遵循商品实际物理形态，杜绝全店千篇一律模板数值)
+        has_real_dims = p.get('length_cm') and float(p.get('length_cm', 0)) > 0
+        has_real_weight = p.get('weight_g') and int(p.get('weight_g', 0)) > 0
+        
+        if not (has_real_dims and has_real_weight):
+            tl = (title + " " + p.get('description', '')).lower()
+            
+            # A. 电动工具与五金器具 (箱装/盒装)
+            if any(w in tl for w in ['дрель', 'шуруповерт', 'перфоратор', 'гайковерт', 'аккумулятор']):
+                if 'в кейсе' in tl or 'кейс' in tl:
+                    dims, wt = (32, 28, 10), 2200
+                else:
+                    dims, wt = (24, 20, 8), 1400
             else:
-                p['length_cm'], p['width_cm'], p['height_cm'] = 20, 15, 8
+                # B. 解析商品容量 (ml) 或净重 (g)
+                m_vol = re.search(r'(\d+)\s*(?:мл|ml)\b', tl)
+                vol_ml = int(m_vol.group(1)) if m_vol else None
+                m_wt = re.search(r'(\d+)\s*(?:г|гр|g)\b', tl)
+                wt_g = int(m_wt.group(1)) if m_wt else None
+                
+                if vol_ml:
+                    if vol_ml <= 5:       # 3-5ml 极细药膏点涂管/眼部小滴管
+                        dims, wt = (12, 3, 2), 40
+                    elif vol_ml <= 15:    # 10-15ml 眼霜/浓缩精华
+                        dims, wt = (13, 4, 3), 60
+                    elif vol_ml <= 30:    # 30ml 标准精华滴管瓶
+                        dims, wt = (11, 4, 4), 100
+                    elif vol_ml <= 50:    # 50ml 面霜圆罐或乳液瓶
+                        if any(k in tl for k in ['крем', 'cream', 'маска', 'бальзам']):
+                            dims, wt = (8, 8, 6), 160
+                        else:
+                            dims, wt = (13, 5, 4), 130
+                    elif vol_ml <= 100:   # 100ml 软管/便携瓶
+                        dims, wt = (16, 5, 4), 150
+                    elif vol_ml <= 150:   # 150ml 洁面乳/喷雾
+                        dims, wt = (17, 5, 5), 210
+                    elif vol_ml <= 250:   # 200-250ml 身体乳/润肤乳
+                        dims, wt = (19, 6, 6), 320
+                    elif vol_ml <= 500:   # 300-500ml 大容量洗发水/沐浴露
+                        dims, wt = (22, 8, 7), 560
+                    else:
+                        dims, wt = (25, 10, 9), int(vol_ml * 1.15)
+                elif wt_g:
+                    if wt_g <= 30:
+                        dims, wt = (12, 3, 2), wt_g + 15
+                    elif wt_g <= 60:
+                        dims, wt = (8, 8, 6), wt_g + 50
+                    elif wt_g <= 120:
+                        dims, wt = (14, 5, 4), wt_g + 40
+                    elif wt_g <= 300:
+                        dims, wt = (18, 6, 5), wt_g + 60
+                    else:
+                        dims, wt = (24, 16, 10), int(wt_g * 1.2)
+                elif any(k in tl for k in ['сыворотк', 'serum', 'эссенци']):
+                    dims, wt = (11, 4, 4), 100
+                elif any(k in tl for k in ['крем', 'cream']):
+                    dims, wt = (8, 8, 6), 160
+                elif any(k in tl for k in ['маск', 'mask']):
+                    dims, wt = (15, 11, 2), 70
+                elif any(k in tl for k in ['чистк', 'пенк', 'гель для умывания']):
+                    dims, wt = (17, 5, 5), 180
+                elif any(k in tl for k in ['футболка', 'одежда', 'рубашка', 'платье']):
+                    dims, wt = (30, 20, 3), 250
+                elif any(k in tl for k in ['чехол', 'кабель', 'аксессуар']):
+                    dims, wt = (15, 10, 3), 120
+                else:
+                    dims, wt = (14, 7, 5), 120
 
-        if not p.get('weight_g') or int(p.get('weight_g', 0)) <= 0:
-            if any(w in title_lower for w in ['дрель', 'шуруповерт', 'пылесос', 'инструмент']):
-                p['weight_g'] = 1500
-            elif any(w in title_lower for w in ['футболка', 'одежда', 'текстиль']):
-                p['weight_g'] = 250
-            elif any(w in title_lower for w in ['чехол', 'кабель', 'адаптер']):
-                p['weight_g'] = 120
-            else:
-                p['weight_g'] = 500
+            if not has_real_dims:
+                p['length_cm'], p['width_cm'], p['height_cm'] = dims
+            if not has_real_weight:
+                p['weight_g'] = wt
 
     def match_best_subject(self, title: str, category_path: str = "", product_type: str = "", auto_learn: bool = True) -> Optional[int]:
         """
@@ -502,10 +578,25 @@ class WBListingStudio:
                 p['subjectID'] = best_sub
             self.validate_product_data(p)
 
-            # 锚定效应价格计算
-            ozon_price = float(p.get('ozon_price', 1000.0))
-            target_sell_price = round(ozon_price * multiplier)
-            strike_price = math.ceil(target_sell_price / (1.0 - (discount_percent / 100.0)))
+            # 锚定效应价格计算 (支持多币种店铺：跨境 CNY 店铺 vs 本土 RUB 店铺)
+            ozon_rub = float(p.get('ozon_price', 1000.0))
+            target_buyer_rub = round(ozon_rub * multiplier)
+            
+            store_currency = self.get_store_currency()
+            wb_rub_rate = float(self.config.get('wb_rub_rate') or self.config.get('rub_exchange_rate') or 11.672619)
+            
+            if store_currency == 'CNY':
+                # 中国跨境卖家店铺 (结算币种为 CNY)
+                # 卖家下发价格必须为人民币，买家端由 WB 自动折算为卢布展示
+                target_sell_price = max(1, round(target_buyer_rub / wb_rub_rate))
+                strike_price = max(2, math.ceil(target_sell_price / (1.0 - (discount_percent / 100.0))))
+                p['currency'] = 'CNY'
+                print(f"  [汇率换算] 店铺币种: CNY | Ozon 原价 {ozon_rub:.0f}₽ × {multiplier}倍 ➔ 前台目标 {target_buyer_rub}₽ ➔ 下发价格: 实售价 {target_sell_price}元, 划线价 {strike_price}元 (汇率: {wb_rub_rate})")
+            else:
+                # 俄罗斯本土卖家店铺 (结算币种为 RUB)
+                target_sell_price = max(1, round(target_buyer_rub))
+                strike_price = max(2, math.ceil(target_sell_price / (1.0 - (discount_percent / 100.0))))
+                p['currency'] = 'RUB'
             
             p['strike_price'] = strike_price
             p['target_sell_price'] = target_sell_price

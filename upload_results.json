@@ -5,12 +5,13 @@
     "nmID": 1572608063,
     "vendorCode": "OZON-3628695725-v1",
     "barcode": "2056561700529",
-    "strike_price": 47712,
+    "strike_price": 4088,
     "discount": 50,
-    "sell_price": 23856,
+    "sell_price": 2044,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572608063/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572608063/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3436497102",
@@ -18,12 +19,13 @@
     "nmID": 1572608068,
     "vendorCode": "OZON-3436497102-v1",
     "barcode": "2056561700536",
-    "strike_price": 35184,
+    "strike_price": 3014,
     "discount": 50,
-    "sell_price": 17592,
+    "sell_price": 1507,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572608068/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572608068/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3930070419",
@@ -31,12 +33,13 @@
     "nmID": 1572608070,
     "vendorCode": "OZON-3930070419-v1",
     "barcode": "2056561700543",
-    "strike_price": 27156,
+    "strike_price": 2326,
     "discount": 50,
-    "sell_price": 13578,
+    "sell_price": 1163,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572608070/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572608070/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3628695555",
@@ -44,12 +47,13 @@
     "nmID": 1572620663,
     "vendorCode": "OZON-3628695555-v1",
     "barcode": "2056561903791",
-    "strike_price": 32412,
+    "strike_price": 2776,
     "discount": 50,
-    "sell_price": 16206,
+    "sell_price": 1388,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572620663/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572620663/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3424576144",
@@ -57,12 +61,13 @@
     "nmID": 1572620703,
     "vendorCode": "OZON-3424576144-v1",
     "barcode": "2056561903807",
-    "strike_price": 48852,
+    "strike_price": 4186,
     "discount": 50,
-    "sell_price": 24426,
+    "sell_price": 2093,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572620703/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572620703/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2884317096",
@@ -70,12 +75,13 @@
     "nmID": 1572620713,
     "vendorCode": "OZON-2884317096-v1",
     "barcode": "2056561903814",
-    "strike_price": 33228,
+    "strike_price": 2846,
     "discount": 50,
-    "sell_price": 16614,
+    "sell_price": 1423,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1572620713/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1572620713/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "695177496",
@@ -83,12 +89,13 @@
     "nmID": 1573681267,
     "vendorCode": "OZON-695177496-v1",
     "barcode": "2056573850168",
-    "strike_price": 6576,
+    "strike_price": 564,
     "discount": 50,
-    "sell_price": 3288,
+    "sell_price": 282,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573681267/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573681267/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3956631234",
@@ -96,12 +103,13 @@
     "nmID": 1573681280,
     "vendorCode": "OZON-3956631234-v1",
     "barcode": "2056573850175",
-    "strike_price": 9516,
+    "strike_price": 816,
     "discount": 50,
-    "sell_price": 4758,
+    "sell_price": 408,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573681280/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573681280/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5618226967",
@@ -109,12 +117,13 @@
     "nmID": 1573683681,
     "vendorCode": "OZON-5618226967-v1",
     "barcode": "2056573853848",
-    "strike_price": 12144,
+    "strike_price": 1040,
     "discount": 50,
-    "sell_price": 6072,
+    "sell_price": 520,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573683681/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573683681/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5600949764",
@@ -122,12 +131,13 @@
     "nmID": 1573681315,
     "vendorCode": "OZON-5600949764-v1",
     "barcode": "2056573850182",
-    "strike_price": 11316,
+    "strike_price": 970,
     "discount": 50,
-    "sell_price": 5658,
+    "sell_price": 485,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573681315/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573681315/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4823986597",
@@ -135,12 +145,13 @@
     "nmID": 1573681349,
     "vendorCode": "OZON-4823986597-v1",
     "barcode": "2056573850205",
-    "strike_price": 9684,
+    "strike_price": 830,
     "discount": 50,
-    "sell_price": 4842,
+    "sell_price": 415,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573681349/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573681349/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5501981218",
@@ -148,12 +159,13 @@
     "nmID": 1573683845,
     "vendorCode": "OZON-5501981218-v1",
     "barcode": "2056573853855",
-    "strike_price": 12036,
+    "strike_price": 1032,
     "discount": 50,
-    "sell_price": 6018,
+    "sell_price": 516,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573683845/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573683845/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5499577418",
@@ -161,12 +173,13 @@
     "nmID": 1573683471,
     "vendorCode": "OZON-5499577418-v1",
     "barcode": "2056573853831",
-    "strike_price": 10932,
+    "strike_price": 936,
     "discount": 50,
-    "sell_price": 5466,
+    "sell_price": 468,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573683471/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573683471/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5338474452",
@@ -174,12 +187,13 @@
     "nmID": 1573681326,
     "vendorCode": "OZON-5338474452-v1",
     "barcode": "2056573850199",
-    "strike_price": 10872,
+    "strike_price": 932,
     "discount": 50,
-    "sell_price": 5436,
+    "sell_price": 466,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573681326/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573681326/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5170757576",
@@ -187,12 +201,13 @@
     "nmID": 1573684364,
     "vendorCode": "OZON-5170757576-v1",
     "barcode": "2056573853824",
-    "strike_price": 11424,
+    "strike_price": 978,
     "discount": 50,
-    "sell_price": 5712,
+    "sell_price": 489,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573684364/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573684364/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5417462049",
@@ -200,12 +215,13 @@
     "nmID": 1573684097,
     "vendorCode": "OZON-5417462049-v1",
     "barcode": "2056573853817",
-    "strike_price": 10296,
+    "strike_price": 882,
     "discount": 50,
-    "sell_price": 5148,
+    "sell_price": 441,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573684097/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573684097/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5186875764",
@@ -213,12 +229,13 @@
     "nmID": 1573710525,
     "vendorCode": "OZON-5186875764-v1",
     "barcode": "2056574008049",
-    "strike_price": 13080,
+    "strike_price": 1120,
     "discount": 50,
-    "sell_price": 6540,
+    "sell_price": 560,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710525/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710525/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2449695262",
@@ -226,12 +243,13 @@
     "nmID": 1573710503,
     "vendorCode": "OZON-2449695262-v1",
     "barcode": "2056574008056",
-    "strike_price": 12324,
+    "strike_price": 1056,
     "discount": 50,
-    "sell_price": 6162,
+    "sell_price": 528,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710503/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710503/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5340944670",
@@ -239,12 +257,13 @@
     "nmID": 1573710526,
     "vendorCode": "OZON-5340944670-v1",
     "barcode": "2056574008063",
-    "strike_price": 7992,
+    "strike_price": 684,
     "discount": 50,
-    "sell_price": 3996,
+    "sell_price": 342,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710526/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710526/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4787744218",
@@ -252,12 +271,13 @@
     "nmID": 1573710631,
     "vendorCode": "OZON-4787744218-v1",
     "barcode": "2056574008070",
-    "strike_price": 14220,
+    "strike_price": 1218,
     "discount": 50,
-    "sell_price": 7110,
+    "sell_price": 609,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710631/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710631/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5458424538",
@@ -265,12 +285,13 @@
     "nmID": 1573710896,
     "vendorCode": "OZON-5458424538-v1",
     "barcode": "2056574008087",
-    "strike_price": 10680,
+    "strike_price": 914,
     "discount": 50,
-    "sell_price": 5340,
+    "sell_price": 457,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710896/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710896/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5529945437",
@@ -278,12 +299,13 @@
     "nmID": 1573710603,
     "vendorCode": "OZON-5529945437-v1",
     "barcode": "2056574008094",
-    "strike_price": 12648,
+    "strike_price": 1084,
     "discount": 50,
-    "sell_price": 6324,
+    "sell_price": 542,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710603/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710603/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1732645434",
@@ -291,12 +313,13 @@
     "nmID": 1573710838,
     "vendorCode": "OZON-1732645434-v1",
     "barcode": "2056574008100",
-    "strike_price": 8616,
+    "strike_price": 738,
     "discount": 50,
-    "sell_price": 4308,
+    "sell_price": 369,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710838/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710838/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "315467144",
@@ -304,12 +327,13 @@
     "nmID": 1573710535,
     "vendorCode": "OZON-315467144-v1",
     "barcode": "2056574008117",
-    "strike_price": 10536,
+    "strike_price": 902,
     "discount": 50,
-    "sell_price": 5268,
+    "sell_price": 451,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710535/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710535/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1671993035",
@@ -317,12 +341,13 @@
     "nmID": 1573710916,
     "vendorCode": "OZON-1671993035-v1",
     "barcode": "2056574008124",
-    "strike_price": 12264,
+    "strike_price": 1050,
     "discount": 50,
-    "sell_price": 6132,
+    "sell_price": 525,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710916/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710916/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4683285084",
@@ -330,12 +355,13 @@
     "nmID": 1573710522,
     "vendorCode": "OZON-4683285084-v1",
     "barcode": "2056574008131",
-    "strike_price": 11640,
+    "strike_price": 998,
     "discount": 50,
-    "sell_price": 5820,
+    "sell_price": 499,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573710522/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573710522/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1665637396",
@@ -343,12 +369,13 @@
     "nmID": 1573717154,
     "vendorCode": "OZON-1665637396-v1",
     "barcode": "2056574077670",
-    "strike_price": 8928,
+    "strike_price": 764,
     "discount": 50,
-    "sell_price": 4464,
+    "sell_price": 382,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717154/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717154/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4928308951",
@@ -356,12 +383,13 @@
     "nmID": 1573717167,
     "vendorCode": "OZON-4928308951-v1",
     "barcode": "2056574077687",
-    "strike_price": 10920,
+    "strike_price": 936,
     "discount": 50,
-    "sell_price": 5460,
+    "sell_price": 468,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717167/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717167/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4058752204",
@@ -369,12 +397,13 @@
     "nmID": 1573717173,
     "vendorCode": "OZON-4058752204-v1",
     "barcode": "2056574077694",
-    "strike_price": 11760,
+    "strike_price": 1008,
     "discount": 50,
-    "sell_price": 5880,
+    "sell_price": 504,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717173/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717173/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5413602529",
@@ -382,12 +411,13 @@
     "nmID": 1573717178,
     "vendorCode": "OZON-5413602529-v1",
     "barcode": "2056574077700",
-    "strike_price": 15300,
+    "strike_price": 1310,
     "discount": 50,
-    "sell_price": 7650,
+    "sell_price": 655,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717178/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717178/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1845661236",
@@ -395,12 +425,13 @@
     "nmID": 1573717181,
     "vendorCode": "OZON-1845661236-v1",
     "barcode": "2056574077717",
-    "strike_price": 10692,
+    "strike_price": 916,
     "discount": 50,
-    "sell_price": 5346,
+    "sell_price": 458,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717181/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717181/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4808434828",
@@ -408,12 +439,13 @@
     "nmID": 1573717183,
     "vendorCode": "OZON-4808434828-v1",
     "barcode": "2056574077724",
-    "strike_price": 8640,
+    "strike_price": 740,
     "discount": 50,
-    "sell_price": 4320,
+    "sell_price": 370,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717183/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717183/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5009490876",
@@ -421,12 +453,13 @@
     "nmID": 1573717186,
     "vendorCode": "OZON-5009490876-v1",
     "barcode": "2056574077731",
-    "strike_price": 10860,
+    "strike_price": 930,
     "discount": 50,
-    "sell_price": 5430,
+    "sell_price": 465,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717186/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717186/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4599134622",
@@ -434,12 +467,13 @@
     "nmID": 1573717184,
     "vendorCode": "OZON-4599134622-v1",
     "barcode": "2056574077748",
-    "strike_price": 10332,
+    "strike_price": 886,
     "discount": 50,
-    "sell_price": 5166,
+    "sell_price": 443,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717184/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717184/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5530044173",
@@ -447,12 +481,13 @@
     "nmID": 1573717208,
     "vendorCode": "OZON-5530044173-v1",
     "barcode": "2056574077755",
-    "strike_price": 12540,
+    "strike_price": 1074,
     "discount": 50,
-    "sell_price": 6270,
+    "sell_price": 537,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717208/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717208/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4116076674",
@@ -460,12 +495,13 @@
     "nmID": 1573717185,
     "vendorCode": "OZON-4116076674-v1",
     "barcode": "2056574077762",
-    "strike_price": 11544,
+    "strike_price": 988,
     "discount": 50,
-    "sell_price": 5772,
+    "sell_price": 494,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573717185/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573717185/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3266419412",
@@ -473,12 +509,13 @@
     "nmID": 1573722563,
     "vendorCode": "OZON-3266419412-v1",
     "barcode": "2056574138838",
-    "strike_price": 9768,
+    "strike_price": 836,
     "discount": 50,
-    "sell_price": 4884,
+    "sell_price": 418,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722563/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722563/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4375277354",
@@ -486,12 +523,13 @@
     "nmID": 1573722577,
     "vendorCode": "OZON-4375277354-v1",
     "barcode": "2056574138845",
-    "strike_price": 15984,
+    "strike_price": 1370,
     "discount": 50,
-    "sell_price": 7992,
+    "sell_price": 685,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722577/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722577/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5666375594",
@@ -499,12 +537,13 @@
     "nmID": 1573722588,
     "vendorCode": "OZON-5666375594-v1",
     "barcode": "2056574138852",
-    "strike_price": 10392,
+    "strike_price": 890,
     "discount": 50,
-    "sell_price": 5196,
+    "sell_price": 445,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722588/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722588/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4594804407",
@@ -512,12 +551,13 @@
     "nmID": 1573722555,
     "vendorCode": "OZON-4594804407-v1",
     "barcode": "2056574138869",
-    "strike_price": 10380,
+    "strike_price": 890,
     "discount": 50,
-    "sell_price": 5190,
+    "sell_price": 445,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722555/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722555/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5498298445",
@@ -525,12 +565,13 @@
     "nmID": 1573722635,
     "vendorCode": "OZON-5498298445-v1",
     "barcode": "2056574138876",
-    "strike_price": 9432,
+    "strike_price": 808,
     "discount": 50,
-    "sell_price": 4716,
+    "sell_price": 404,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722635/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722635/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4450547283",
@@ -538,12 +579,13 @@
     "nmID": 1573722601,
     "vendorCode": "OZON-4450547283-v1",
     "barcode": "2056574138883",
-    "strike_price": 9396,
+    "strike_price": 804,
     "discount": 50,
-    "sell_price": 4698,
+    "sell_price": 402,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722601/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722601/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5325943494",
@@ -551,12 +593,13 @@
     "nmID": 1573722569,
     "vendorCode": "OZON-5325943494-v1",
     "barcode": "2056574138890",
-    "strike_price": 7248,
+    "strike_price": 620,
     "discount": 50,
-    "sell_price": 3624,
+    "sell_price": 310,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722569/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722569/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "157591182",
@@ -564,12 +607,13 @@
     "nmID": 1573722617,
     "vendorCode": "OZON-157591182-v1",
     "barcode": "2056574138906",
-    "strike_price": 10536,
+    "strike_price": 902,
     "discount": 50,
-    "sell_price": 5268,
+    "sell_price": 451,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722617/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722617/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1417467423",
@@ -577,12 +621,13 @@
     "nmID": 1573722559,
     "vendorCode": "OZON-1417467423-v1",
     "barcode": "2056574138913",
-    "strike_price": 9780,
+    "strike_price": 838,
     "discount": 50,
-    "sell_price": 4890,
+    "sell_price": 419,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722559/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722559/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3127934580",
@@ -590,12 +635,13 @@
     "nmID": 1573722628,
     "vendorCode": "OZON-3127934580-v1",
     "barcode": "2056574138920",
-    "strike_price": 7728,
+    "strike_price": 662,
     "discount": 50,
-    "sell_price": 3864,
+    "sell_price": 331,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573722628/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573722628/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5354838490",
@@ -603,12 +649,13 @@
     "nmID": 1573731855,
     "vendorCode": "OZON-5354838490-v1",
     "barcode": "2056574231980",
-    "strike_price": 9888,
+    "strike_price": 848,
     "discount": 50,
-    "sell_price": 4944,
+    "sell_price": 424,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731855/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731855/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1671993006",
@@ -616,12 +663,13 @@
     "nmID": 1573731861,
     "vendorCode": "OZON-1671993006-v1",
     "barcode": "2056574231997",
-    "strike_price": 11724,
+    "strike_price": 1004,
     "discount": 50,
-    "sell_price": 5862,
+    "sell_price": 502,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731861/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731861/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4287347399",
@@ -629,12 +677,13 @@
     "nmID": 1573731865,
     "vendorCode": "OZON-4287347399-v1",
     "barcode": "2056574232000",
-    "strike_price": 10020,
+    "strike_price": 858,
     "discount": 50,
-    "sell_price": 5010,
+    "sell_price": 429,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731865/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731865/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "157591278",
@@ -642,12 +691,13 @@
     "nmID": 1573731841,
     "vendorCode": "OZON-157591278-v1",
     "barcode": "2056574232017",
-    "strike_price": 10152,
+    "strike_price": 870,
     "discount": 50,
-    "sell_price": 5076,
+    "sell_price": 435,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731841/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731841/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1540326058",
@@ -655,12 +705,13 @@
     "nmID": 1573731845,
     "vendorCode": "OZON-1540326058-v1",
     "barcode": "2056574232024",
-    "strike_price": 7032,
+    "strike_price": 602,
     "discount": 50,
-    "sell_price": 3516,
+    "sell_price": 301,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731845/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731845/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1991617958",
@@ -668,12 +719,13 @@
     "nmID": 1573731849,
     "vendorCode": "OZON-1991617958-v1",
     "barcode": "2056574232031",
-    "strike_price": 10164,
+    "strike_price": 870,
     "discount": 50,
-    "sell_price": 5082,
+    "sell_price": 435,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731849/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731849/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5287754761",
@@ -681,12 +733,13 @@
     "nmID": 1573731854,
     "vendorCode": "OZON-5287754761-v1",
     "barcode": "2056574232048",
-    "strike_price": 8016,
+    "strike_price": 686,
     "discount": 50,
-    "sell_price": 4008,
+    "sell_price": 343,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731854/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731854/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5098726433",
@@ -694,12 +747,13 @@
     "nmID": 1573731851,
     "vendorCode": "OZON-5098726433-v1",
     "barcode": "2056574232055",
-    "strike_price": 14832,
+    "strike_price": 1270,
     "discount": 50,
-    "sell_price": 7416,
+    "sell_price": 635,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731851/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731851/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2837358750",
@@ -707,12 +761,13 @@
     "nmID": 1573731858,
     "vendorCode": "OZON-2837358750-v1",
     "barcode": "2056574232062",
-    "strike_price": 16536,
+    "strike_price": 1416,
     "discount": 50,
-    "sell_price": 8268,
+    "sell_price": 708,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731858/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731858/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1292085398",
@@ -720,12 +775,13 @@
     "nmID": 1573731856,
     "vendorCode": "OZON-1292085398-v1",
     "barcode": "2056574232079",
-    "strike_price": 7644,
+    "strike_price": 654,
     "discount": 50,
-    "sell_price": 3822,
+    "sell_price": 327,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573731856/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573731856/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3736524515",
@@ -733,12 +789,13 @@
     "nmID": 1573736958,
     "vendorCode": "OZON-3736524515-v1",
     "barcode": "2056574351145",
-    "strike_price": 11988,
+    "strike_price": 1028,
     "discount": 50,
-    "sell_price": 5994,
+    "sell_price": 514,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736958/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736958/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1185571258",
@@ -746,12 +803,13 @@
     "nmID": 1573736962,
     "vendorCode": "OZON-1185571258-v1",
     "barcode": "2056574351152",
-    "strike_price": 10944,
+    "strike_price": 938,
     "discount": 50,
-    "sell_price": 5472,
+    "sell_price": 469,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736962/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736962/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2698241595",
@@ -759,12 +817,13 @@
     "nmID": 1573736965,
     "vendorCode": "OZON-2698241595-v1",
     "barcode": "2056574351169",
-    "strike_price": 28284,
+    "strike_price": 2424,
     "discount": 50,
-    "sell_price": 14142,
+    "sell_price": 1212,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736965/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736965/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "732585286",
@@ -772,12 +831,13 @@
     "nmID": 1573736967,
     "vendorCode": "OZON-732585286-v1",
     "barcode": "2056574351176",
-    "strike_price": 6672,
+    "strike_price": 572,
     "discount": 50,
-    "sell_price": 3336,
+    "sell_price": 286,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736967/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736967/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "596870191",
@@ -785,12 +845,13 @@
     "nmID": 1573736969,
     "vendorCode": "OZON-596870191-v1",
     "barcode": "2056574351183",
-    "strike_price": 13236,
+    "strike_price": 1134,
     "discount": 50,
-    "sell_price": 6618,
+    "sell_price": 567,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736969/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736969/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3468961124",
@@ -798,12 +859,13 @@
     "nmID": 1573736971,
     "vendorCode": "OZON-3468961124-v1",
     "barcode": "2056574351190",
-    "strike_price": 11376,
+    "strike_price": 974,
     "discount": 50,
-    "sell_price": 5688,
+    "sell_price": 487,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736971/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736971/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3826522904",
@@ -811,12 +873,13 @@
     "nmID": 1573736975,
     "vendorCode": "OZON-3826522904-v1",
     "barcode": "2056574351206",
-    "strike_price": 6696,
+    "strike_price": 574,
     "discount": 50,
-    "sell_price": 3348,
+    "sell_price": 287,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736975/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736975/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "914235616",
@@ -824,12 +887,13 @@
     "nmID": 1573736977,
     "vendorCode": "OZON-914235616-v1",
     "barcode": "2056574351213",
-    "strike_price": 9456,
+    "strike_price": 810,
     "discount": 50,
-    "sell_price": 4728,
+    "sell_price": 405,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736977/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736977/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1833630202",
@@ -837,12 +901,13 @@
     "nmID": 1573736980,
     "vendorCode": "OZON-1833630202-v1",
     "barcode": "2056574351220",
-    "strike_price": 7080,
+    "strike_price": 606,
     "discount": 50,
-    "sell_price": 3540,
+    "sell_price": 303,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736980/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736980/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1988142976",
@@ -850,12 +915,13 @@
     "nmID": 1573736985,
     "vendorCode": "OZON-1988142976-v1",
     "barcode": "2056574351237",
-    "strike_price": 11376,
+    "strike_price": 974,
     "discount": 50,
-    "sell_price": 5688,
+    "sell_price": 487,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573736985/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573736985/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "640226281",
@@ -863,12 +929,13 @@
     "nmID": 1573739573,
     "vendorCode": "OZON-640226281-v1",
     "barcode": "2056574375257",
-    "strike_price": 8676,
+    "strike_price": 744,
     "discount": 50,
-    "sell_price": 4338,
+    "sell_price": 372,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739573/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739573/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "834178665",
@@ -876,12 +943,13 @@
     "nmID": 1573739472,
     "vendorCode": "OZON-834178665-v1",
     "barcode": "2056574375264",
-    "strike_price": 8280,
+    "strike_price": 710,
     "discount": 50,
-    "sell_price": 4140,
+    "sell_price": 355,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739472/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739472/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1214970708",
@@ -889,12 +957,13 @@
     "nmID": 1573739503,
     "vendorCode": "OZON-1214970708-v1",
     "barcode": "2056574375271",
-    "strike_price": 7188,
+    "strike_price": 616,
     "discount": 50,
-    "sell_price": 3594,
+    "sell_price": 308,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739503/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739503/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2950344625",
@@ -902,12 +971,13 @@
     "nmID": 1573739505,
     "vendorCode": "OZON-2950344625-v1",
     "barcode": "2056574375288",
-    "strike_price": 11496,
+    "strike_price": 984,
     "discount": 50,
-    "sell_price": 5748,
+    "sell_price": 492,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739505/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739505/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1674226892",
@@ -915,12 +985,13 @@
     "nmID": 1573739507,
     "vendorCode": "OZON-1674226892-v1",
     "barcode": "2056574375295",
-    "strike_price": 24084,
+    "strike_price": 2064,
     "discount": 50,
-    "sell_price": 12042,
+    "sell_price": 1032,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739507/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739507/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4183137943",
@@ -928,12 +999,13 @@
     "nmID": 1573739510,
     "vendorCode": "OZON-4183137943-v1",
     "barcode": "2056574375301",
-    "strike_price": 13584,
+    "strike_price": 1164,
     "discount": 50,
-    "sell_price": 6792,
+    "sell_price": 582,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739510/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739510/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "159026786",
@@ -941,12 +1013,13 @@
     "nmID": 1573739522,
     "vendorCode": "OZON-159026786-v1",
     "barcode": "2056574375318",
-    "strike_price": 8460,
+    "strike_price": 724,
     "discount": 50,
-    "sell_price": 4230,
+    "sell_price": 362,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739522/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739522/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4398410911",
@@ -954,12 +1027,13 @@
     "nmID": 1573739553,
     "vendorCode": "OZON-4398410911-v1",
     "barcode": "2056574375325",
-    "strike_price": 12792,
+    "strike_price": 1096,
     "discount": 50,
-    "sell_price": 6396,
+    "sell_price": 548,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739553/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739553/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3111763959",
@@ -967,12 +1041,13 @@
     "nmID": 1573739555,
     "vendorCode": "OZON-3111763959-v1",
     "barcode": "2056574375332",
-    "strike_price": 14016,
+    "strike_price": 1200,
     "discount": 50,
-    "sell_price": 7008,
+    "sell_price": 600,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739555/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739555/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3584157477",
@@ -980,12 +1055,13 @@
     "nmID": 1573739559,
     "vendorCode": "OZON-3584157477-v1",
     "barcode": "2056574375349",
-    "strike_price": 11604,
+    "strike_price": 994,
     "discount": 50,
-    "sell_price": 5802,
+    "sell_price": 497,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573739559/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573739559/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "911472994",
@@ -993,12 +1069,13 @@
     "nmID": 1573742165,
     "vendorCode": "OZON-911472994-v1",
     "barcode": "2056574404490",
-    "strike_price": 7140,
+    "strike_price": 612,
     "discount": 50,
-    "sell_price": 3570,
+    "sell_price": 306,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742165/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742165/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2732340514",
@@ -1006,12 +1083,13 @@
     "nmID": 1573742168,
     "vendorCode": "OZON-2732340514-v1",
     "barcode": "2056574404506",
-    "strike_price": 13572,
+    "strike_price": 1162,
     "discount": 50,
-    "sell_price": 6786,
+    "sell_price": 581,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742168/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742168/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1145812318",
@@ -1019,12 +1097,13 @@
     "nmID": 1573742173,
     "vendorCode": "OZON-1145812318-v1",
     "barcode": "2056574404513",
-    "strike_price": 12888,
+    "strike_price": 1104,
     "discount": 50,
-    "sell_price": 6444,
+    "sell_price": 552,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742173/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742173/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3137990722",
@@ -1032,12 +1111,13 @@
     "nmID": 1573742194,
     "vendorCode": "OZON-3137990722-v1",
     "barcode": "2056574404520",
-    "strike_price": 7152,
+    "strike_price": 612,
     "discount": 50,
-    "sell_price": 3576,
+    "sell_price": 306,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742194/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742194/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3724008524",
@@ -1045,12 +1125,13 @@
     "nmID": 1573742201,
     "vendorCode": "OZON-3724008524-v1",
     "barcode": "2056574404537",
-    "strike_price": 14460,
+    "strike_price": 1238,
     "discount": 50,
-    "sell_price": 7230,
+    "sell_price": 619,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742201/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742201/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1416054688",
@@ -1058,12 +1139,13 @@
     "nmID": 1573742212,
     "vendorCode": "OZON-1416054688-v1",
     "barcode": "2056574404544",
-    "strike_price": 14304,
+    "strike_price": 1226,
     "discount": 50,
-    "sell_price": 7152,
+    "sell_price": 613,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742212/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742212/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3263457907",
@@ -1071,12 +1153,13 @@
     "nmID": 1573742216,
     "vendorCode": "OZON-3263457907-v1",
     "barcode": "2056574404551",
-    "strike_price": 6780,
+    "strike_price": 580,
     "discount": 50,
-    "sell_price": 3390,
+    "sell_price": 290,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742216/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742216/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2762925699",
@@ -1084,12 +1167,13 @@
     "nmID": 1573742191,
     "vendorCode": "OZON-2762925699-v1",
     "barcode": "2056574404568",
-    "strike_price": 7020,
+    "strike_price": 602,
     "discount": 50,
-    "sell_price": 3510,
+    "sell_price": 301,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742191/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742191/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1133922154",
@@ -1097,12 +1181,13 @@
     "nmID": 1573742169,
     "vendorCode": "OZON-1133922154-v1",
     "barcode": "2056574404575",
-    "strike_price": 16008,
+    "strike_price": 1372,
     "discount": 50,
-    "sell_price": 8004,
+    "sell_price": 686,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742169/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742169/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1185498548",
@@ -1110,12 +1195,13 @@
     "nmID": 1573742172,
     "vendorCode": "OZON-1185498548-v1",
     "barcode": "2056574404582",
-    "strike_price": 10752,
+    "strike_price": 922,
     "discount": 50,
-    "sell_price": 5376,
+    "sell_price": 461,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573742172/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573742172/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4656146443",
@@ -1123,12 +1209,13 @@
     "nmID": 1573744937,
     "vendorCode": "OZON-4656146443-v1",
     "barcode": "2056574438631",
-    "strike_price": 8304,
+    "strike_price": 712,
     "discount": 50,
-    "sell_price": 4152,
+    "sell_price": 356,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573744937/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573744937/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1437518427",
@@ -1136,12 +1223,13 @@
     "nmID": 1573744977,
     "vendorCode": "OZON-1437518427-v1",
     "barcode": "2056574438648",
-    "strike_price": 7680,
+    "strike_price": 658,
     "discount": 50,
-    "sell_price": 3840,
+    "sell_price": 329,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573744977/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573744977/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4989107694",
@@ -1149,12 +1237,13 @@
     "nmID": 1573745020,
     "vendorCode": "OZON-4989107694-v1",
     "barcode": "2056574438655",
-    "strike_price": 12816,
+    "strike_price": 1098,
     "discount": 50,
-    "sell_price": 6408,
+    "sell_price": 549,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745020/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745020/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1674220741",
@@ -1162,12 +1251,13 @@
     "nmID": 1573745302,
     "vendorCode": "OZON-1674220741-v1",
     "barcode": "2056574438662",
-    "strike_price": 13104,
+    "strike_price": 1122,
     "discount": 50,
-    "sell_price": 6552,
+    "sell_price": 561,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745302/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745302/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1189103969",
@@ -1175,12 +1265,13 @@
     "nmID": 1573745304,
     "vendorCode": "OZON-1189103969-v1",
     "barcode": "2056574438679",
-    "strike_price": 12624,
+    "strike_price": 1082,
     "discount": 50,
-    "sell_price": 6312,
+    "sell_price": 541,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745304/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745304/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4988500528",
@@ -1188,12 +1279,13 @@
     "nmID": 1573745312,
     "vendorCode": "OZON-4988500528-v1",
     "barcode": "2056574438686",
-    "strike_price": 11268,
+    "strike_price": 966,
     "discount": 50,
-    "sell_price": 5634,
+    "sell_price": 483,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745312/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745312/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848535575",
@@ -1201,12 +1293,13 @@
     "nmID": 1573744974,
     "vendorCode": "OZON-1848535575-v1",
     "barcode": "2056574438693",
-    "strike_price": 6972,
+    "strike_price": 598,
     "discount": 50,
-    "sell_price": 3486,
+    "sell_price": 299,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573744974/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573744974/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2407818281",
@@ -1214,12 +1307,13 @@
     "nmID": 1573745013,
     "vendorCode": "OZON-2407818281-v1",
     "barcode": "2056574438709",
-    "strike_price": 10632,
+    "strike_price": 910,
     "discount": 50,
-    "sell_price": 5316,
+    "sell_price": 455,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745013/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745013/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4464805301",
@@ -1227,12 +1321,13 @@
     "nmID": 1573745054,
     "vendorCode": "OZON-4464805301-v1",
     "barcode": "2056574438716",
-    "strike_price": 12252,
+    "strike_price": 1050,
     "discount": 50,
-    "sell_price": 6126,
+    "sell_price": 525,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745054/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745054/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517538659",
@@ -1240,12 +1335,13 @@
     "nmID": 1573745019,
     "vendorCode": "OZON-3517538659-v1",
     "barcode": "2056574438723",
-    "strike_price": 18156,
+    "strike_price": 1556,
     "discount": 50,
-    "sell_price": 9078,
+    "sell_price": 778,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573745019/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573745019/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891937480",
@@ -1253,12 +1349,13 @@
     "nmID": 1573747827,
     "vendorCode": "OZON-1891937480-v1",
     "barcode": "2056574471409",
-    "strike_price": 8220,
+    "strike_price": 704,
     "discount": 50,
-    "sell_price": 4110,
+    "sell_price": 352,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747827/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747827/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1308350806",
@@ -1266,12 +1363,13 @@
     "nmID": 1573747831,
     "vendorCode": "OZON-1308350806-v1",
     "barcode": "2056574471416",
-    "strike_price": 11844,
+    "strike_price": 1014,
     "discount": 50,
-    "sell_price": 5922,
+    "sell_price": 507,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747831/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747831/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848556132",
@@ -1279,12 +1377,13 @@
     "nmID": 1573747834,
     "vendorCode": "OZON-1848556132-v1",
     "barcode": "2056574471423",
-    "strike_price": 7680,
+    "strike_price": 658,
     "discount": 50,
-    "sell_price": 3840,
+    "sell_price": 329,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747834/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747834/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2763761642",
@@ -1292,12 +1391,13 @@
     "nmID": 1573747840,
     "vendorCode": "OZON-2763761642-v1",
     "barcode": "2056574471430",
-    "strike_price": 14028,
+    "strike_price": 1202,
     "discount": 50,
-    "sell_price": 7014,
+    "sell_price": 601,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747840/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747840/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1295589123",
@@ -1305,12 +1405,13 @@
     "nmID": 1573747849,
     "vendorCode": "OZON-1295589123-v1",
     "barcode": "2056574471447",
-    "strike_price": 9816,
+    "strike_price": 840,
     "discount": 50,
-    "sell_price": 4908,
+    "sell_price": 420,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747849/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747849/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1907301283",
@@ -1318,12 +1419,13 @@
     "nmID": 1573747830,
     "vendorCode": "OZON-1907301283-v1",
     "barcode": "2056574471454",
-    "strike_price": 19092,
+    "strike_price": 1636,
     "discount": 50,
-    "sell_price": 9546,
+    "sell_price": 818,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747830/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747830/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1715311554",
@@ -1331,12 +1433,13 @@
     "nmID": 1573747839,
     "vendorCode": "OZON-1715311554-v1",
     "barcode": "2056574471461",
-    "strike_price": 9240,
+    "strike_price": 792,
     "discount": 50,
-    "sell_price": 4620,
+    "sell_price": 396,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747839/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747839/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243309",
@@ -1344,12 +1447,13 @@
     "nmID": 1573747850,
     "vendorCode": "OZON-2002243309-v1",
     "barcode": "2056574471478",
-    "strike_price": 8304,
+    "strike_price": 712,
     "discount": 50,
-    "sell_price": 4152,
+    "sell_price": 356,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747850/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747850/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4293083170",
@@ -1357,12 +1461,13 @@
     "nmID": 1573747883,
     "vendorCode": "OZON-4293083170-v1",
     "barcode": "2056574471485",
-    "strike_price": 11040,
+    "strike_price": 946,
     "discount": 50,
-    "sell_price": 5520,
+    "sell_price": 473,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747883/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747883/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5181747130",
@@ -1370,12 +1475,13 @@
     "nmID": 1573747898,
     "vendorCode": "OZON-5181747130-v1",
     "barcode": "2056574471492",
-    "strike_price": 12048,
+    "strike_price": 1032,
     "discount": 50,
-    "sell_price": 6024,
+    "sell_price": 516,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573747898/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573747898/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2529101152",
@@ -1383,12 +1489,13 @@
     "nmID": 1573750188,
     "vendorCode": "OZON-2529101152-v1",
     "barcode": "2056574492596",
-    "strike_price": 12360,
+    "strike_price": 1058,
     "discount": 50,
-    "sell_price": 6180,
+    "sell_price": 529,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750188/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750188/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534888",
@@ -1396,12 +1503,13 @@
     "nmID": 1573750190,
     "vendorCode": "OZON-1848534888-v1",
     "barcode": "2056574492602",
-    "strike_price": 6972,
+    "strike_price": 598,
     "discount": 50,
-    "sell_price": 3486,
+    "sell_price": 299,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750190/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750190/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5372309213",
@@ -1409,12 +1517,13 @@
     "nmID": 1573750191,
     "vendorCode": "OZON-5372309213-v1",
     "barcode": "2056574492619",
-    "strike_price": 15228,
+    "strike_price": 1304,
     "discount": 50,
-    "sell_price": 7614,
+    "sell_price": 652,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750191/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750191/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3733343799",
@@ -1422,12 +1531,13 @@
     "nmID": 1573750202,
     "vendorCode": "OZON-3733343799-v1",
     "barcode": "2056574492626",
-    "strike_price": 13728,
+    "strike_price": 1176,
     "discount": 50,
-    "sell_price": 6864,
+    "sell_price": 588,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750202/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750202/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2596974991",
@@ -1435,12 +1545,13 @@
     "nmID": 1573750209,
     "vendorCode": "OZON-2596974991-v1",
     "barcode": "2056574492633",
-    "strike_price": 14148,
+    "strike_price": 1212,
     "discount": 50,
-    "sell_price": 7074,
+    "sell_price": 606,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750209/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750209/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "871756386",
@@ -1448,12 +1559,13 @@
     "nmID": 1573750219,
     "vendorCode": "OZON-871756386-v1",
     "barcode": "2056574492640",
-    "strike_price": 8592,
+    "strike_price": 736,
     "discount": 50,
-    "sell_price": 4296,
+    "sell_price": 368,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750219/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750219/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534857",
@@ -1461,12 +1573,13 @@
     "nmID": 1573750201,
     "vendorCode": "OZON-1848534857-v1",
     "barcode": "2056574492657",
-    "strike_price": 7584,
+    "strike_price": 650,
     "discount": 50,
-    "sell_price": 3792,
+    "sell_price": 325,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750201/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750201/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2731918923",
@@ -1474,12 +1587,13 @@
     "nmID": 1573750204,
     "vendorCode": "OZON-2731918923-v1",
     "barcode": "2056574492664",
-    "strike_price": 10536,
+    "strike_price": 902,
     "discount": 50,
-    "sell_price": 5268,
+    "sell_price": 451,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750204/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750204/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "640318423",
@@ -1487,12 +1601,13 @@
     "nmID": 1573750216,
     "vendorCode": "OZON-640318423-v1",
     "barcode": "2056574492671",
-    "strike_price": 9912,
+    "strike_price": 850,
     "discount": 50,
-    "sell_price": 4956,
+    "sell_price": 425,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750216/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750216/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5494208737",
@@ -1500,12 +1615,13 @@
     "nmID": 1573750225,
     "vendorCode": "OZON-5494208737-v1",
     "barcode": "2056574492688",
-    "strike_price": 16380,
+    "strike_price": 1404,
     "discount": 50,
-    "sell_price": 8190,
+    "sell_price": 702,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573750225/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573750225/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2436600317",
@@ -1513,12 +1629,13 @@
     "nmID": 1573752818,
     "vendorCode": "OZON-2436600317-v1",
     "barcode": "2056574525836",
-    "strike_price": 13704,
+    "strike_price": 1174,
     "discount": 50,
-    "sell_price": 6852,
+    "sell_price": 587,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752818/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752818/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653259",
@@ -1526,12 +1643,13 @@
     "nmID": 1573752821,
     "vendorCode": "OZON-3082653259-v1",
     "barcode": "2056574525843",
-    "strike_price": 14004,
+    "strike_price": 1200,
     "discount": 50,
-    "sell_price": 7002,
+    "sell_price": 600,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752821/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752821/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2081306282",
@@ -1539,12 +1657,13 @@
     "nmID": 1573752829,
     "vendorCode": "OZON-2081306282-v1",
     "barcode": "2056574525850",
-    "strike_price": 28032,
+    "strike_price": 2402,
     "discount": 50,
-    "sell_price": 14016,
+    "sell_price": 1201,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752829/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752829/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "640187047",
@@ -1552,12 +1671,13 @@
     "nmID": 1573752831,
     "vendorCode": "OZON-640187047-v1",
     "barcode": "2056574525867",
-    "strike_price": 9912,
+    "strike_price": 850,
     "discount": 50,
-    "sell_price": 4956,
+    "sell_price": 425,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752831/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752831/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1914650374",
@@ -1565,12 +1685,13 @@
     "nmID": 1573752838,
     "vendorCode": "OZON-1914650374-v1",
     "barcode": "2056574525874",
-    "strike_price": 15132,
+    "strike_price": 1296,
     "discount": 50,
-    "sell_price": 7566,
+    "sell_price": 648,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752838/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752838/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517583415",
@@ -1578,12 +1699,13 @@
     "nmID": 1573752789,
     "vendorCode": "OZON-3517583415-v1",
     "barcode": "2056574525881",
-    "strike_price": 19800,
+    "strike_price": 1696,
     "discount": 50,
-    "sell_price": 9900,
+    "sell_price": 848,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752789/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752789/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3734454755",
@@ -1591,12 +1713,13 @@
     "nmID": 1573752798,
     "vendorCode": "OZON-3734454755-v1",
     "barcode": "2056574525898",
-    "strike_price": 6840,
+    "strike_price": 586,
     "discount": 50,
-    "sell_price": 3420,
+    "sell_price": 293,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752798/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752798/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4998274578",
@@ -1604,12 +1727,13 @@
     "nmID": 1573752803,
     "vendorCode": "OZON-4998274578-v1",
     "barcode": "2056574525904",
-    "strike_price": 13092,
+    "strike_price": 1122,
     "discount": 50,
-    "sell_price": 6546,
+    "sell_price": 561,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752803/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752803/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1161200000",
@@ -1617,12 +1741,13 @@
     "nmID": 1573752807,
     "vendorCode": "OZON-1161200000-v1",
     "barcode": "2056574525911",
-    "strike_price": 12612,
+    "strike_price": 1080,
     "discount": 50,
-    "sell_price": 6306,
+    "sell_price": 540,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752807/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752807/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653319",
@@ -1630,12 +1755,13 @@
     "nmID": 1573752810,
     "vendorCode": "OZON-3082653319-v1",
     "barcode": "2056574525928",
-    "strike_price": 14004,
+    "strike_price": 1200,
     "discount": 50,
-    "sell_price": 7002,
+    "sell_price": 600,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573752810/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573752810/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1914724807",
@@ -1643,12 +1769,13 @@
     "nmID": 1573756743,
     "vendorCode": "OZON-1914724807-v1",
     "barcode": "2056574648153",
-    "strike_price": 16776,
+    "strike_price": 1438,
     "discount": 50,
-    "sell_price": 8388,
+    "sell_price": 719,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756743/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756743/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1914749588",
@@ -1656,12 +1783,13 @@
     "nmID": 1573756781,
     "vendorCode": "OZON-1914749588-v1",
     "barcode": "2056574648160",
-    "strike_price": 15528,
+    "strike_price": 1330,
     "discount": 50,
-    "sell_price": 7764,
+    "sell_price": 665,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756781/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756781/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4843812858",
@@ -1669,12 +1797,13 @@
     "nmID": 1573756790,
     "vendorCode": "OZON-4843812858-v1",
     "barcode": "2056574648177",
-    "strike_price": 14124,
+    "strike_price": 1210,
     "discount": 50,
-    "sell_price": 7062,
+    "sell_price": 605,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756790/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756790/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3033794501",
@@ -1682,12 +1811,13 @@
     "nmID": 1573756791,
     "vendorCode": "OZON-3033794501-v1",
     "barcode": "2056574648184",
-    "strike_price": 15336,
+    "strike_price": 1314,
     "discount": 50,
-    "sell_price": 7668,
+    "sell_price": 657,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756791/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756791/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243256",
@@ -1695,12 +1825,13 @@
     "nmID": 1573756807,
     "vendorCode": "OZON-2002243256-v1",
     "barcode": "2056574648191",
-    "strike_price": 9444,
+    "strike_price": 810,
     "discount": 50,
-    "sell_price": 4722,
+    "sell_price": 405,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756807/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756807/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950783",
@@ -1708,12 +1839,13 @@
     "nmID": 1573756814,
     "vendorCode": "OZON-1891950783-v1",
     "barcode": "2056574648207",
-    "strike_price": 11376,
+    "strike_price": 974,
     "discount": 50,
-    "sell_price": 5688,
+    "sell_price": 487,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756814/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756814/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1674222312",
@@ -1721,12 +1853,13 @@
     "nmID": 1573756817,
     "vendorCode": "OZON-1674222312-v1",
     "barcode": "2056574648214",
-    "strike_price": 15744,
+    "strike_price": 1348,
     "discount": 50,
-    "sell_price": 7872,
+    "sell_price": 674,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756817/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756817/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4081036825",
@@ -1734,12 +1867,13 @@
     "nmID": 1573756707,
     "vendorCode": "OZON-4081036825-v1",
     "barcode": "2056574648221",
-    "strike_price": 9972,
+    "strike_price": 854,
     "discount": 50,
-    "sell_price": 4986,
+    "sell_price": 427,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756707/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756707/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517560097",
@@ -1747,12 +1881,13 @@
     "nmID": 1573756741,
     "vendorCode": "OZON-3517560097-v1",
     "barcode": "2056574648238",
-    "strike_price": 10500,
+    "strike_price": 900,
     "discount": 50,
-    "sell_price": 5250,
+    "sell_price": 450,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756741/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756741/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517436201",
@@ -1760,12 +1895,13 @@
     "nmID": 1573756778,
     "vendorCode": "OZON-3517436201-v1",
     "barcode": "2056574648245",
-    "strike_price": 19728,
+    "strike_price": 1690,
     "discount": 50,
-    "sell_price": 9864,
+    "sell_price": 845,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573756778/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573756778/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848529329",
@@ -1773,12 +1909,13 @@
     "nmID": 1573758940,
     "vendorCode": "OZON-1848529329-v1",
     "barcode": "2056574685219",
-    "strike_price": 457008,
+    "strike_price": 39152,
     "discount": 50,
-    "sell_price": 228504,
+    "sell_price": 19576,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573758940/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573758940/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2763761644",
@@ -1786,12 +1923,13 @@
     "nmID": 1573758959,
     "vendorCode": "OZON-2763761644-v1",
     "barcode": "2056574685226",
-    "strike_price": 2568,
+    "strike_price": 220,
     "discount": 50,
-    "sell_price": 1284,
+    "sell_price": 110,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573758959/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573758959/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653246",
@@ -1799,12 +1937,13 @@
     "nmID": 1573758999,
     "vendorCode": "OZON-3082653246-v1",
     "barcode": "2056574685233",
-    "strike_price": 260844,
+    "strike_price": 22346,
     "discount": 50,
-    "sell_price": 130422,
+    "sell_price": 11173,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573758999/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573758999/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2763761643",
@@ -1812,12 +1951,13 @@
     "nmID": 1573758988,
     "vendorCode": "OZON-2763761643-v1",
     "barcode": "2056574685240",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573758988/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573758988/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2467972049",
@@ -1825,12 +1965,13 @@
     "nmID": 1573759005,
     "vendorCode": "OZON-2467972049-v1",
     "barcode": "2056574685257",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573759005/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573759005/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891937482",
@@ -1838,12 +1979,13 @@
     "nmID": 1573758993,
     "vendorCode": "OZON-1891937482-v1",
     "barcode": "2056574685264",
-    "strike_price": 34212,
+    "strike_price": 2930,
     "discount": 50,
-    "sell_price": 17106,
+    "sell_price": 1465,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573758993/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573758993/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2272895240",
@@ -1851,12 +1993,13 @@
     "nmID": 1573759009,
     "vendorCode": "OZON-2272895240-v1",
     "barcode": "2056574685271",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573759009/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573759009/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534887",
@@ -1864,12 +2007,13 @@
     "nmID": 1573759014,
     "vendorCode": "OZON-1848534887-v1",
     "barcode": "2056574685288",
-    "strike_price": 5004,
+    "strike_price": 428,
     "discount": 50,
-    "sell_price": 2502,
+    "sell_price": 214,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573759014/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573759014/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2763761645",
@@ -1877,12 +2021,13 @@
     "nmID": 1573759021,
     "vendorCode": "OZON-2763761645-v1",
     "barcode": "2056574685295",
-    "strike_price": 3864,
+    "strike_price": 332,
     "discount": 50,
-    "sell_price": 1932,
+    "sell_price": 166,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573759021/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573759021/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891937485",
@@ -1890,12 +2035,13 @@
     "nmID": 1573759032,
     "vendorCode": "OZON-1891937485-v1",
     "barcode": "2056574685301",
-    "strike_price": 34212,
+    "strike_price": 2930,
     "discount": 50,
-    "sell_price": 17106,
+    "sell_price": 1465,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573759032/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573759032/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1914757659",
@@ -1903,12 +2049,13 @@
     "nmID": 1573763298,
     "vendorCode": "OZON-1914757659-v1",
     "barcode": "2056574773824",
-    "strike_price": 96120,
+    "strike_price": 8234,
     "discount": 50,
-    "sell_price": 48060,
+    "sell_price": 4117,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763298/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763298/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534861",
@@ -1916,12 +2063,13 @@
     "nmID": 1573763319,
     "vendorCode": "OZON-1848534861-v1",
     "barcode": "2056574773831",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763319/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763319/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243274",
@@ -1929,12 +2077,13 @@
     "nmID": 1573763299,
     "vendorCode": "OZON-2002243274-v1",
     "barcode": "2056574773848",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763299/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763299/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2566063618",
@@ -1942,12 +2091,13 @@
     "nmID": 1573763366,
     "vendorCode": "OZON-2566063618-v1",
     "barcode": "2056574773855",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763366/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763366/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243261",
@@ -1955,12 +2105,13 @@
     "nmID": 1573763408,
     "vendorCode": "OZON-2002243261-v1",
     "barcode": "2056574773862",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763408/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763408/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534864",
@@ -1968,12 +2119,13 @@
     "nmID": 1573763321,
     "vendorCode": "OZON-1848534864-v1",
     "barcode": "2056574773879",
-    "strike_price": 77880,
+    "strike_price": 6672,
     "discount": 50,
-    "sell_price": 38940,
+    "sell_price": 3336,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763321/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763321/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243292",
@@ -1981,12 +2133,13 @@
     "nmID": 1573763340,
     "vendorCode": "OZON-2002243292-v1",
     "barcode": "2056574773886",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763340/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763340/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243277",
@@ -1994,12 +2147,13 @@
     "nmID": 1573763354,
     "vendorCode": "OZON-2002243277-v1",
     "barcode": "2056574773893",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763354/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763354/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243290",
@@ -2007,12 +2161,13 @@
     "nmID": 1573763395,
     "vendorCode": "OZON-2002243290-v1",
     "barcode": "2056574773909",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763395/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763395/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534865",
@@ -2020,12 +2175,13 @@
     "nmID": 1573763423,
     "vendorCode": "OZON-1848534865-v1",
     "barcode": "2056574773916",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573763423/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573763423/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653303",
@@ -2033,12 +2189,13 @@
     "nmID": 1573767034,
     "vendorCode": "OZON-3082653303-v1",
     "barcode": "2056574808762",
-    "strike_price": 188760,
+    "strike_price": 16172,
     "discount": 50,
-    "sell_price": 94380,
+    "sell_price": 8086,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767034/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767034/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243275",
@@ -2046,12 +2203,13 @@
     "nmID": 1573767039,
     "vendorCode": "OZON-2002243275-v1",
     "barcode": "2056574808779",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767039/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767039/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243288",
@@ -2059,12 +2217,13 @@
     "nmID": 1573767041,
     "vendorCode": "OZON-2002243288-v1",
     "barcode": "2056574808786",
-    "strike_price": 32400,
+    "strike_price": 2776,
     "discount": 50,
-    "sell_price": 16200,
+    "sell_price": 1388,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767041/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767041/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243257",
@@ -2072,12 +2231,13 @@
     "nmID": 1573767043,
     "vendorCode": "OZON-2002243257-v1",
     "barcode": "2056574808793",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767043/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767043/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653282",
@@ -2085,12 +2245,13 @@
     "nmID": 1573767047,
     "vendorCode": "OZON-3082653282-v1",
     "barcode": "2056574808809",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767047/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767047/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653248",
@@ -2098,12 +2259,13 @@
     "nmID": 1573767055,
     "vendorCode": "OZON-3082653248-v1",
     "barcode": "2056574808816",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767055/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767055/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243259",
@@ -2111,12 +2273,13 @@
     "nmID": 1573767058,
     "vendorCode": "OZON-2002243259-v1",
     "barcode": "2056574808823",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767058/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767058/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1914753555",
@@ -2124,12 +2287,13 @@
     "nmID": 1573767069,
     "vendorCode": "OZON-1914753555-v1",
     "barcode": "2056574808830",
-    "strike_price": 143724,
+    "strike_price": 12312,
     "discount": 50,
-    "sell_price": 71862,
+    "sell_price": 6156,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767069/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767069/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243273",
@@ -2137,12 +2301,13 @@
     "nmID": 1573767052,
     "vendorCode": "OZON-2002243273-v1",
     "barcode": "2056574808847",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767052/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767052/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517441549",
@@ -2150,12 +2315,13 @@
     "nmID": 1573767074,
     "vendorCode": "OZON-3517441549-v1",
     "barcode": "2056574808854",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573767074/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573767074/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534866",
@@ -2163,12 +2329,13 @@
     "nmID": 1573771732,
     "vendorCode": "OZON-1848534866-v1",
     "barcode": "2056574911752",
-    "strike_price": 457008,
+    "strike_price": 39152,
     "discount": 50,
-    "sell_price": 228504,
+    "sell_price": 19576,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771732/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771732/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243296",
@@ -2176,12 +2343,13 @@
     "nmID": 1573771740,
     "vendorCode": "OZON-2002243296-v1",
     "barcode": "2056574911769",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771740/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771740/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243295",
@@ -2189,12 +2357,13 @@
     "nmID": 1573771745,
     "vendorCode": "OZON-2002243295-v1",
     "barcode": "2056574911776",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771745/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771745/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243282",
@@ -2202,12 +2371,13 @@
     "nmID": 1573771749,
     "vendorCode": "OZON-2002243282-v1",
     "barcode": "2056574911783",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771749/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771749/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243284",
@@ -2215,12 +2385,13 @@
     "nmID": 1573771760,
     "vendorCode": "OZON-2002243284-v1",
     "barcode": "2056574911790",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771760/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771760/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517478051",
@@ -2228,12 +2399,13 @@
     "nmID": 1573771775,
     "vendorCode": "OZON-3517478051-v1",
     "barcode": "2056574911806",
-    "strike_price": 45936,
+    "strike_price": 3936,
     "discount": 50,
-    "sell_price": 22968,
+    "sell_price": 1968,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771775/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771775/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534889",
@@ -2241,12 +2413,13 @@
     "nmID": 1573771782,
     "vendorCode": "OZON-1848534889-v1",
     "barcode": "2056574911813",
-    "strike_price": 112488,
+    "strike_price": 9636,
     "discount": 50,
-    "sell_price": 56244,
+    "sell_price": 4818,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771782/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771782/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517544070",
@@ -2254,12 +2427,13 @@
     "nmID": 1573771790,
     "vendorCode": "OZON-3517544070-v1",
     "barcode": "2056574911820",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771790/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771790/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243287",
@@ -2267,12 +2441,13 @@
     "nmID": 1573771720,
     "vendorCode": "OZON-2002243287-v1",
     "barcode": "2056574911837",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771720/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771720/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1848534885",
@@ -2280,12 +2455,13 @@
     "nmID": 1573771728,
     "vendorCode": "OZON-1848534885-v1",
     "barcode": "2056574911844",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573771728/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573771728/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3082653301",
@@ -2293,12 +2469,13 @@
     "nmID": 1573775427,
     "vendorCode": "OZON-3082653301-v1",
     "barcode": "2056574946143",
-    "strike_price": 292080,
+    "strike_price": 25022,
     "discount": 50,
-    "sell_price": 146040,
+    "sell_price": 12511,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775427/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775427/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243258",
@@ -2306,12 +2483,13 @@
     "nmID": 1573775439,
     "vendorCode": "OZON-2002243258-v1",
     "barcode": "2056574946150",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775439/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775439/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517540209",
@@ -2319,12 +2497,13 @@
     "nmID": 1573775450,
     "vendorCode": "OZON-3517540209-v1",
     "barcode": "2056574946167",
-    "strike_price": 9648,
+    "strike_price": 826,
     "discount": 50,
-    "sell_price": 4824,
+    "sell_price": 413,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775450/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775450/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243297",
@@ -2332,12 +2511,13 @@
     "nmID": 1573775455,
     "vendorCode": "OZON-2002243297-v1",
     "barcode": "2056574946174",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775455/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775455/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950787",
@@ -2345,12 +2525,13 @@
     "nmID": 1573775468,
     "vendorCode": "OZON-1891950787-v1",
     "barcode": "2056574946181",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775468/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775468/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243269",
@@ -2358,12 +2539,13 @@
     "nmID": 1573775477,
     "vendorCode": "OZON-2002243269-v1",
     "barcode": "2056574946198",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775477/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775477/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243266",
@@ -2371,12 +2553,13 @@
     "nmID": 1573775486,
     "vendorCode": "OZON-2002243266-v1",
     "barcode": "2056574946204",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775486/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775486/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517436214",
@@ -2384,12 +2567,13 @@
     "nmID": 1573775492,
     "vendorCode": "OZON-3517436214-v1",
     "barcode": "2056574946211",
-    "strike_price": 25944,
+    "strike_price": 2222,
     "discount": 50,
-    "sell_price": 12972,
+    "sell_price": 1111,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775492/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775492/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517505672",
@@ -2397,12 +2581,13 @@
     "nmID": 1573775503,
     "vendorCode": "OZON-3517505672-v1",
     "barcode": "2056574946228",
-    "strike_price": 4296,
+    "strike_price": 368,
     "discount": 50,
-    "sell_price": 2148,
+    "sell_price": 184,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775503/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775503/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243280",
@@ -2410,12 +2595,13 @@
     "nmID": 1573775510,
     "vendorCode": "OZON-2002243280-v1",
     "barcode": "2056574946235",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573775510/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573775510/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243294",
@@ -2423,12 +2609,13 @@
     "nmID": 1573780167,
     "vendorCode": "OZON-2002243294-v1",
     "barcode": "2056575054335",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780167/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780167/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243272",
@@ -2436,12 +2623,13 @@
     "nmID": 1573780188,
     "vendorCode": "OZON-2002243272-v1",
     "barcode": "2056575054342",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780188/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780188/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243271",
@@ -2449,12 +2637,13 @@
     "nmID": 1573780217,
     "vendorCode": "OZON-2002243271-v1",
     "barcode": "2056575054359",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780217/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780217/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517578275",
@@ -2462,12 +2651,13 @@
     "nmID": 1573780229,
     "vendorCode": "OZON-3517578275-v1",
     "barcode": "2056575054366",
-    "strike_price": 14028,
+    "strike_price": 1202,
     "discount": 50,
-    "sell_price": 7014,
+    "sell_price": 601,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780229/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780229/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243276",
@@ -2475,12 +2665,13 @@
     "nmID": 1573780252,
     "vendorCode": "OZON-2002243276-v1",
     "barcode": "2056575054373",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780252/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780252/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950782",
@@ -2488,12 +2679,13 @@
     "nmID": 1573780272,
     "vendorCode": "OZON-1891950782-v1",
     "barcode": "2056575054380",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780272/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780272/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950781",
@@ -2501,12 +2693,13 @@
     "nmID": 1573780289,
     "vendorCode": "OZON-1891950781-v1",
     "barcode": "2056575054397",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780289/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780289/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243260",
@@ -2514,12 +2707,13 @@
     "nmID": 1573780295,
     "vendorCode": "OZON-2002243260-v1",
     "barcode": "2056575054403",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780295/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780295/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3517574577",
@@ -2527,12 +2721,13 @@
     "nmID": 1573780299,
     "vendorCode": "OZON-3517574577-v1",
     "barcode": "2056575054410",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780299/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780299/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243291",
@@ -2540,12 +2735,13 @@
     "nmID": 1573780218,
     "vendorCode": "OZON-2002243291-v1",
     "barcode": "2056575054427",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780218/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780218/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950785",
@@ -2553,12 +2749,13 @@
     "nmID": 1573780226,
     "vendorCode": "OZON-1891950785-v1",
     "barcode": "2056575054434",
-    "strike_price": 51648,
+    "strike_price": 4424,
     "discount": 50,
-    "sell_price": 25824,
+    "sell_price": 2212,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780226/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780226/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2002243286",
@@ -2566,12 +2763,13 @@
     "nmID": 1573780224,
     "vendorCode": "OZON-2002243286-v1",
     "barcode": "2056575054441",
-    "strike_price": 8784,
+    "strike_price": 752,
     "discount": 50,
-    "sell_price": 4392,
+    "sell_price": 376,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780224/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780224/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1891950784",
@@ -2579,12 +2777,13 @@
     "nmID": 1573780225,
     "vendorCode": "OZON-1891950784-v1",
     "barcode": "2056575054458",
-    "strike_price": 10200,
+    "strike_price": 874,
     "discount": 50,
-    "sell_price": 5100,
+    "sell_price": 437,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573780225/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573780225/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5363583814",
@@ -2592,12 +2791,13 @@
     "nmID": 1573854785,
     "vendorCode": "OZON-5363583814-v1",
     "barcode": "2056576096167",
-    "strike_price": 11028,
+    "strike_price": 944,
     "discount": 50,
-    "sell_price": 5514,
+    "sell_price": 472,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854785/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854785/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1315877939",
@@ -2605,12 +2805,13 @@
     "nmID": 1573854822,
     "vendorCode": "OZON-1315877939-v1",
     "barcode": "2056576096174",
-    "strike_price": 8520,
+    "strike_price": 730,
     "discount": 50,
-    "sell_price": 4260,
+    "sell_price": 365,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854822/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854822/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4072864193",
@@ -2618,12 +2819,13 @@
     "nmID": 1573854870,
     "vendorCode": "OZON-4072864193-v1",
     "barcode": "2056576096181",
-    "strike_price": 9060,
+    "strike_price": 776,
     "discount": 50,
-    "sell_price": 4530,
+    "sell_price": 388,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854870/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854870/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "904512219",
@@ -2631,12 +2833,13 @@
     "nmID": 1573854943,
     "vendorCode": "OZON-904512219-v1",
     "barcode": "2056576096198",
-    "strike_price": 14340,
+    "strike_price": 1228,
     "discount": 50,
-    "sell_price": 7170,
+    "sell_price": 614,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854943/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854943/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5166233714",
@@ -2644,12 +2847,13 @@
     "nmID": 1573854962,
     "vendorCode": "OZON-5166233714-v1",
     "barcode": "2056576096204",
-    "strike_price": 10296,
+    "strike_price": 882,
     "discount": 50,
-    "sell_price": 5148,
+    "sell_price": 441,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854962/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854962/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "384873261",
@@ -2657,12 +2861,13 @@
     "nmID": 1573854741,
     "vendorCode": "OZON-384873261-v1",
     "barcode": "2056576096211",
-    "strike_price": 5484,
+    "strike_price": 470,
     "discount": 50,
-    "sell_price": 2742,
+    "sell_price": 235,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854741/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854741/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5654981392",
@@ -2670,12 +2875,13 @@
     "nmID": 1573854802,
     "vendorCode": "OZON-5654981392-v1",
     "barcode": "2056576096228",
-    "strike_price": 17484,
+    "strike_price": 1498,
     "discount": 50,
-    "sell_price": 8742,
+    "sell_price": 749,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854802/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854802/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5654985245",
@@ -2683,12 +2889,13 @@
     "nmID": 1573854824,
     "vendorCode": "OZON-5654985245-v1",
     "barcode": "2056576096235",
-    "strike_price": 11184,
+    "strike_price": 958,
     "discount": 50,
-    "sell_price": 5592,
+    "sell_price": 479,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854824/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854824/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5321590912",
@@ -2696,12 +2903,13 @@
     "nmID": 1573854871,
     "vendorCode": "OZON-5321590912-v1",
     "barcode": "2056576096242",
-    "strike_price": 15228,
+    "strike_price": 1304,
     "discount": 50,
-    "sell_price": 7614,
+    "sell_price": 652,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854871/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854871/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5174642890",
@@ -2709,12 +2917,13 @@
     "nmID": 1573854966,
     "vendorCode": "OZON-5174642890-v1",
     "barcode": "2056576096259",
-    "strike_price": 6636,
+    "strike_price": 568,
     "discount": 50,
-    "sell_price": 3318,
+    "sell_price": 284,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573854966/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573854966/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "3552832270",
@@ -2722,12 +2931,13 @@
     "nmID": 1573857458,
     "vendorCode": "OZON-3552832270-v1",
     "barcode": "2056576132322",
-    "strike_price": 7560,
+    "strike_price": 648,
     "discount": 50,
-    "sell_price": 3780,
+    "sell_price": 324,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857458/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857458/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5289138138",
@@ -2735,12 +2945,13 @@
     "nmID": 1573857464,
     "vendorCode": "OZON-5289138138-v1",
     "barcode": "2056576132339",
-    "strike_price": 17184,
+    "strike_price": 1472,
     "discount": 50,
-    "sell_price": 8592,
+    "sell_price": 736,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857464/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857464/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1133889123",
@@ -2748,12 +2959,13 @@
     "nmID": 1573857467,
     "vendorCode": "OZON-1133889123-v1",
     "barcode": "2056576132346",
-    "strike_price": 6792,
+    "strike_price": 582,
     "discount": 50,
-    "sell_price": 3396,
+    "sell_price": 291,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857467/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857467/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1879456169",
@@ -2761,12 +2973,13 @@
     "nmID": 1573857461,
     "vendorCode": "OZON-1879456169-v1",
     "barcode": "2056576132353",
-    "strike_price": 6876,
+    "strike_price": 590,
     "discount": 50,
-    "sell_price": 3438,
+    "sell_price": 295,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857461/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857461/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1598495565",
@@ -2774,12 +2987,13 @@
     "nmID": 1573857463,
     "vendorCode": "OZON-1598495565-v1",
     "barcode": "2056576132360",
-    "strike_price": 7728,
+    "strike_price": 662,
     "discount": 50,
-    "sell_price": 3864,
+    "sell_price": 331,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857463/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857463/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1312199631",
@@ -2787,12 +3001,13 @@
     "nmID": 1573857469,
     "vendorCode": "OZON-1312199631-v1",
     "barcode": "2056576132377",
-    "strike_price": 12504,
+    "strike_price": 1072,
     "discount": 50,
-    "sell_price": 6252,
+    "sell_price": 536,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857469/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857469/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1676007028",
@@ -2800,12 +3015,13 @@
     "nmID": 1573857483,
     "vendorCode": "OZON-1676007028-v1",
     "barcode": "2056576132384",
-    "strike_price": 7932,
+    "strike_price": 680,
     "discount": 50,
-    "sell_price": 3966,
+    "sell_price": 340,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857483/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857483/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2892976069",
@@ -2813,12 +3029,13 @@
     "nmID": 1573857487,
     "vendorCode": "OZON-2892976069-v1",
     "barcode": "2056576132391",
-    "strike_price": 16620,
+    "strike_price": 1424,
     "discount": 50,
-    "sell_price": 8310,
+    "sell_price": 712,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857487/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857487/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1607687108",
@@ -2826,12 +3043,13 @@
     "nmID": 1573857493,
     "vendorCode": "OZON-1607687108-v1",
     "barcode": "2056576132407",
-    "strike_price": 10284,
+    "strike_price": 882,
     "discount": 50,
-    "sell_price": 5142,
+    "sell_price": 441,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857493/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857493/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1634943239",
@@ -2839,12 +3057,13 @@
     "nmID": 1573857470,
     "vendorCode": "OZON-1634943239-v1",
     "barcode": "2056576132414",
-    "strike_price": 8088,
+    "strike_price": 692,
     "discount": 50,
-    "sell_price": 4044,
+    "sell_price": 346,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573857470/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573857470/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "4548907344",
@@ -2852,12 +3071,13 @@
     "nmID": 1573860349,
     "vendorCode": "OZON-4548907344-v1",
     "barcode": "2056576156113",
-    "strike_price": 13596,
+    "strike_price": 1164,
     "discount": 50,
-    "sell_price": 6798,
+    "sell_price": 582,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860349/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860349/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "2868114964",
@@ -2865,12 +3085,13 @@
     "nmID": 1573860526,
     "vendorCode": "OZON-2868114964-v1",
     "barcode": "2056576156120",
-    "strike_price": 13800,
+    "strike_price": 1182,
     "discount": 50,
-    "sell_price": 6900,
+    "sell_price": 591,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860526/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860526/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "5066035684",
@@ -2878,12 +3099,13 @@
     "nmID": 1573860568,
     "vendorCode": "OZON-5066035684-v1",
     "barcode": "2056576156137",
-    "strike_price": 11592,
+    "strike_price": 994,
     "discount": 50,
-    "sell_price": 5796,
+    "sell_price": 497,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860568/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860568/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1634943359",
@@ -2891,12 +3113,13 @@
     "nmID": 1573860420,
     "vendorCode": "OZON-1634943359-v1",
     "barcode": "2056576156144",
-    "strike_price": 5736,
+    "strike_price": 492,
     "discount": 50,
-    "sell_price": 2868,
+    "sell_price": 246,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860420/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860420/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "835676827",
@@ -2904,12 +3127,13 @@
     "nmID": 1573860482,
     "vendorCode": "OZON-835676827-v1",
     "barcode": "2056576156151",
-    "strike_price": 10164,
+    "strike_price": 870,
     "discount": 50,
-    "sell_price": 5082,
+    "sell_price": 435,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860482/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860482/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1097466549",
@@ -2917,12 +3141,13 @@
     "nmID": 1573860712,
     "vendorCode": "OZON-1097466549-v1",
     "barcode": "2056576156168",
-    "strike_price": 13872,
+    "strike_price": 1188,
     "discount": 50,
-    "sell_price": 6936,
+    "sell_price": 594,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860712/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860712/detail.aspx",
+    "currency": "CNY"
   },
   {
     "sku": "1713583791",
@@ -2930,11 +3155,12 @@
     "nmID": 1573860725,
     "vendorCode": "OZON-1713583791-v1",
     "barcode": "2056576156175",
-    "strike_price": 6984,
+    "strike_price": 598,
     "discount": 50,
-    "sell_price": 3492,
+    "sell_price": 299,
     "stock": 5,
     "status": "SUCCESS",
-    "url": "https://www.wildberries.ru/catalog/1573860725/detail.aspx"
+    "url": "https://www.wildberries.ru/catalog/1573860725/detail.aspx",
+    "currency": "CNY"
   }
 ]

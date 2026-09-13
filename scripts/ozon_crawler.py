@@ -33,6 +33,15 @@ try:
 except ImportError:
     HAS_CURL_CFFI = False
 
+try:
+    from clean_descriptions import clean_and_decode_russian
+except ImportError:
+    try:
+        from scripts.clean_descriptions import clean_and_decode_russian
+    except ImportError:
+        clean_and_decode_russian = lambda t, **kw: t
+
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 WORKSPACE_DIR = os.path.dirname(SCRIPT_DIR)
 
@@ -217,6 +226,13 @@ class OzonCrawler:
                 except Exception:
                     pass
 
+        # 6. 描述权威清洗与 Ozon 编码彻底剥离
+        if data['description_clean']:
+            data['description_clean'] = clean_and_decode_russian(
+                data['description_clean'],
+                extra_brands=[data.get('brand')] if data.get('brand') else None
+            )
+
         return data
 
     def parse_features_html(self, html: str) -> Dict[str, Any]:
@@ -309,6 +325,41 @@ class OzonCrawler:
                     res['weight_g'] = int(val * 1000) if 'кг' in unit else int(val)
                 except Exception:
                     pass
+
+        # 5. 基于容量 (Объем, мл) 或特性推导实际包装长宽高 (避免全店千篇一律假模板数值)
+        if res['length_cm'] is None:
+            vol_str = props.get('Объем, мл') or props.get('Объем') or props.get('Объём, мл') or props.get('Объём') or ''
+            if not vol_str:
+                m_v = re.search(r'(\d+)\s*(?:мл|ml)\b', html, re.IGNORECASE)
+                if m_v:
+                    vol_str = m_v.group(1)
+            vol_nums = re.findall(r'\d+', str(vol_str))
+            if vol_nums:
+                v_ml = int(vol_nums[0])
+                if v_ml <= 5:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 12.0, 3.0, 2.0
+                    res['weight_g'] = res['weight_g'] or 40
+                elif v_ml <= 15:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 13.0, 4.0, 3.0
+                    res['weight_g'] = res['weight_g'] or 60
+                elif v_ml <= 30:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 11.0, 4.0, 4.0
+                    res['weight_g'] = res['weight_g'] or 100
+                elif v_ml <= 50:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 8.0, 8.0, 6.0
+                    res['weight_g'] = res['weight_g'] or 160
+                elif v_ml <= 100:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 16.0, 5.0, 4.0
+                    res['weight_g'] = res['weight_g'] or 150
+                elif v_ml <= 150:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 17.0, 5.0, 5.0
+                    res['weight_g'] = res['weight_g'] or 210
+                elif v_ml <= 250:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 19.0, 6.0, 6.0
+                    res['weight_g'] = res['weight_g'] or 320
+                elif v_ml <= 500:
+                    res['length_cm'], res['width_cm'], res['height_cm'] = 22.0, 8.0, 7.0
+                    res['weight_g'] = res['weight_g'] or 560
 
         return res
 
