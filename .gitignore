@@ -36,3 +36,14 @@ Thumbs.db
 
 # Build & Zip Artifacts
 *.zip
+
+# Scratch and temporary batch files
+*.txt
+*batch*.json
+*parsed*.json
+extracted_10.json
+products_to_upload.json
+scripts/test_*.py
+scripts/check_*.py
+scripts/find_*.py
+scripts/inspect_*.py

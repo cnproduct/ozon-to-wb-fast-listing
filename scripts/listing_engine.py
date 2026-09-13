@@ -290,12 +290,11 @@ class WBListingStudio:
             if weight_kg <= 0:
                 weight_kg = 0.1
             
-            # 地道俄文结构化描述 (自动乱码解码+品牌脱敏+自然闭合+毛重 брутто 规范标注)
+            # 地道俄文结构化描述 (自动乱码解码+品牌脱敏+自然闭合+毛重 брутто 规范标注，严格剔除 Ozon 编码)
             specs_footer = (
                 f"\n\nОсновные характеристики:\n"
                 f"- Вес с упаковкой (брутто): {real_weight_g} г ({weight_kg:.2f} кг)\n"
                 f"- Габариты упаковки: {l} x {w} x {h} см\n"
-                f"- Код товара: {p.get('sku')}\n"
                 f"- Артикул продавца: {p.get('vendorCode')}"
             )
             budget = 1950 - len(specs_footer)

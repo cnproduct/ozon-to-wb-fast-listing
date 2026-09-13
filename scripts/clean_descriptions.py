@@ -131,6 +131,18 @@ def clean_and_decode_russian(text: str, extra_brands: Optional[List[str]] = None
     # 4. 清除特殊符号、全角中文括号与杂质字符
     chars_to_remove = r'[©®™▪►◄★☆✓✦✧✨💥🔥【】·•]'
     text = re.sub(chars_to_remove, ' ', text)
+
+    # 5. 铁律：100% 彻底剥离 Ozon 编码、SKU 货号及平台痕迹 (严禁暴露给 WB 买家)
+    # 匹配各类俄文/英文提及 Ozon 编码、商品编码、SKU 的整行或片段
+    ozon_patterns = [
+        r'(?i)[-\s*•]*Код\s+товара\s*(?:Ozon)?\s*[:：]?\s*\d+\s*',
+        r'(?i)[-\s*•]*Артикул\s*(?:Ozon|товара)?\s*[:：]?\s*\d+\s*',
+        r'(?i)[-\s*•]*Ozon\s*(?:SKU|ID|код)?\s*[:：]?\s*\d+\s*',
+        r'(?i)\bOzon\b'
+    ]
+    for op in ozon_patterns:
+        text = re.sub(op, '', text)
+
     text = re.sub(r'[ \t]+', ' ', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
     return text.strip()
