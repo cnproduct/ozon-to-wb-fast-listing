@@ -42,7 +42,18 @@
 - **实物物理包装尺寸与毛重智能推导**：杜绝全店单一假模板；根据容量（ml/g）、器皿形态（滴管瓶、圆罐面霜、泵头乳液）或工具类目（手提箱电钻 32x28x10cm/2.2kg）动态推导真实物理尺寸与毛重。
 - **现货库存秒级注入**：莫斯科1仓（如 ID `2200658` 或 `2156484`）秒级写入在售现货。
 
-### 5. 🤖 飞书 (Feishu / Lark) 官方 WebSocket 机器人
+### 5. 🔍 官方后台实时全量数据穿透核验 (Live Backend Verification)
+- **四位一体 API 穿透核验**：拒绝本地虚报，直连 Content API（卡片状态）、Marketplace API（现货库存）、Discounts-Prices API（划线价/实售价/折扣率）与 Quarantine API（价格隔离监控）。
+- **一键比对并生成 Markdown/JSON**：内置 `scripts/verify_backend_data.py`，全自动导出在售商品核心指标比对表格。
+
+### 6. 🛡️ 价格隔离 (Price Quarantine) 与微服务索引 0 标价自动补推
+- **价格隔离区快速诊断与放行指引**：针对单次降幅超 33.3% 被官方隔离的商品，提供状态扫描与卖家后台一键确认解禁 SOP。
+- **微服务索引排队 0 标价自动补推 (`scripts/repush_indexed_prices.py`)**：针对 WB Content 与 Price 系统异步解耦导致新卡片入库初期 `price: 0` 不显价的痛点，自动监测新入库卡片并秒级补推 5 折精准价格。
+
+### 7. 🗑️ 异常款式安全下架清零与移入回收站 (`scripts/clean_trash_cards.py`)
+- **官方两步法安全删除**：针对误标极端高价或用户指示删除的款式，先调用仓库 API 将库存**置 0** 彻底阻断下单，再调用 `POST /content/v2/cards/delete/trash` 移入回收站，确保卡片彻底安全下架。
+
+### 8. 🤖 飞书 (Feishu / Lark) 官方 WebSocket 机器人
 - **免公网 IP、免内网穿透**：基于官方 WebSocket 长连接模式，局域网与个人电脑即启即用。
 - **自然语言对话上架**：直接在群聊或私聊中发送纯 SKU 列表即可触发全流程。
 - **Excel 文件拖拽批量上架**：直接向机器人发送 `.xlsx` 货盘表，自动解析多列并批量上架。
@@ -109,6 +120,9 @@ ozon-to-wb-fast-listing/
 │   ├── enrich_charcs_pipeline.py        # 买家端展示参数探测与饱和注入工具
 │   ├── audit_deliverability.py          # 全店商品可交付性多维自动化审计工具
 │   ├── check_cdn_slice.py               # 买家端 CDN 静态切片编译探测工具
+│   ├── verify_backend_data.py           # WB 官方后台全量数据穿透实时核验工具 (4大官方API比对)
+│   ├── clean_trash_cards.py             # 异常高价卡片安全下架销毁工具 (先清零库存再移入回收站)
+│   ├── repush_indexed_prices.py         # WB 微服务异步目录索引排队扫描与 0 标价自动补推工具
 │   ├── browser_snapshot.js              # 无头浏览器无痕抓取探针
 │   └── preview.py                       # 卡片渲染与本地预览辅助工具
 ├── templates/                           # 业务模板

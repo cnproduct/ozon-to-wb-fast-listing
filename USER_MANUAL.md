@@ -222,6 +222,21 @@ python scripts/listing_engine.py --input products.json --multiplier 4.0 --discou
 $$P_{\text{sell}} = \text{round}(P_{\text{ozon}} \times M)$$
 $$P_{\text{strike}} = \text{ceil}\left(\frac{P_{\text{sell}}}{1 - D / 100.0}\right)$$
 
+#### (3) 基于 Ozon 绿标基准价的 5 倍大促定价实操模型 (Green Badge Anchor Model)
+- **概念严格界定**：
+  - **Ozon 绿标基准价 (`ozon_green_price`)**：用户/卖家采购或核算的锚定基准价数值（例如 `144.28`、`98.50` 等基准数值）。
+  - **Ozon 买家端卢布原值 (`ozon_buyer_rub`)**：Ozon 俄文前台展示给终端消费者的卢布挂牌零售价（如 `1811 ₽`）。
+  - **防错红线**：严禁把抓取到的俄文买家端卢布原值（如 1811 ₽）直接填在“绿标价”呈报给用户，更严禁把买家卢布原值再次乘以 10~12 导致上万卢布的离谱荒谬标价！
+- **标准 5 倍实售与 50% 折扣计算公式**：
+  - **WB 5 折实售到手价 (RUB)**：
+    $$P_{\text{sell\_WB}} = \text{round}(P_{\text{ozon\_green}} \times 5.0)$$
+    *(例：144.28 × 5.0 = 721.4 ➔ 721 ₽)*
+  - **WB 官方划线标价 (RUB)**：
+    $$P_{\text{strike\_WB}} = \text{round}(P_{\text{sell\_WB}} \times 2) = \text{ceil}\left(\frac{P_{\text{sell\_WB}}}{1 - 50\%}\right)$$
+    *(例：721.4 × 2 = 1443 ₽)*
+  - **折扣率 (Discount)**：统一配置为 `50%`。
+  - **前台实际效果**：划线标价 1443 ₽，打 5 折后买家到手价 721 ₽，形成强烈的“立省 50%”心理锚定促销感知。
+
 ### 3. 平滑阶梯调价防风控与防隔离机制 (Step-Down Anti-Quarantine)
 - **WB 价格风控红线**：
   - 单次价格降幅严禁超过 **50%**（否则直接抛错：`"New prices are more than twice lower than the current ones. Please lower them gradually"`）；
@@ -264,22 +279,35 @@ Wildberries 买家端采用动态流与静态 CDN 批处理分离架构：
 ## 八、技能包目录结构与文件清单
 
 ```text
-Wildberries_全自动极速智能上架技能_完整包/
+ozon-to-wb-fast-listing/
 ├── SKILL.md                             # 核心技能标准规范（AI 调用的最高法则，含所有业务规则）
-├── README.md                            # 技能包工程概览
-├── 使用说明书与新手操作手册.md           # 本文档（面向运营与开发者的完整使用手册）
+├── README.md                            # 技能包工程概览 (中英双语)
+├── USER_MANUAL.md                       # 本文档（面向运营与开发者的完整使用手册）
+├── FEISHU_INTEGRATION_GUIDE.md          # 飞书机器人 3 步免公网长连接对接白皮书
+├── config.example.json                  # 配置文件模板 (含 Token、仓库 ID 与飞书凭证)
 ├── references/                          # 官方协议与技术文档参考
-│   ├── input-schema.md                  # 输入商品数据契约规范 (JSON Schema)
-│   ├── two_tier_architecture.md         # WB 买家端两级渲染与 CDN 切片白皮书
-│   └── category_display_charcs_guide.md # 官方类目展示参数与 maxCount 约束表
+│   ├── category_mapping.json            # Ozon 与 Wildberries 类目映射字典
+│   ├── category_display_charcs_guide.md # 官方类目展示参数与 maxCount 约束表
+│   ├── sensitive_brands.txt             # 敏感商标品牌保护库 (白牌脱敏依据)
+│   ├── input-schema.md                  # 标准输入数据结构契约规范 (JSON Schema)
+│   └── two_tier_architecture.md         # WB 买家端两级渲染与 CDN 切片白皮书
 ├── scripts/                             # 核心工程脚本
+│   ├── ozon_crawler.py                  # Ozon 商品数据双路由爬虫提取器
+│   ├── wb_uploader.py                   # Wildberries 官方 API 全链路独立上架客户端
 │   ├── listing_engine.py                # 全自动端到端极速批量上架核心引擎 (v3.0)
-│   ├── enrich_charcs_pipeline.py        # 买家端专属展示参数探测与饱和注入工具
+│   ├── feishu_wb_bot.py                 # 飞书官方 WebSocket 长连接交互机器人
+│   ├── batch_upload_11.py               # 批量逐一上架流水线脚本 (支持增量断点续传)
 │   ├── clean_descriptions.py            # 俄文双重编码乱码纠偏与品牌脱敏工具
+│   ├── enrich_charcs_pipeline.py        # 买家端专属展示参数探测与饱和注入工具
 │   ├── audit_deliverability.py          # 全链路商品可交付性多维全自动审计脚本
 │   ├── check_cdn_slice.py               # 买家端 CDN 静态切片 options 编译探测工具
+│   ├── verify_backend_data.py           # WB 官方后台全量数据穿透实时核验工具 (4大官方API比对)
+│   ├── clean_trash_cards.py             # 异常高价卡片安全下架销毁工具 (先清零库存再移入回收站)
+│   ├── repush_indexed_prices.py         # WB 微服务异步目录索引排队扫描与 0 标价自动补推工具
 │   ├── browser_snapshot.js              # 无头浏览器无痕抓取探针
 │   └── preview.py                       # 卡片渲染与本地预览辅助工具
+├── templates/                           # 业务模板
+│   └── WB批量上架模板.xlsx               # 飞书机器人支持的 Excel 货盘导入模板
 └── tests/                               # 质量测试
     └── test_listing_engine.py           # 18 项全量自动化单元测试 (覆盖率 100%)
 ```
@@ -313,6 +341,47 @@ Wildberries_全自动极速智能上架技能_完整包/
 
 ### Q4: 如何查看上架卡片是否有错误？
 **答**：系统内置了官方错误队列检测。你也可以通过 `POST https://content-api.wildberries.ru/content/v2/cards/error/list` 查询。只要错误队列返回为空，说明卡片 100% 通过 WB 系统合规质检。
+
+### Q5: 为什么建卡后在前台看不到价格，或者后台显示价格为 0？
+**答**：这是由于 Wildberries 内部微服务异步解耦机制决定的：
+1. **微服务架构分离**：Wildberries 的商品资料服务 (`Content API`) 与商品价格/折扣服务 (`Discounts-Prices API`) 运行在两个独立的微服务集群上。
+2. **异步索引排队**：新卡片创建成功（获得 `nmID`）后，需要进入后台目录聚合索引队列进行编排。在此期间（通常为 10~30 分钟），价格服务中该商品处于“未编排”状态，接口返回 `price: 0`。
+3. **前台表现**：在买家端前台，未同步完成价格的商品不会展示价格，买家无法加购。
+4. **解决方案**：无需重新建卡！只需等待卡片进入价格目录后，使用 `scripts/repush_indexed_prices.py` 或调用 `POST /api/v2/upload/task` 重新下发一次标价与 50% 折扣，价格便会立即在前台秒级点亮激活。
+
+### Q6: 遇到设置了离谱超高价格该如何安全处理？能否直接大幅降价？
+**答**：千万不要直接大幅降价！Wildberries 有严格的**反倾销与防恶性改价风控**：
+1. **价格风控红线**：单次降价幅度超过 33.3%（或直接对半砍）会触发系统状态码 `6`，商品被强制打入**价格隔离区 (Карантин цен)**。
+2. **价格隔离区后果**：进入隔离区的商品在解除隔离前，在前台不会更新为新价格，买家端处于异常或停售状态。解除隔离必须由卖家登录 WB 卖家后台 (`Цены и скидки -> Карантин цен`) 手动逐个点击“Подтвердить (确认)”。
+3. **正确处理方式**：
+   - 若商品确定不保留：**严禁直接挂着离谱价格**，应执行**两步安全下架销毁**（见 Q7）；
+   - 若商品需要继续保留：必须使用**平滑阶梯调价机制**（每次按 `0.70x` 节奏分批步进下调，直至目标价格），彻底规避风控隔离。
+
+### Q7: 为什么删除商品卡片会报错，提示无法移入回收站？
+**答**：调用 WB 官方删除卡片接口 `POST /content/v2/cards/delete/trash` 时，平台有极严格的前置校验：**卡片在任何仓库中不得存在正数现货库存，且不得存在未完成的在途订单/运单**。如果卡片仍有库存直接调用删除，WB 接口会直接返回 400 报错并拒绝删除。  
+**标准安全删除两步法 (Two-Step Safe Deletion SOP)**：
+1. **第一步（清零库存阻断下单）**：调用 `PUT https://marketplace-api.wildberries.ru/api/v3/stocks/{warehouseId}`，传入 `{"stocks": [{"sku": barcode, "amount": 0}]}`，秒级清零该商品全部现货库存；
+2. **第二步（安全移入回收站）**：库存归零后，再调用 `POST https://content-api.wildberries.ru/content/v2/cards/delete/trash` 提交商品货号列表，卡片便能 100% 成功移入回收站。  
+*(本项目已将该标准两步法封装为自动化工具 `scripts/clean_trash_cards.py`)*
+
+### Q8: 为什么核验商品状态时不能只看本地生成的 JSON 报告，而必须进行官方后台 API 穿透核验？
+**答**：本地生成的静态 JSON（如 `upload_results.json`）仅记录了建卡脚本发起请求当时的瞬时状态，无法反映后期的微服务异步变动。例如：
+- 本地记录了价格，但可能卡片正在排队，WB 价格库中实际为 `0`；
+- 某些调价请求可能被 WB 拦截打入了**价格隔离区 (Карантин цен)**；
+- 某些变体货号的库存可能未完全同步成功。  
+**官方后台四位一体穿透核验规范 (Live Backend Verification SOP)**：
+必须直连 WB 官方四大 API 实时取数交叉比对：
+1. `POST /content/v2/get/cards/list`：抓取真实在售卡片列表与媒体图片数；
+2. `GET /api/v3/stocks/{warehouseId}`：抓取卖家真实仓库现货库存数；
+3. `POST /api/v2/list/goods/filter`：穿透抓取官方价格系统中的真实划线标价、折扣率与实售价；
+4. `GET /api/v2/quarantine/goods`：核查是否有任何商品被平台判定异常打入价格隔离区。  
+*(本项目已内置 `scripts/verify_backend_data.py`，一键输出四维一体穿透比对报告)*
+
+### Q9: Ozon 绿标基准价与买家端卢布原值的区别是什么？如何准确换算？
+**答**：
+- **Ozon 绿标基准价 (`ozon_green_price`)**：是卖家或供应链核算使用的采购/锚定基准数值（例如 `144.28`）。
+- **Ozon 买家端卢布原值 (`ozon_buyer_rub`)**：是 Ozon 前台面向俄罗斯普通买家展示的终端零售价（例如 `1811 ₽`）。
+- **核算与汇报铁律**：向用户呈报定价表格或进行 5 倍实售价核算时，必须严格以 **绿标基准价** 进行计算（$144.28 \times 5 = 721.4\text{ ₽}$ 实售，划线价 $1443\text{ ₽}$），严禁将俄文买家卢布原值混淆为绿标价，严防出现两万多卢布的算错事故。
 
 ---
 *文档编制：RenWork 外贸与跨境电商智能自动化实验室*

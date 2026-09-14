@@ -43,7 +43,12 @@ Thumbs.db
 *parsed*.json
 extracted_10.json
 products_to_upload.json
+*verified*
+final_*
+live_backend_*
+wb_verified_*
 scripts/test_*.py
 scripts/check_*.py
 scripts/find_*.py
 scripts/inspect_*.py
+
