@@ -128,9 +128,16 @@ def clean_and_decode_russian(text: str, extra_brands: Optional[List[str]] = None
         # 兼容不带边界的极端情况
         text = re.sub(re.escape(b), '', text, flags=re.IGNORECASE)
 
-    # 4. 清除特殊符号、全角中文括号与杂质字符
-    chars_to_remove = r'[©®™▪►◄★☆✓✦✧✨💥🔥【】·•]'
-    text = re.sub(chars_to_remove, ' ', text)
+    # 4. 彻底清除所有 Emoji 表情符、杂质字符与特殊图标
+    emoji_pattern = re.compile(
+        r'[\U00010000-\U0010ffff]'  # 4-byte Emojis (🍓, 🚀, 👍, etc.)
+        r'|[\u2600-\u27BF]'          # Misc symbols & dingbats (✔, ★, ⚡, ✈, etc.)
+        r'|[\u2300-\u23FF]'          # Misc technical
+        r'|[\u2B50-\u2B55]'          # Stars and circles
+        r'|[\u200B-\u200D\uFEFF]'    # Zero-width spaces
+        r'|[©®™▪►◄★☆✓✦✧✨💥🔥【】·•✔]'
+    )
+    text = emoji_pattern.sub(' ', text)
 
     # 5. 铁律：100% 彻底剥离 Ozon 编码、SKU 货号及平台痕迹 (严禁暴露给 WB 买家)
     # 匹配各类俄文/英文提及 Ozon 编码、商品编码、SKU 的整行或片段
