@@ -3,11 +3,9 @@
   "wb_api_token": "YOUR_WB_API_TOKEN_HERE",
   "wb_warehouse_id": 2200658,
   "warehouse_name": "莫斯科1仓",
-  "store_currency": "CNY",
-  "wb_rub_rate": 11.672619,
-  "default_multiplier": 5.0,
+  "default_multiplier": 6.0,
   "default_discount": 50,
-  "default_stock": 200,
+  "default_stock": 5,
   "feishu_app_id": "cli_xxxxxxxxxxxx",
   "feishu_app_secret": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "sensitive_brands": [

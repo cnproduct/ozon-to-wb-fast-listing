@@ -578,21 +578,20 @@ class WBListingStudio:
                 p['subjectID'] = best_sub
             self.validate_product_data(p)
 
-            # 核心铁律：Ozon 绿标基准价 × multiplier (5.0倍) ➔ 最终实售目标价 (5折大促后实售价)
-            # 划线标价 = 最终实售价 × 2 (对应 50% 大促折扣)
-            OZON_RATE = 12.55198225672304
+            # 核心铁律：直接从 Ozon 的绿标价 * multiplier (6倍) = Wildberries 打 5 折后的售价
+            # Wildberries 划线标价 = 售价 * 2 (即 Ozon 绿标价 * 12)，官方促销折扣 50%
+            # 绝不涉及人民币换算，严禁除以汇率！
             ozon_green_rub = float(p.get('ozon_green_price') or p.get('ozon_price', 1000.0))
-            ozon_display_price = round(ozon_green_rub / OZON_RATE, 2)
-            
-            target_sell_price = round(ozon_display_price * multiplier, 1)
+            target_sell_price = round(ozon_green_rub * multiplier)
             strike_price = int(round(target_sell_price * 2))
             
-            p['ozon_display_price'] = ozon_display_price
+            p['ozon_price'] = ozon_green_rub
             p['strike_price'] = strike_price
             p['target_sell_price'] = target_sell_price
             p['discount_percent'] = 50
             p['stock_amount'] = stock
-            print(f"  [定价核准] Ozon 绿标价: {ozon_display_price} (卢布: {ozon_green_rub:.0f}₽) × {multiplier}倍 ➔ WB 5折实售价: {target_sell_price} (划线标价: {strike_price}, 折扣: 50%)")
+            p['currency'] = 'RUB'
+            print(f"  [定价核准] Ozon 绿标价: {ozon_green_rub:.0f}₽ × {multiplier}倍 ➔ WB 5折到手实售价: {target_sell_price}₽ | 划线标价: {strike_price}₽ (折扣: 50%)")
 
         barcodes = self.allocate_barcodes(len(products_data))
         for i, p in enumerate(products_data):
