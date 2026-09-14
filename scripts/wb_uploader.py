@@ -37,7 +37,7 @@ class WildberriesAPIClient:
         """
         cfg = load_config()
         self.token = (api_token or cfg.get('wb_api_token') or os.getenv('WB_API_TOKEN') or '').strip()
-        self.warehouse_id = warehouse_id or cfg.get('wb_warehouse_id') or int(os.getenv('WB_WAREHOUSE_ID', '120762'))
+        self.warehouse_id = warehouse_id or cfg.get('wb_warehouse_id') or int(os.getenv('WB_WAREHOUSE_ID', '2200658'))
         
         # 使用直连 Session，彻底屏蔽失效系统代理污染
         self.session = requests.Session()

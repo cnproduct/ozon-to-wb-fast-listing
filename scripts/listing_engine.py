@@ -51,7 +51,7 @@ def get_active_config():
             except Exception:
                 pass
             break
-    return token, int(warehouse_id) if warehouse_id else 2156484, config_dict
+    return token, int(warehouse_id) if warehouse_id else 2200658, config_dict
 
 ACTIVE_TOKEN, ACTIVE_WAREHOUSE_ID, ACTIVE_CONFIG = get_active_config()
 
@@ -578,30 +578,17 @@ class WBListingStudio:
                 p['subjectID'] = best_sub
             self.validate_product_data(p)
 
-            # 锚定效应价格计算 (支持多币种店铺：跨境 CNY 店铺 vs 本土 RUB 店铺)
-            ozon_rub = float(p.get('ozon_price', 1000.0))
-            target_buyer_rub = round(ozon_rub * multiplier)
+            # 纯卢布极简定价：核心铁律必须且仅以 Ozon 绿标卡价为基准 × multiplier，绝不涉及任何人民币
+            ozon_green_rub = float(p.get('ozon_green_price') or p.get('ozon_price', 1000.0))
+            target_sell_rub = round(ozon_green_rub * multiplier)
+            strike_price_rub = max(2, math.ceil(target_sell_rub / (1.0 - (discount_percent / 100.0))))
             
-            store_currency = self.get_store_currency()
-            wb_rub_rate = float(self.config.get('wb_rub_rate') or self.config.get('rub_exchange_rate') or 11.672619)
-            
-            if store_currency == 'CNY':
-                # 中国跨境卖家店铺 (结算币种为 CNY)
-                # 卖家下发价格必须为人民币，买家端由 WB 自动折算为卢布展示
-                target_sell_price = max(1, round(target_buyer_rub / wb_rub_rate))
-                strike_price = max(2, math.ceil(target_sell_price / (1.0 - (discount_percent / 100.0))))
-                p['currency'] = 'CNY'
-                print(f"  [汇率换算] 店铺币种: CNY | Ozon 原价 {ozon_rub:.0f}₽ × {multiplier}倍 ➔ 前台目标 {target_buyer_rub}₽ ➔ 下发价格: 实售价 {target_sell_price}元, 划线价 {strike_price}元 (汇率: {wb_rub_rate})")
-            else:
-                # 俄罗斯本土卖家店铺 (结算币种为 RUB)
-                target_sell_price = max(1, round(target_buyer_rub))
-                strike_price = max(2, math.ceil(target_sell_price / (1.0 - (discount_percent / 100.0))))
-                p['currency'] = 'RUB'
-            
-            p['strike_price'] = strike_price
-            p['target_sell_price'] = target_sell_price
+            p['currency'] = 'RUB'
+            p['strike_price'] = strike_price_rub
+            p['target_sell_price'] = target_sell_rub
             p['discount_percent'] = discount_percent
             p['stock_amount'] = stock
+            print(f"  [纯卢布定价] Ozon Green Price: {ozon_green_rub:.0f} ₽ | Wildberries Price: {target_sell_rub:.0f} ₽ (标价: {strike_price_rub} ₽, 折扣: {discount_percent}%)")
 
         barcodes = self.allocate_barcodes(len(products_data))
         for i, p in enumerate(products_data):
@@ -689,7 +676,7 @@ def main():
         print("\n[ERROR] [配置阻断] 未检测到有效的 Wildberries API Token！")
         print("[TIP] 请通过以下任意方式配置您自己的 WB 官方 Token：")
         print("   1. 在技能包根目录下创建或编辑 config.json 文件：")
-        print("      {\"wb_api_token\": \"您的_WB_API_TOKEN\", \"wb_warehouse_id\": 2156484}")
+        print("      {\"wb_api_token\": \"您的_WB_API_TOKEN\", \"wb_warehouse_id\": 2200658}")
         print("   2. 设置环境变量：$env:WB_API_TOKEN=\"您的Token\"")
         print("   3. 命令行参数传入：python listing_engine.py --token \"您的Token\"")
         print("详见《使用说明书与新手操作手册》第 2.1 节获取说明。\n")

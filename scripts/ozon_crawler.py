@@ -125,6 +125,8 @@ class OzonCrawler:
             "vendorCode": f"OZON-{sku}-v1",
             "title": "",
             "ozon_price": 0.0,
+            "ozon_green_price": 0.0,
+            "ozon_regular_price": 0.0,
             "brand": "",
             "photos": [],
             "description_clean": "",
@@ -157,9 +159,28 @@ class OzonCrawler:
                         offers = ld.get('offers')
                         if isinstance(offers, dict) and 'price' in offers:
                             try:
-                                data['ozon_price'] = float(offers['price'])
+                                data['ozon_regular_price'] = float(offers['price'])
                             except Exception:
                                 pass
+            except Exception:
+                pass
+
+        # 1.1 核心铁律：优先提取 Ozon 绿标卡价 (cardPrice / Ozon Карта 专属特惠价)
+        # 无论在 webPrice JSON 还是 HTML 属性中，cardPrice 即为买家持卡实付的绿标底价
+        cp_match = re.search(r'"cardPrice"\s*:\s*"([^"]+)"', html)
+        if cp_match:
+            val_str = cp_match.group(1).replace('\u2009', '').replace('\xa0', '').replace(' ', '').replace('₽', '').strip()
+            try:
+                data['ozon_green_price'] = float(val_str)
+            except Exception:
+                pass
+
+        # 1.2 提取常规标价 (price)
+        p_match = re.search(r'"price"\s*:\s*"([^"]+)"', html)
+        if p_match:
+            val_str = p_match.group(1).replace('\u2009', '').replace('\xa0', '').replace(' ', '').replace('₽', '').strip()
+            try:
+                data['ozon_regular_price'] = float(val_str)
             except Exception:
                 pass
 
@@ -217,12 +238,29 @@ class OzonCrawler:
                 if u_hd not in data['photos']:
                     data['photos'].append(u_hd)
 
-        # 5. 实时价格正则兜底
-        if data['ozon_price'] <= 0:
+        # 5. 绿标价 HTML 容器与兜底决策
+        if data['ozon_green_price'] <= 0:
+            wp_match = re.search(r'data-widget=["\']webPrice["\'][^>]*>(.*?)</div>\s*<div[^>]+data-widget=', html, re.DOTALL)
+            if wp_match:
+                wp_html = wp_match.group(1)
+                h_match = re.search(r'class="tsHeadline[^"]*">([\d\s\u2009\xa0]+)\s*₽', wp_html)
+                if h_match:
+                    try:
+                        data['ozon_green_price'] = float(h_match.group(1).replace('\u2009', '').replace('\xa0', '').replace(' ', ''))
+                    except Exception:
+                        pass
+
+        # 核心铁律：必须且永远以 Ozon 绿标卡价为最终基准价！
+        if data['ozon_green_price'] > 0:
+            data['ozon_price'] = data['ozon_green_price']
+        elif data['ozon_regular_price'] > 0:
+            data['ozon_price'] = data['ozon_regular_price']
+        else:
             price_match = re.search(r'(\d[\d\s]*)\s*₽', html)
             if price_match:
                 try:
                     data['ozon_price'] = float(price_match.group(1).replace(' ', '').replace('\xa0', ''))
+                    data['ozon_regular_price'] = data['ozon_price']
                 except Exception:
                     pass
 
@@ -398,7 +436,7 @@ class OzonCrawler:
             print(f"[-] SKU [{sku_str}] PDP 未能提取到有效标题或相册")
             return None
 
-        print(f"  [+] PDP 提取成功: 《{product_data['title'][:35]}...》 | 原价: {product_data['ozon_price']}₽ | 图片: {len(product_data['photos'])} 张")
+        print(f"  [+] PDP 提取成功: 《{product_data['title'][:35]}...》 | Ozon绿标价: {product_data['ozon_price']}₽ (常规标价: {product_data.get('ozon_regular_price', 0)}₽) | 图片: {len(product_data['photos'])} 张")
 
         # 请求规格特性页 (Features)
         print(f"[*] [路由 2] 正在请求 Ozon Features 规格页: {features_url}")

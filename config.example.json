@@ -1,7 +1,8 @@
 {
   "_comment": "Wildberries 卖家后台配置模板。请复制本文件为 config.json 并填写您的实际参数",
   "wb_api_token": "YOUR_WB_API_TOKEN_HERE",
-  "wb_warehouse_id": 2156484,
+  "wb_warehouse_id": 2200658,
+  "warehouse_name": "莫斯科1仓",
   "store_currency": "CNY",
   "wb_rub_rate": 11.672619,
   "default_multiplier": 5.0,

@@ -54,7 +54,7 @@
 
 ### 2. 获取您的履约仓库 ID (Склад ID)
 1. 在卖家后台左侧导航栏点击 **Маркетплейс (市场/自发货)** ➔ **Мои склады (我的仓库)**；
-2. 找到您用来发货的核心仓库（例如莫斯科仓或自建仓），其名称下方会有一串纯数字（如 `2156484`），此数字即为您店铺的 **仓库 ID**。
+2. 找到您用来发货的核心仓库（例如莫斯科1仓或自建仓），其名称下方会有一串纯数字（如 `2200658`），此数字即为您店铺的 **仓库 ID**。
 
 ### 3. 一分钟极速配置 (三选一)
 
@@ -63,14 +63,15 @@
   ```json
   {
     "wb_api_token": "在这里粘贴您在步骤1中复制的真实长串Token",
-    "wb_warehouse_id": 2156484,
-    "default_multiplier": 5.0,
+    "wb_warehouse_id": 2200658,
+    "warehouse_name": "莫斯科1仓",
+    "default_multiplier": 6.0,
     "default_discount": 50,
     "default_stock": 200
   }
   ```
 - **方式 B：直接告诉 AI 助手**
-  在聊天对话框中直接告诉 AI：“这是我店铺的 WB API Token：`xxx`，仓库 ID 是 `2156484`，以后都帮我上架到这个店铺。”
+  在聊天对话框中直接告诉 AI：“这是我店铺的 WB API Token：`xxx`，仓库 ID 是 `2200658` (莫斯科1仓)，以后都帮我上架到这个店铺。”
 - **方式 C：系统环境变量**
   - Windows PowerShell: `$env:WB_API_TOKEN="您的Token"`
   - Linux/Mac: `export WB_API_TOKEN="您的Token"`
