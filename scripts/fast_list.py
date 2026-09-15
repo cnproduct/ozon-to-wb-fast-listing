@@ -15,9 +15,11 @@ https://github.com/cnproduct/ozon-to-wb-fast-listing
 """
 import os, sys, json, time, re, glob, requests, argparse
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(0, CURRENT_DIR)
 WORKSPACE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
 CONFIG_FILE = os.path.join(WORKSPACE_DIR, 'config.json')
 ARCHIVE_FILE = os.path.join(WORKSPACE_DIR, 'all_cosmetics_listed.json')
@@ -112,6 +114,8 @@ def clean_text_description(desc: str, sku: str = "") -> str:
     desc = re.sub(r'(?i)\bozon\b', '', desc)
     desc = re.sub(r'(?i)\bозон\b', '', desc)
     desc = re.sub(r'OZON-\d+(-v\d+)?', '', desc, flags=re.IGNORECASE)
+    # 彻底清除所有 Emoji 与 WB 官方禁止的图形符号
+    desc = re.sub(r'[\u25A0-\u25FF\u2B00-\u2BFF\u2700-\u27BF\u2600-\u26FF\U00010000-\U0010ffff]', '', desc)
     desc = re.sub(r'[ \t]+', ' ', desc)
     desc = re.sub(r'\n{3,}', '\n\n', desc)
     if len(desc) > 1950:
