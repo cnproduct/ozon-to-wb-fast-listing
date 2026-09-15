@@ -36,12 +36,29 @@ if os.path.exists(appdata_gemini):
             POTENTIAL_STEPS_DIRS.append(p)
 
 def get_session():
-    if not os.path.exists(CONFIG_FILE):
-        raise FileNotFoundError(f"配置文件缺失: {CONFIG_FILE}")
-    cfg = json.load(open(CONFIG_FILE, encoding='utf-8'))
-    token = cfg.get('wb_api_token')
-    if not token:
-        raise ValueError("config.json 中未配置 wb_api_token")
+    # 优先通过 SessionManager 会话门禁与专属店铺路由获取凭据
+    token = None
+    warehouse_id = 2200658
+    try:
+        from session_manager import SessionManager, SessionAuthorizationError
+        mgr = SessionManager()
+        creds = mgr.get_active_session_credentials()
+        token = creds.get('wb_api_token')
+        warehouse_id = int(creds.get('wb_warehouse_id', 2200658))
+        store_name = creds.get('store_name', '专属店铺')
+        print(f"🔒 [SessionManager] 会话授权校验通过，已成功加载当前窗口专属店铺: 【{store_name}】(仓库ID: {warehouse_id})")
+    except SessionAuthorizationError as e:
+        print(str(e))
+        sys.exit(1)
+    except Exception as e:
+        if not os.path.exists(CONFIG_FILE):
+            raise FileNotFoundError(f"配置文件缺失: {CONFIG_FILE}")
+        cfg = json.load(open(CONFIG_FILE, encoding='utf-8'))
+        token = cfg.get('wb_api_token')
+        if not token:
+            raise ValueError("config.json 中未配置 wb_api_token")
+        warehouse_id = int(cfg.get('wb_warehouse_id', 2200658))
+
     s = requests.Session()
     s.trust_env = False
     s.headers.update({
@@ -49,7 +66,6 @@ def get_session():
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     })
-    warehouse_id = int(cfg.get('wb_warehouse_id', 2200658))
     return s, warehouse_id
 
 def load_dead_skus():

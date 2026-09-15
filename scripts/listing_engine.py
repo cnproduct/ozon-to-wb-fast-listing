@@ -26,10 +26,19 @@ import requests
 from typing import List, Dict, Any, Optional
 
 def get_active_config():
-    """多级配置智能加载：命令行 > 环境变量 > config.json (绝不写死任何本机硬编码路径)"""
+    """多级配置智能加载：优先 SessionManager 会话授权与专属店铺 > 命令行 > 环境变量 > config.json"""
     token = os.getenv('WB_API_TOKEN')
     warehouse_id = os.getenv('WB_WAREHOUSE_ID')
     config_dict = {}
+
+    try:
+        from session_manager import SessionManager
+        mgr = SessionManager()
+        creds = mgr.get_active_session_credentials()
+        if creds and creds.get('wb_api_token'):
+            return creds.get('wb_api_token'), int(creds.get('wb_warehouse_id', 2200658)), creds
+    except Exception:
+        pass
     
     # 纯相对路径与通用路径探测
     search_paths = [

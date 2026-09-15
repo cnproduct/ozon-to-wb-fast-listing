@@ -67,12 +67,27 @@
     "warehouse_name": "莫斯科1仓",
     "default_multiplier": 6.0,
     "default_discount": 50,
-    "default_stock": 200
+    "default_stock": 5,
+    "store_currency": "CNY"
   }
   ```
-- **方式 B：直接告诉 AI 助手**
-  在聊天对话框中直接告诉 AI：“这是我店铺的 WB API Token：`xxx`，仓库 ID 是 `2200658` (莫斯科1仓)，以后都帮我上架到这个店铺。”
-- **方式 C：系统环境变量**
+- **方式 B：商业授权门禁与会话级店铺绑定 (Mode B 零信任与 1:1 物理隔离)**
+  在 Antigravity 聊天窗口中，每个对话窗口独立绑定一个店铺，严禁跨店串货：
+  1. **激活窗口商业授权**（新窗口默认拦截未授权操作）：
+     `激活授权 LIC-XXXX-XXXX-XXXX`
+  2. **绑定当前窗口专属店铺**（1个窗口只允许绑定1家店铺）：
+     `绑定店铺 店铺简称：RR007 API令牌：eyJ... 仓库ID：2200658 6倍 50折 5库存`
+  3. **安全更换店铺**（平滑切换，自动覆盖旧绑定并验真）：
+     `切换店铺 店铺简称：RR008 API令牌：eyJ... 仓库ID：2200658`
+  4. **解除店铺绑定**：
+     `解绑店铺`
+  5. **查看当前会话与店铺状态**：
+     `店铺状态`
+- **方式 C：系统环境变量与命令行管理**
+  - 管理员生成授权码：`python scripts/session_manager.py generate-license --name "客户张三" --max-sessions 1 --days 365`
+  - 查看当前会话状态：`python scripts/session_manager.py status`
+  - 激活当前会话窗口：`python scripts/session_manager.py activate --license <KEY>`
+  - 切换当前窗口店铺：`python scripts/session_manager.py switch --store RR008 --token eyJ... --warehouse 2200658`
   - Windows PowerShell: `$env:WB_API_TOKEN="您的Token"`
   - Linux/Mac: `export WB_API_TOKEN="您的Token"`
 
