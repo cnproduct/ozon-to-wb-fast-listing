@@ -41,10 +41,12 @@ dist/
 .pyarmor/
 .wb_machine_id
 
-# Scratch and temporary batch files
+# Scratch, temporary and data files
 *.txt
 *batch*.json
 *parsed*.json
+*listed*.json
+*products*.json
 extracted_10.json
 products_to_upload.json
 *verified*
@@ -54,8 +56,13 @@ wb_verified_*
 all_cosmetics_listed.json
 dead_skus.json
 batch_1_pilot_table.md
+feat_price.json
+test_*.py
+test_*.json
+inspect_*.py
 scripts/test_*.py
 scripts/check_*.py
 scripts/find_*.py
 scripts/inspect_*.py
-
+scripts/parse_*.py
+scripts/export_*.py

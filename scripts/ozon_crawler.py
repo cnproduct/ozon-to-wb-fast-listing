@@ -41,6 +41,14 @@ except ImportError:
     except ImportError:
         clean_and_decode_russian = lambda t, **kw: t
 
+try:
+    from morphology_engine import PhysicalMorphologyEngine
+except ImportError:
+    try:
+        from scripts.morphology_engine import PhysicalMorphologyEngine
+    except ImportError:
+        PhysicalMorphologyEngine = None
+
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 WORKSPACE_DIR = os.path.dirname(SCRIPT_DIR)
@@ -454,13 +462,26 @@ class OzonCrawler:
             product_data['characteristics'] = features_data.get('raw_props', {})
             print(f"  [+] Features 提取成功: 规格 {product_data.get('length_cm')}x{product_data.get('width_cm')}x{product_data.get('height_cm')} cm | 毛重 {product_data.get('weight_g')}g")
 
-        # 默认安全补全（若 Features 页面缺失尺寸，遵循 WB floor-rounded 规范）
-        if not product_data.get('length_cm'):
-            product_data['length_cm'] = 15
-            product_data['width_cm'] = 15
-            product_data['height_cm'] = 10
-        if not product_data.get('weight_g'):
-            product_data['weight_g'] = 500
+        # 真实物理形态包装尺寸与毛重推导 (严格遵循 Rule 4 物理形态推导铁律)
+        if not product_data.get('length_cm') or not product_data.get('weight_g'):
+            if PhysicalMorphologyEngine:
+                m_res = PhysicalMorphologyEngine.deduce_dimensions_and_weight(
+                    title=product_data.get('title', ''),
+                    raw_props=product_data.get('characteristics', {}),
+                    html_content=pdp_html or "",
+                    sku=sku_str
+                )
+                product_data['length_cm'] = m_res['length_cm']
+                product_data['width_cm'] = m_res['width_cm']
+                product_data['height_cm'] = m_res['height_cm']
+                product_data['weight_g'] = m_res['weight_g']
+                product_data['weightBrutto'] = m_res['weightBrutto']
+            else:
+                product_data['length_cm'] = 16
+                product_data['width_cm'] = 6
+                product_data['height_cm'] = 5
+                product_data['weight_g'] = 55
+                product_data['weightBrutto'] = 0.06
 
         # 回写更新本地 products.json 档案
         try:
