@@ -115,14 +115,23 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
     if len(clean_title) > 60:
         clean_title = clean_title[:58].rsplit(' ', 1)[0]
 
-    # 2. Price (Rule 2: 纯卢布绿标价提取，绝不除以汇率)
+    # 2. Price (CNY 跨境卖家统一价格换算法则 & 整型四舍五入)
+    cfg = json.load(open(CONFIG_FILE, encoding='utf-8')) if os.path.exists(CONFIG_FILE) else {}
+    store_currency = cfg.get('store_currency', 'CNY')
+    ozon_cny_rate = float(cfg.get('ozon_cny_rate', 12.535))
+
     cp = re.findall(r'"cardPrice":"([^"]+)"', text)
     p = re.findall(r'"price":"([^"]+)"', text)
     card_p = cp[0] if cp else (p[0] if p else '600')
     ozon_rub = float(re.sub(r'[^\d.]', '', card_p.replace('\u2009', '').replace(' ', '')) or 600)
 
-    wb_sell_price = int(round(ozon_rub * price_multiplier))
-    wb_strike_price = int(round(wb_sell_price * 2.0))  # 50% 折扣下的划线标价 = 12倍
+    if store_currency == 'CNY':
+        ozon_cny = round(ozon_rub / ozon_cny_rate, 2)
+        wb_strike_price = int(round(ozon_cny * price_multiplier * 2.0))
+        wb_sell_price = int(round(wb_strike_price * 0.5))
+    else:
+        wb_sell_price = int(round(ozon_rub * price_multiplier))
+        wb_strike_price = int(round(wb_sell_price * 2.0))  # 50% 折扣下的划线标价 = 12倍
 
     # 3. Category & Dims (Rule 3: 真实物理包装尺寸与精确毛重)
     title_lower = clean_title.lower()
