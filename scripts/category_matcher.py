@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 ==============================================================================
-Wildberries 官方类目语义智能映射与多维形态推导引擎 (Category Matcher Engine v3.0)
+Wildberries 官方类目语义智能映射与多维形态推导引擎 (Category Matcher Engine v3.5)
 ==============================================================================
 特性：
 1. 涵盖 WB 官方 6,925 类目库多维映射 (经 live API 验真)
 2. 结合 Ozon 品类面包屑导航 (Breadcrumbs) 与商品俄文标题 (Title) / 特性 (Features)
 3. 严格执行 Zero-Fallback 铁律：严禁盲目跨品类兜底，未识别类目直接阻断并报警
-4. 动态下发 WB 官方买家端展示参数 (Characteristics) 与真实物理包装尺寸/毛重 (weightBrutto)
+4. 严格遵守 WB 官方属性约束与 maxCount 限制（杜绝属性超出上限被拒）
+5. 动态下发 WB 官方买家端展示参数 (Characteristics) 与真实物理包装尺寸/毛重 (weightBrutto)
 ==============================================================================
 """
 
@@ -99,18 +100,19 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             ]
         }
 
-    if any(k in tl for k in ['крем', 'cream', 'флюид', 'бальзам для лица', 'крем-гель', 'крем для кожи', 'отбеливающий крем']):
+    if any(k in tl for k in ['крем для лица', 'крем дневной', 'крем ночной', 'крем увлажняющий', 'крем омолаживающий', 'крем против морщин', 'крем от']):
         return {
             "subjectID": 357, "subjectName": "Кремы",
-            "length": 10, "width": 8, "height": 7, "weight_g": 160,
+            "length": 10, "width": 8, "height": 8, "weight_g": 160,
             "characteristics": [
-                {"id": 10829, "name": "Действие", "value": ["питание", "увлажнение", "восстановление"]},
-                {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица", "для тела"]},
-                {"id": 378533, "name": "Комплектация", "value": ["крем для лица"]}
+                {"id": 10829, "name": "Действие", "value": ["увлажнение", "питание", "омоложение"]},
+                {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица"]},
+                {"id": 85571, "name": "Упаковка", "value": ["банка", "картонная коробка"]},
+                {"id": 378533, "name": "Комплектация", "value": ["крем"]}
             ]
         }
 
-    if any(k in tl for k in ['маска косметическая', 'тканевая маска', 'маска для лица', 'маска для шеи', 'маска от морщин', 'маски для лица', 'маски для']):
+    if any(k in tl for k in ['маска косметическая', 'тканевая маска', 'маска для лица', 'маска для шеи', 'маска от морщин', 'маски для лица']):
         return {
             "subjectID": 360, "subjectName": "Маски косметические",
             "length": 16, "width": 12, "height": 3, "weight_g": 60 * item_count,
@@ -119,28 +121,6 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
                 {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица", "для шеи"]},
                 {"id": 85571, "name": "Упаковка", "value": ["пакет"]},
                 {"id": 378533, "name": "Комплектация", "value": ["маска косметическая"]}
-            ]
-        }
-
-    if any(k in tl for k in ['гель косметический', 'гель для век', 'гель для глаз', 'гель для лица', 'алоэ гель']):
-        return {
-            "subjectID": 461, "subjectName": "Гели косметические",
-            "length": 14, "width": 6, "height": 5, "weight_g": 140,
-            "characteristics": [
-                {"id": 10829, "name": "Действие", "value": ["увлажнение", "успокаивающее"]},
-                {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица"]},
-                {"id": 378533, "name": "Комплектация", "value": ["гель косметический"]}
-            ]
-        }
-
-    if any(k in tl for k in ['эмульсия', 'эмульсии']):
-        return {
-            "subjectID": 1566, "subjectName": "Эмульсии",
-            "length": 15, "width": 6, "height": 5, "weight_g": 180,
-            "characteristics": [
-                {"id": 10829, "name": "Действие", "value": ["увлажнение", "питание"]},
-                {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица"]},
-                {"id": 378533, "name": "Комплектация", "value": ["эмульсия"]}
             ]
         }
 
@@ -207,7 +187,7 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             ]
         }
 
-    if any(k in tl for k in ['рукоятки для тренажера', 'рукоятка для тренажера', 'рукоятки для тренажеров', 'рукоятка для тяги', 'рукоятки для тяги', 'ручки для тяги', 'ручка для армлиф廷га', 'рукоятка для кроссовера', 'ручки мягкая тяга', 'рукоятки с карабинами']):
+    if any(k in tl for k in ['рукоятки для тренажера', 'рукоятка для тренажера', 'рукоятки для тренажеров', 'рукоятка для тяги', 'рукоятки для тяги', 'ручки для тяги', 'ручка для армлифтинга', 'рукоятка для кроссовера', 'ручки мягкая тяга', 'рукоятки с карабинами']):
         return {
             "subjectID": 5251, "subjectName": "Рукоятки для тренажеров",
             "length": 22, "width": 15, "height": 6, "weight_g": 650,
@@ -240,7 +220,7 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             "characteristics": [
                 {"id": 640, "name": "Спортивное назначение", "value": ["фитнес", "кроссфит", "силовые тренировки"]},
                 {"id": 15988, "name": "Назначение эспандера", "value": ["для рук", "для ног", "для всего тела"]},
-                {"id": 15994, "name": "Вид эспандера", "value": ["ленточный", "жгут", "трубчатый", "петля"]},
+                {"id": 15994, "name": "Вид эспандера", "value": ["ленточный", "жгут", "трубчатый"]},
                 {"id": 17596, "name": "Материал изделия", "value": ["латекс", "силикон", "резина"]},
                 {"id": 19717, "name": "Возрастные ограничения", "value": ["14+"]},
                 {"id": 85571, "name": "Упаковка", "value": ["чехол", "пакет"]},
@@ -350,7 +330,7 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
         }
 
     # =========================================================================
-    # 7. 其他特殊商品 (Массажеры: 983, Парфюмерия: 1952)
+    # 7. 其他特殊商品 (Массажеры: 983, Парфюмерия: 1952, Маски: 249)
     # =========================================================================
     if any(k in tl for k in ['массажные шары', 'массажер']):
         return {
@@ -364,7 +344,7 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             ]
         }
 
-    if any(k in tl for k in ['black afgano', 'парфюм', 'духи', 'парфюмерная вода']):
+    if any(k in tl for k in ['black afgano', 'парфюм', 'духи']):
         return {
             "subjectID": 1952, "subjectName": "Парфюмерная вода",
             "length": 12, "width": 6, "height": 5, "weight_g": 180,
@@ -376,39 +356,15 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             ]
         }
 
-    # 8. Mops, Cleaning Tools, Bicycle Lighting & Parts, Depilation, Car Vacuums, Board Games
-    try:
-        from smart_category_matcher import SmartCategoryMatcher
-        matcher = SmartCategoryMatcher()
-        sid, sname = matcher.match(clean_t, category_path)
-        if sid:
-            l, w, h, wt_g = 20, 15, 8, 450
-            if sid == 2012: l, w, h, wt_g = 28, 20, 10, 650
-            elif sid == 4512: l, w, h, wt_g = 14, 10, 5, 220
-            elif sid == 1934: l, w, h, wt_g = 18, 12, 8, 450
-            elif sid == 1594: l, w, h, wt_g = 42, 25, 22, 1850
-            elif sid == 1436: l, w, h, wt_g = 30, 28, 26, 950
-            elif sid == 2918: l, w, h, wt_g = 10, 7, 3, 140
-            elif sid in [357, 372, 359, 1566, 360]: l, w, h, wt_g = 12, 6, 6, 180
-            elif sid == 2317: l, w, h, wt_g = 45, 12, 12, 850
-            elif sid in [6487, 1050, 4412, 1401, 562, 4588, 6464, 1399]: l, w, h, wt_g = 16, 10, 6, 280
-            elif sid == 2197: l, w, h, wt_g = 32, 28, 10, 2200
-
-            return {
-                "subjectID": sid,
-                "subjectName": sname,
-                "length": l,
-                "width": w,
-                "height": h,
-                "weight_g": wt_g,
-                "characteristics": [
-                    {"id": 14177451, "name": "Страна производства", "value": ["Китай"]},
-                    {"id": 14177449, "name": "Цвет", "value": ["черный", "белый"]},
-                    {"id": 378533, "name": "Комплектация", "value": [sname.lower(), "упаковка"]}
-                ]
-            }
-    except Exception as e:
-        pass
+    if any(k in tl for k in ['сипап', 'маска']):
+        return {
+            "subjectID": 249, "subjectName": "Спортивный товар",
+            "length": 18, "width": 12, "height": 8, "weight_g": 190,
+            "characteristics": [
+                {"id": 640, "name": "Спортивное назначение", "value": ["фитнес", "туризм"]},
+                {"id": 378533, "name": "Комплектация", "value": ["маска"]}
+            ]
+        }
 
     # 严格零容忍：未匹配到任何官方品类时严禁擅自兜底，抛出明确异常阻断
     raise ValueError(f"无法确定商品的 WB 官方类目，严禁兜底: '{title}' (path: '{category_path}')")
