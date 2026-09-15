@@ -22,7 +22,7 @@ if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
 WORKSPACE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
 CONFIG_FILE = os.path.join(WORKSPACE_DIR, 'config.json')
-ARCHIVE_FILE = os.path.join(WORKSPACE_DIR, 'all_cosmetics_listed.json')
+ARCHIVE_FILE = os.path.join(WORKSPACE_DIR, 'all_water_bottles_listed.json')
 DEAD_SKUS_FILE = os.path.join(WORKSPACE_DIR, 'dead_skus.json')
 
 # 动态发现 Antigravity brain steps 缓存目录
@@ -114,7 +114,8 @@ def clean_text_description(desc: str, sku: str = "") -> str:
     desc = re.sub(r'(?i)\bozon\b', '', desc)
     desc = re.sub(r'(?i)\bозон\b', '', desc)
     desc = re.sub(r'OZON-\d+(-v\d+)?', '', desc, flags=re.IGNORECASE)
-    # 彻底清除所有 Emoji 与 WB 官方禁止的图形符号
+    # 彻底清除所有 Emoji 与 WB 官方禁止的图形符号（包括 ™ ® © 等特殊标识）
+    desc = re.sub(r'[™®©\u2122\u00AE\u00A9]', '', desc)
     desc = re.sub(r'[\u25A0-\u25FF\u2B00-\u2BFF\u2700-\u27BF\u2600-\u26FF\U00010000-\U0010ffff]', '', desc)
     desc = re.sub(r'[ \t]+', ' ', desc)
     desc = re.sub(r'\n{3,}', '\n\n', desc)
@@ -153,58 +154,119 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         wb_sell_price = int(round(ozon_rub * price_multiplier))
         wb_strike_price = int(round(wb_sell_price * 2.0))  # 50% 折扣下的划线标价 = 12倍
 
-    # 3. Category & Dims (Rule 3: 真实物理包装尺寸与精确毛重)
+    # 3. Category & Dims & Chars (Rule 3: 真实物理包装尺寸与精确毛重)
+    # 3. Category & Dims & Chars (严格多层语义漏斗，绝不盲目兜底)
     title_lower = clean_title.lower()
-    if 'спрей' in title_lower:
-        subj_id = 436
-        dims = (16, 5, 5)
-        weight_g = 200
+
+    # 漏斗第 1 层：运动饮水腰包 / 越野滑雪保温水壶包 / 饮水系统 (Термобаки, SubjectID: 5632)
+    if any(k in title_lower for k in ['термоподсумок', 'термобак', 'подсумок', 'гидратор', 'bottle bag', 'поясной бак', 'поясная питьевая']):
+        subj_id = 5632  # Термобаки (Спортивные аксессуары)
+        dims = (30, 18, 10)
+        weight_g = 350
+        # WB 平台约束：Термобаки 类目标题上限 60 字符
+        if len(clean_title) > 60:
+            clean_title = clean_title[:57].rstrip() + "..."
+        vol = 1.0
+        m_vol = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:л|литр|мл)', title_lower)
+        if m_vol:
+            val = float(m_vol.group(1).replace(',', '.'))
+            vol = val / 1000.0 if val > 20 else val
         chars = [
-            {"id": 10820, "name": "Тип кожи", "value": ["для всех типов кожи"]},
-            {"id": 10829, "name": "Действие", "value": ["освежающее", "защитное", "дезодорирующее"]},
-            {"id": 56267, "name": "Назначение косметического средства", "value": ["для ног"]}
+            {"id": 640, "name": "Спортивное назначение", "value": ["беговые лыжи", "бег", "туризм"]},  # maxCount: 3
+            {"id": 17596, "name": "Материал изделия", "value": ["текстиль", "полиэстер", "термоизоляция"]},  # maxCount: 3
+            {"id": 63260, "name": "Объем (л)", "value": round(vol, 1)},
+            {"id": 254882, "name": "Модель спортивная", "value": ["поясной"]},  # maxCount: 1
+            {"id": 378533, "name": "Комплектация", "value": ["термоподсумок"]}  # maxCount: 12
         ]
-    elif any(k in title_lower for k in ['стик', 'туб', 'для рук', 'гель']):
-        subj_id = 357
-        dims = (14, 5, 4)
-        weight_g = 120
-        chars = [
-            {"id": 10820, "name": "Тип кожи", "value": ["для всех типов кожи"]},
-            {"id": 10829, "name": "Действие", "value": ["увлажнение", "питание", "защита"]},
-            {"id": 10863, "name": "Время нанесения", "value": ["дневной", "ночной"]},
-            {"id": 56267, "name": "Назначение косметического средства", "value": ["для рук"]},
-            {"id": 59357, "name": "Форма упаковки", "value": ["туба"]}
-        ]
-    else:
-        subj_id = 357
+
+    # 漏斗第 2 层：水壶独立替换配件 / 盖子 / 瓶盖 (Крышки, SubjectID: 819)
+    elif title_lower.startswith('крышка') or 'крышка для' in title_lower or 'bamboo cap' in title_lower:
+        subj_id = 819  # Крышки (Посуда)
         dims = (8, 8, 6)
-        weight_g = 160
+        weight_g = 80
         chars = [
-            {"id": 10820, "name": "Тип кожи", "value": ["для всех типов кожи"]},
-            {"id": 10829, "name": "Действие", "value": ["увлажнение", "питание", "восстановление"]},
-            {"id": 10863, "name": "Время нанесения", "value": ["дневной", "ночной"]},
-            {"id": 56267, "name": "Назначение косметического средства", "value": ["для лица"]},
-            {"id": 59357, "name": "Форма упаковки", "value": ["баночка"]}
+            {"id": 16685, "name": "Материал посуды", "value": ["бамбук", "нержавеющая сталь"]},
+            {"id": 17082, "name": "Особенности крышки", "value": ["герметичная", "с ручкой"]},
+            {"id": 58813, "name": "Назначение посуды", "value": ["для бутылок"]},
+            {"id": 186449, "name": "Диаметр крышки", "value": ["44 мм"]},
+            {"id": 14177449, "name": "Цвет", "value": ["коричневый"]}
         ]
+
+    # 漏斗第 3 层：随行杯 / 车载保温杯 (Термокружки, SubjectID: 1274)
+    elif any(k in title_lower for k in ['термокружк', 'термостакан', 'автокружк']):
+        subj_id = 1274  # Термокружки
+        dims = (19, 9, 9)
+        weight_g = 350
+        chars = [
+            {"name": "Материал посуды", "value": ["нержавеющая сталь"]},
+            {"name": "Особенности кружки", "value": ["двойные стенки", "герметичная крышка"]},
+            {"name": "Спортивное назначение", "value": ["туризм", "автоспорт"]},
+            {"name": "Назначение посуды", "value": ["для горячих напитков", "для авто"]},
+            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+        ]
+
+    # 漏斗第 4 层：真正保温壶 / 真空保温瓶 (Термосы, SubjectID: 511)
+    # 严格排除 "термостойкая" (耐热玻璃/塑料) 以及带有 "бутылка" 的普通水杯
+    elif ('термос' in title_lower and 'термостойк' not in title_lower and not any(w in title_lower for w in ['бутылка', 'бутылочка', 'фляга'])) or title_lower.startswith('термос'):
+        subj_id = 511  # Термосы
+        dims = (28, 9, 9)
+        weight_g = 480
+        chars = [
+            {"name": "Материал термоса", "value": ["нержавеющая сталь"]},
+            {"name": "Доп. опции термоса", "value": ["вакуумный", "с кнопкой-клапаном"]},
+            {"name": "Спортивное назначение", "value": ["туризм", "активный отдых", "лыжный спорт"]},
+            {"name": "Назначение посуды", "value": ["для горячих напитков", "для чая и кофе"]},
+            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+        ]
+
+    # 漏斗第 5 层：敞口马克杯 / 水杯 / 咖啡杯 (Кружки, SubjectID: 812)
+    elif any(k in title_lower for k in ['кружк', 'стакан', 'чашк', 'бокал']) and not any(w in title_lower for w in ['бутылк', 'бутылочк', 'фляг', 'набор']):
+        subj_id = 812  # Кружки
+        dims = (12, 10, 10)
+        weight_g = 320
+        chars = [
+            {"name": "Материал посуды", "value": ["керамика", "фарфор", "нержавеющая сталь"]},
+            {"name": "Особенности кружки", "value": ["с ручкой", "термостойкая"]},
+            {"name": "Назначение посуды", "value": ["для чая и кофе", "для холодных и горячих напитков"]},
+            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+        ]
+
+    # 漏斗第 6 层：运动水杯 / 便携式水壶 / 摇摇杯 (Бутылки для воды, SubjectID: 384)
+    elif any(k in title_lower for k in ['бутылк', 'бутылочк', 'фляг', 'шейкер', 'насадка для бутылки']):
+        subj_id = 384  # Бутылки для воды
+        dims = (26, 9, 9)
+        weight_g = 250
+        chars = [
+            {"name": "Спортивное назначение", "value": ["фитнес", "бег", "велоспорт", "туризм"]},
+            {"name": "Материал изделия", "value": ["тритан", "пищевой пластик", "силикон"]},
+            {"name": "Доп. опции бутылки", "value": ["с трубочкой", "с мерной шкалой", "с ремешком"]},
+            {"name": "Возрастные ограничения", "value": ["без ограничений"]},
+            {"name": "Назначение подарка", "value": ["для себя", "другу", "спортсмену"]}
+        ]
+
+    # 漏斗第 7 层：绝对零容忍盲目兜底拦截！未知类目立即报错阻断
+    else:
+        raise ValueError(f"【类目识别阻断】商品 '{clean_title}' 无法命中任何已知品类漏斗，严禁盲目兜底！请先在映射表中配置对应 SubjectID。")
+
 
     # 4. Description (Rule 4: 100% 剥离 Ozon 竞对痕迹)
     m_desc = re.search(r'"description":"([^"]+)"', text)
-    raw_desc = m_desc.group(1) if m_desc else f"{clean_title}. Высококачественное косметическое средство для ежедневного ухода."
+    raw_desc = m_desc.group(1) if m_desc else f"{clean_title}. Высококачественная и удобная посуда для напитков, спорта и ежедневного использования."
     raw_desc = re.sub(r'\\u[0-9a-fA-F]{4}', lambda m: m.group(0).encode().decode('unicode-escape'), raw_desc)
     clean_desc = clean_text_description(raw_desc, sku)
 
-    # 5. Photos (wc1000)
+    # 5. Photos (纯正 JPEG 原图直传)
     matches = re.findall(r'https://([^/\s]+\.ozone\.ru/s3/multimedia-[^/\s]+)/(?:[a-zA-Z0-9_-]+/)?(\d+\.jpg)', text)
-    wc1000_photos = []
+    photos = []
     seen = set()
     for base, img_id in matches:
         if img_id not in seen:
             seen.add(img_id)
-            wc1000_photos.append(f"https://{base}/wc1000/{img_id}")
+            photos.append(f"https://{base}/{img_id}")
 
     return {
         "sku": str(sku),
-        "vendorCode": f"RR-{sku}-v1",
+        "vendorCode": f"RR-{sku}-v2",
         "title": clean_title,
         "description": clean_desc,
         "subjectID": subj_id,
@@ -218,7 +280,7 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         "height_cm": int(dims[2]),
         "weight_g": weight_g,
         "weightBrutto": round(weight_g / 1000.0, 2),
-        "photos": wc1000_photos[:10],
+        "photos": photos[:10],
         "characteristics": chars
     }
 
@@ -288,8 +350,8 @@ def run_pipeline(skus_input, batch_size=25, stock_amount=5, price_mult=6.0):
     # 待建卡列表
     to_list = []
     for s in unique_skus:
-        vc = f"RR-{s}-v1"
-        if vc not in already_listed:
+        # 兼容匹配任意版本 RR-{sku}-v*
+        if not any(f"RR-{s}-v" in vc for vc in already_listed):
             to_list.append(s)
 
     print(f"[+] 待搬家上架商品: {len(to_list)} 款 (本次批次限制: {batch_size} 款)")
@@ -373,31 +435,49 @@ def run_pipeline(skus_input, batch_size=25, stock_amount=5, price_mult=6.0):
     for p in products:
         p['nmID'] = nmid_map.get(p['vendorCode'])
 
-    # 4. 异步上传高清相册 (wc1000)
-    print("\n>>> 步骤 4/7: 批量挂载高清相册 (wc1000)...")
+    # 4. 异步上传高清相册 (纯正 JPEG 原图直传)
+    print("\n>>> 步骤 4/7: 批量挂载高清相册...")
     for p in products:
         nmid = p.get('nmID')
         if not nmid or not p['photos']:
             continue
-        r_med = session.post('https://content-api.wildberries.ru/content/v3/media/save', json={
-            "nmId": nmid,
-            "data": p['photos']
-        }, timeout=20)
-        print(f"  • SKU {p['sku']} (nmID: {nmid}) 挂载 {len(p['photos'])} 张相册 ➔ HTTP {r_med.status_code}")
+        for attempt in range(3):
+            try:
+                r_med = session.post('https://content-api.wildberries.ru/content/v3/media/save', json={
+                    "nmId": nmid,
+                    "data": p['photos']
+                }, timeout=30)
+                print(f"  • SKU {p['sku']} (nmID: {nmid}) 挂载 {len(p['photos'])} 张相册 ➔ HTTP {r_med.status_code}")
+                break
+            except Exception as e:
+                print(f"  • SKU {p['sku']} (nmID: {nmid}) 相册挂载重试 {attempt+1}/3: {e}")
+                time.sleep(1.5)
         time.sleep(0.3)
 
     # 5. 注入目标仓现货库存
     print(f"\n>>> 步骤 5/7: 注入莫斯科1仓 (ID: {warehouse_id}) 现货库存 {stock_amount} 件...")
     stocks = [{"sku": p['barcode'], "amount": int(stock_amount)} for p in products if p.get('barcode')]
-    r_stk = session.put(f'https://marketplace-api.wildberries.ru/api/v3/stocks/{warehouse_id}', json={'stocks': stocks}, timeout=20)
-    print(f"[+] 现货库存下发状态: HTTP {r_stk.status_code} (204 成功)")
+    for attempt in range(3):
+        try:
+            r_stk = session.put(f'https://marketplace-api.wildberries.ru/api/v3/stocks/{warehouse_id}', json={'stocks': stocks}, timeout=30)
+            print(f"[+] 现货库存下发状态: HTTP {r_stk.status_code} (204 成功)")
+            break
+        except Exception as e:
+            print(f"[!] 库存下发重试 {attempt+1}/3: {e}")
+            time.sleep(1.5)
 
     # 6. 下发 50% 官方大促折扣与价格任务
     print("\n>>> 步骤 6/7: 下发 50% 官方大促折扣至 Discounts-Prices API...")
     price_payload = [{'nmID': p['nmID'], 'price': p['wb_strike_price'], 'discount': 50} for p in products if p.get('nmID')]
     if price_payload:
-        r_pr = session.post('https://discounts-prices-api.wildberries.ru/api/v2/upload/task', json={'data': price_payload}, timeout=20)
-        print(f"[+] 价格中心提交返回: HTTP {r_pr.status_code} | {r_pr.text[:180]}")
+        for attempt in range(3):
+            try:
+                r_pr = session.post('https://discounts-prices-api.wildberries.ru/api/v2/upload/task', json={'data': price_payload}, timeout=30)
+                print(f"[+] 价格中心提交返回: HTTP {r_pr.status_code} | {r_pr.text[:180]}")
+                break
+            except Exception as e:
+                print(f"[!] 价格下发重试 {attempt+1}/3: {e}")
+                time.sleep(1.5)
 
     # 7. 归档保存至数据库
     print("\n>>> 步骤 7/7: 归档写入本地商品档案库...")
@@ -463,6 +543,18 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=25, help="批次大小 (默认 25)")
     parser.add_argument('--stock', type=int, default=5, help="现货库存件数 (默认 5)")
     parser.add_argument('--multiplier', type=float, default=6.0, help="实售倍数 (默认 6.0)")
+    parser.add_argument('--all', action='store_true', help="自动循环上架全量待处理商品直至完成")
     args = parser.parse_args()
 
-    run_pipeline(args.skus, batch_size=args.batch_size, stock_amount=args.stock, price_mult=args.multiplier)
+    if args.all:
+        batch_num = 1
+        while True:
+            print(f"\n{'='*30} [批次 {batch_num}] {'='*30}")
+            res = run_pipeline(args.skus, batch_size=args.batch_size, stock_amount=args.stock, price_mult=args.multiplier)
+            if not res:
+                print("\n[🎉] 全量商品均已顺利完成搬家上架与库存注入！")
+                break
+            batch_num += 1
+            time.sleep(3)
+    else:
+        run_pipeline(args.skus, batch_size=args.batch_size, stock_amount=args.stock, price_mult=args.multiplier)
