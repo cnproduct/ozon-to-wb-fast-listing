@@ -29,6 +29,7 @@ description: Wildberries (WB) 全自动极速智能上架与全量多图直传�
 >     - **单窗口 1:1 店铺互斥锁定 (Store Mutex Lock)**：每一个 Antigravity 聊天窗口有且仅允许绑定一家 Wildberries 店铺。严禁在同一个窗口内并发混绑 2 家及以上店铺，从物理根源上彻底杜绝商品串店误传与库存错乱隐患。
 >     - **平滑安全换店 (Store Switching)**：若用户需要在当前窗口更换绑定的店铺，必须使用明确指令：`切换店铺 店铺简称：... API令牌：... 仓库ID：...` 或先执行 `解绑店铺`。系统将在线验真新店铺 API Token 有效性及履约仓库后，安全原子化更新当前窗口绑定。
 >     - **发布包二进制混淆防护 (PyArmor Binary Release)**：交付客户的正式包均由 `python scripts/build_protected_release.py` 一键编译为原生 `.pyd` 运行时与加密实体，私钥 `admin_private_key.pem` 严格保存在管理员本地，杜绝客户查看或篡改底层源码。
+>     - **Cloudflare Workers 云端鉴权网关、远程在线封禁与用量看板 (Stage 2 商业化扩展)**：接入轻量 Serverless 网关（`cloud/worker.js`）。支持毫秒级远程封禁违规授权码、充值续期与实时用量看板（Web `/admin`），并在离线或弱网时自动平滑回退至本地 RSA-2048 硬件验签，兼顾管理控制力与商户使用稳定性。
 >     - **会话持久化与状态查询**：会话档案与授权信息统一由 `scripts/session_manager.py` 调度并落盘在 `~/.wb_session_registry.json`，用户可随时输入 `店铺状态` 查看当前窗口的专属店铺信息。
 > 0. **【用户给 SKU 或 txt 文档后的响应铁律（默认全量一次性上架，严禁反复打扰）】**：
 >    - **输入形式全面兼容**：用户无论是在聊天窗口直接粘贴 SKU 列表，还是**提供包含 SKU 的 `.txt` 文本文件路径/文件名**（例如 `skus.txt`、`商品列表.txt` 等），系统均应自动秒级解析出其中的所有合法数字 SKU（支持每行一个、逗号/空格分隔，自动忽略空行与中英文注释）。

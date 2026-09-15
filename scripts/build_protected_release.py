@@ -35,6 +35,7 @@ RELEASE_DIR = os.path.join(DIST_DIR, 'ozon-to-wb-fast-listing')
 CORE_PROTECTED_SCRIPTS = [
     'machine_fingerprint.py',
     'license_crypto.py',
+    'cloud_auth.py',
     'session_manager.py',
     'fast_list.py',
     'listing_engine.py',
@@ -48,7 +49,7 @@ CORE_PROTECTED_SCRIPTS = [
 ]
 
 # 公开静态辅助目录与文件 (直接拷贝至 release)
-STATIC_DIRS = ['references', 'templates']
+STATIC_DIRS = ['references', 'templates', 'cloud']
 STATIC_FILES = [
     'config.example.json',
     'requirements.txt',

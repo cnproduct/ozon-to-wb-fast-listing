@@ -417,6 +417,32 @@ def run_pipeline(skus_input, batch_size=25, stock_amount=5, price_mult=6.0):
 
     print(f"[+] 归档完成！新增: {added_count} 款，当前全量归档总数: {len(archived)} 款")
 
+    # 商业用量上报 (Cloudflare Workers 云端用量统计看板)
+    try:
+        from cloud_auth import CloudAuthClient
+    except ImportError:
+        try:
+            from scripts.cloud_auth import CloudAuthClient
+        except ImportError:
+            CloudAuthClient = None
+
+    if CloudAuthClient:
+        try:
+            cloud_client = CloudAuthClient()
+            if cloud_client.is_cloud_enabled():
+                try:
+                    from session_manager import SessionManager
+                except ImportError:
+                    from scripts.session_manager import SessionManager
+                mgr = SessionManager()
+                sess = mgr._load_registry().get("sessions", {}).get(mgr.get_current_conversation_id(), {})
+                lic_key = sess.get("license_key", "")
+                if lic_key:
+                    cloud_client.report_usage(lic_key, len(products))
+                    print(f"[☁️ Cloud] 商业用量上报成功: 授权码 {lic_key} 累积上架 +{len(products)} 件")
+        except Exception:
+            pass
+
     # 打印最终落地明细表
     print("\n" + "="*90)
     print("【Wildberries 极速搬家上架完成明细表】")

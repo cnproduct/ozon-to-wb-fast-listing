@@ -95,6 +95,17 @@
   - Windows PowerShell: `$env:WB_API_TOKEN="您的Token"`
   - Linux/Mac: `export WB_API_TOKEN="您的Token"`
 
+- **方式 D：Cloudflare Workers 云端鉴权与 Web 可视化用量看板 (Stage 2 商业化扩展)**
+  - **2 分钟极速部署**：参考 [`cloud/DEPLOY_GUIDE.md`](./cloud/DEPLOY_GUIDE.md)，将 [`cloud/worker.js`](./cloud/worker.js) 粘贴至免费 Cloudflare Worker 并绑定 KV (`WB_LICENSES`)。
+  - **客户端配置**：在 `config.json` 中配置 `"cloud_auth_url": "https://wb-auth-gateway.<your-name>.workers.dev"`。
+  - **访问 Web 商业看板**：在浏览器打开 `https://<worker-url>/admin?key=WB-ADMIN-SECRET-2026` 即可实时查看各商户设备状态、累计上架用量统计。
+  - **远程控制指令 (对话框或 CLI)**：
+    - 对话框查看看板：`云端看板`
+    - 远程封禁：`封禁授权 LIC-RSA-... 违规多开` 或 CLI `python scripts/session_manager.py cloud-ban --license LIC-RSA-... --reason "违规多开"`
+    - 远程解封：`解封授权 LIC-RSA-...` 或 CLI `python scripts/session_manager.py cloud-unban --license LIC-RSA-...`
+    - 远程续期：`充值授权 LIC-RSA-... 60` 或 CLI `python scripts/session_manager.py cloud-renew --license LIC-RSA-... --days 60`
+    - 查询云端商户列表：`python scripts/session_manager.py cloud-list`
+
 ## 三、六大核心技术优势与防封红线
 
 1. **【先问后干】第一响应铁律**  

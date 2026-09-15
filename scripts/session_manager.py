@@ -42,6 +42,11 @@ try:
 except ImportError:
     from scripts.license_crypto import LicenseCrypto, LicenseCryptError, MachineMismatchError, LicenseSignatureError, LicenseExpiredError
 
+try:
+    from cloud_auth import CloudAuthClient
+except ImportError:
+    from scripts.cloud_auth import CloudAuthClient
+
 REGISTRY_FILE = os.path.expanduser("~/.wb_session_registry.json")
 MASTER_LICENSE_KEY = "LIC-MASTER-2026-VIP"
 
@@ -263,6 +268,20 @@ class SessionManager:
                 return False, f"❌ 激活窗口超限：该授权码最多仅允许激活 {max_s} 个窗口，已全部使用（当前使用中: {activated_list}）。", {}
             activated_list.append(cid)
 
+        # 云端状态预检 (Cloudflare Workers 实时拦截已在线封禁的授权码)
+        try:
+            cloud_client = CloudAuthClient()
+            if cloud_client.is_cloud_enabled():
+                c_ok, c_status, c_data = cloud_client.verify_cloud_license(
+                    license_key=clean_key,
+                    machine_id=lic_info.get("machine_id", get_machine_id()),
+                    conversation_id=cid
+                )
+                if not c_ok and c_status == "BANNED":
+                    return False, f"❌ 授权码已被管理员远程在线封禁！\n封禁原因: {c_data.get('reason', '违规使用')}\n如有疑问请联系系统管理员。", {}
+        except Exception:
+            pass
+
         # 记录会话激活
         sessions = registry.setdefault("sessions", {})
         session_entry = sessions.get(cid, {})
@@ -322,6 +341,34 @@ class SessionManager:
                 session_entry["status"] = "UNAUTHORIZED"
                 self._save_registry(registry)
                 return False, f"🛑【硬件授权失效被阻断】{e}", {}
+
+        # 云端在线验真与毫秒级封禁核验 (Cloudflare Workers 联动)
+        try:
+            c_client = CloudAuthClient()
+            if c_client.is_cloud_enabled():
+                c_ok, c_status, c_data = c_client.verify_cloud_license(
+                    license_key=lic_key,
+                    machine_id=session_entry.get("machine_id", get_machine_id()),
+                    conversation_id=cid
+                )
+                if not c_ok and c_status == "BANNED":
+                    session_entry["status"] = "UNAUTHORIZED"
+                    session_entry["ban_reason"] = c_data.get("reason", "管理员云端远程封禁")
+                    self._save_registry(registry)
+                    ban_msg = (
+                        f"\n"
+                        f"================================================================================\n"
+                        f"🚫【云端远程封禁阻断】此授权码已被管理员在线封禁！\n"
+                        f"================================================================================\n"
+                        f"🔑 授权码   : {lic_key}\n"
+                        f"🛑 封禁原因 : {session_entry.get('ban_reason')}\n"
+                        f"⏰ 拦截时间 : {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                        f"⚠️ 当前会话权限已被瞬间锁死。如有疑问，请联系系统管理员处理。\n"
+                        f"================================================================================\n"
+                    )
+                    return False, ban_msg, {}
+        except Exception:
+            pass
 
         return True, "已授权", session_entry
 
@@ -568,6 +615,56 @@ class SessionManager:
                 ok, msg, _ = self.bind_store(store_name or "WB专属店铺", token, wh_id, multiplier, discount, stock, conversation_id=cid)
                 return msg
 
+        # 5. 云端看板与远程管理指令
+        if text in ["云端看板", "用量看板", "商业看板", "云端控制台", "dashboard"]:
+            client = CloudAuthClient()
+            if not client.is_cloud_enabled():
+                return (
+                    f"☁️ **云端授权网关未配置**\n\n"
+                    f"当前系统处于【纯本地 RSA-2048 离线硬件绑定模式】。\n"
+                    f"如需接入云端鉴权与 Web 可视化用量看板，请在 `config.json` 中配置 `cloud_auth_url`，\n"
+                    f"详情参考 [`cloud/DEPLOY_GUIDE.md`](./cloud/DEPLOY_GUIDE.md)。"
+                )
+            dash_url = f"{client.base_url}/admin?key={client.admin_secret}"
+            return (
+                f"☁️ **Wildberries 商业授权与用量追踪云端看板**:\n\n"
+                f"🔗 **Web 看板直达**: [{dash_url}]({dash_url})\n"
+                f"🌐 **网关服务节点**: `{client.base_url}`\n"
+                f"📊 **核心功能**: 实时查看全网设备在线状态、累计上架用量、一键秒级封禁与充值续期。"
+            )
+
+        # 远程在线封禁指令 (仅管理员)
+        ban_match = re.search(r'(?:封禁授权|在线封禁|远程封禁|ban)[:：\s]+([^\s\n]+)(?:\s+(.+))?', text, re.IGNORECASE)
+        if ban_match:
+            lic_target = ban_match.group(1).strip()
+            reason = ban_match.group(2).strip() if ban_match.group(2) else "违规封禁"
+            client = CloudAuthClient()
+            ok, msg = client.admin_ban(lic_target, reason)
+            if ok:
+                return f"🚫 **远程在线封禁成功！**\n授权码 `{lic_target}` 已被云端网关瞬时拦截，该客户所有会话将即刻锁死。\n原因: {reason}"
+            return f"❌ 远程封禁请求失败: {msg}"
+
+        # 远程在线解封指令 (仅管理员)
+        unban_match = re.search(r'(?:解封授权|在线解封|远程解封|unban)[:：\s]+([^\s\n]+)', text, re.IGNORECASE)
+        if unban_match:
+            lic_target = unban_match.group(1).strip()
+            client = CloudAuthClient()
+            ok, msg = client.admin_unban(lic_target)
+            if ok:
+                return f"✅ **远程在线解封成功！**\n授权码 `{lic_target}` 已恢复正常使用状态。"
+            return f"❌ 远程解封请求失败: {msg}"
+
+        # 远程充值续期指令 (仅管理员)
+        renew_match = re.search(r'(?:充值授权|在线充值|远程充值|续期授权|renew)[:：\s]+([^\s\n]+)(?:\s+(\d+))?', text, re.IGNORECASE)
+        if renew_match:
+            lic_target = renew_match.group(1).strip()
+            days = int(renew_match.group(2)) if renew_match.group(2) else 30
+            client = CloudAuthClient()
+            ok, msg = client.admin_renew(lic_target, days)
+            if ok:
+                return f"🎉 **远程充值续期成功！**\n授权码 `{lic_target}` 已成功追加有效期 {days} 天。"
+            return f"❌ 远程充值请求失败: {msg}"
+
         return None
 
 def main():
@@ -622,6 +719,26 @@ def main():
     # 7. list-sessions
     p_list = subparsers.add_parser("list-sessions", help="管理员列出所有会话与店铺绑定记录")
 
+    # 8. cloud-dashboard
+    p_cdash = subparsers.add_parser("cloud-dashboard", help="查看云端可视化看板地址")
+
+    # 9. cloud-ban
+    p_cban = subparsers.add_parser("cloud-ban", help="管理员远程封禁指定授权码")
+    p_cban.add_argument("--license", required=True, help="要封禁的授权码")
+    p_cban.add_argument("--reason", default="管理员远程封禁", help="封禁原因")
+
+    # 10. cloud-unban
+    p_cunban = subparsers.add_parser("cloud-unban", help="管理员远程解封指定授权码")
+    p_cunban.add_argument("--license", required=True, help="要解封的授权码")
+
+    # 11. cloud-renew
+    p_crenew = subparsers.add_parser("cloud-renew", help="管理员远程续费指定授权码")
+    p_crenew.add_argument("--license", required=True, help="要续费的授权码")
+    p_crenew.add_argument("--days", type=int, default=30, help="追加天数")
+
+    # 12. cloud-list
+    p_clist = subparsers.add_parser("cloud-list", help="管理员获取云端所有授权与用量记录")
+
     args = parser.parse_args()
     mgr = SessionManager()
 
@@ -650,6 +767,28 @@ def main():
     elif args.action == "list-sessions":
         reg = mgr._load_registry()
         print(json.dumps(reg.get("sessions", {}), ensure_ascii=False, indent=2))
+    elif args.action == "cloud-dashboard":
+        msg = mgr.parse_command("云端看板")
+        print(msg)
+    elif args.action == "cloud-ban":
+        client = CloudAuthClient()
+        ok, msg = client.admin_ban(args.license, args.reason)
+        print(f"[{'SUCCESS' if ok else 'FAILED'}] {msg}")
+    elif args.action == "cloud-unban":
+        client = CloudAuthClient()
+        ok, msg = client.admin_unban(args.license)
+        print(f"[{'SUCCESS' if ok else 'FAILED'}] {msg}")
+    elif args.action == "cloud-renew":
+        client = CloudAuthClient()
+        ok, msg = client.admin_renew(args.license, args.days)
+        print(f"[{'SUCCESS' if ok else 'FAILED'}] {msg}")
+    elif args.action == "cloud-list":
+        client = CloudAuthClient()
+        ok, items = client.admin_list_licenses()
+        if ok:
+            print(json.dumps(items, ensure_ascii=False, indent=2))
+        else:
+            print("[-] 获取云端授权列表失败")
 
 if __name__ == "__main__":
     main()
