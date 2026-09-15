@@ -5,6 +5,12 @@
 
 ---
 
+> 📥 **配套资源下载**：
+> - 📄 **Word 精美排版操作手册**：[docs/Wildberries_新店铺授权与多店铺管理操作手册.docx](docs/Wildberries_新店铺授权与多店铺管理操作手册.docx)
+> - 🗜️ **商业防护原生发布包 (v3.0)**：[release/ozon-to-wb-fast-listing-v3.0-protected.zip](release/ozon-to-wb-fast-listing-v3.0-protected.zip)
+
+---
+
 ## 目录
 1. [这个技能包是什么？能解决什么？](#一这个技能包是什么能解决什么)
 2. [六大核心技术优势与防封红线](#二六大核心技术优势与防封红线)

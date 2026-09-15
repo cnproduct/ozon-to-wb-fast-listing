@@ -16,6 +16,13 @@
 
 ---
 
+## 📥 资源直接下载 (Direct Downloads)
+
+- 📄 **Word 精美排版操作手册**：[docs/Wildberries_新店铺授权与多店铺管理操作手册.docx](docs/Wildberries_新店铺授权与多店铺管理操作手册.docx)
+- 🗜️ **商业防护原生发布包 (v3.0)**：[release/ozon-to-wb-fast-listing-v3.0-protected.zip](release/ozon-to-wb-fast-listing-v3.0-protected.zip)
+
+---
+
 ## 🚀 核心特性 (Key Features)
 
 ### 1. 🔍 Ozon 双路由商品数据深度采集

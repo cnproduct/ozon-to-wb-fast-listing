@@ -36,6 +36,7 @@ Thumbs.db
 
 # Build & Zip Artifacts
 *.zip
+!release/*.zip
 dist/
 .pyarmor/
 .wb_machine_id
