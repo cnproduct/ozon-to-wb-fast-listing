@@ -71,22 +71,26 @@
     "store_currency": "CNY"
   }
   ```
-- **方式 B：商业授权门禁与会话级店铺绑定 (Mode B 零信任与 1:1 物理隔离)**
-  在 Antigravity 聊天窗口中，每个对话窗口独立绑定一个店铺，严禁跨店串货：
-  1. **激活窗口商业授权**（新窗口默认拦截未授权操作）：
-     `激活授权 LIC-XXXX-XXXX-XXXX`
-  2. **绑定当前窗口专属店铺**（1个窗口只允许绑定1家店铺）：
+- **方式 B：商业授权门禁、硬件机器码强绑定与会话级店铺隔离 (Mode B 商业防复刻)**
+  本技能包采用「一机一码硬件指纹 + RSA-2048 非对称防伪签名 + 1:1 店铺互斥锁定」，彻底防止跨机盗版与混店错乱：
+  1. **获取本机硬件机器码**：
+     在 Antigravity 聊天窗口发送：`获取机器码`（或在命令行运行 `python scripts/session_manager.py machine-id`），获取形如 `MID-XXXX-XXXX-XXXX-XXXX` 的专属硬件指纹并发送给管理员。
+  2. **激活窗口专属商业授权**（新窗口默认拦截未授权操作）：
+     `激活授权 LIC-RSA-eyJ...`
+  3. **绑定当前窗口专属店铺**（严格 1 窗口 : 1 店铺互斥）：
      `绑定店铺 店铺简称：RR007 API令牌：eyJ... 仓库ID：2200658 6倍 50折 5库存`
-  3. **安全更换店铺**（平滑切换，自动覆盖旧绑定并验真）：
+  4. **安全更换店铺**（平滑切换，自动覆盖旧绑定并验真）：
      `切换店铺 店铺简称：RR008 API令牌：eyJ... 仓库ID：2200658`
-  4. **解除店铺绑定**：
+  5. **解除店铺绑定**：
      `解绑店铺`
-  5. **查看当前会话与店铺状态**：
+  6. **查看当前会话与店铺状态**：
      `店铺状态`
-- **方式 C：系统环境变量与命令行管理**
-  - 管理员生成授权码：`python scripts/session_manager.py generate-license --name "客户张三" --max-sessions 1 --days 365`
+- **方式 C：管理员后台管理与一键编译发布工具**
+  - 管理员为指定机器码签发专属授权：
+    `python scripts/session_manager.py generate-license --mid MID-XXXX-XXXX-XXXX-XXXX --name "商户张三" --days 365`
+  - 一键编译打包商业防护发布包 (PyArmor 原生 C 扩展打包，剥离明文源码)：
+    `python scripts/build_protected_release.py`
   - 查看当前会话状态：`python scripts/session_manager.py status`
-  - 激活当前会话窗口：`python scripts/session_manager.py activate --license <KEY>`
   - 切换当前窗口店铺：`python scripts/session_manager.py switch --store RR008 --token eyJ... --warehouse 2200658`
   - Windows PowerShell: `$env:WB_API_TOKEN="您的Token"`
   - Linux/Mac: `export WB_API_TOKEN="您的Token"`

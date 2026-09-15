@@ -36,6 +36,9 @@ Thumbs.db
 
 # Build & Zip Artifacts
 *.zip
+dist/
+.pyarmor/
+.wb_machine_id
 
 # Scratch and temporary batch files
 *.txt

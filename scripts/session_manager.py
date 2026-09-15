@@ -32,6 +32,16 @@ try:
 except Exception:
     pass
 
+try:
+    from machine_fingerprint import get_machine_id
+except ImportError:
+    from scripts.machine_fingerprint import get_machine_id
+
+try:
+    from license_crypto import LicenseCrypto, LicenseCryptError, MachineMismatchError, LicenseSignatureError, LicenseExpiredError
+except ImportError:
+    from scripts.license_crypto import LicenseCrypto, LicenseCryptError, MachineMismatchError, LicenseSignatureError, LicenseExpiredError
+
 REGISTRY_FILE = os.path.expanduser("~/.wb_session_registry.json")
 MASTER_LICENSE_KEY = "LIC-MASTER-2026-VIP"
 
@@ -182,16 +192,20 @@ class SessionManager:
         except Exception as e:
             return False, f"网络请求异常: {e}", []
 
-    def generate_license(self, name: str = "商业客户", max_sessions: int = 1, days: int = 365) -> Dict[str, Any]:
-        """管理员生成商业授权码"""
+    def generate_license(self, name: str = "商业客户", max_sessions: int = 1, days: int = 365, machine_id: Optional[str] = None) -> Dict[str, Any]:
+        """管理员使用 RSA-2048 签发商业防伪授权码 (支持绑定机器码一机一码)"""
+        target_mid = machine_id.strip() if machine_id else get_machine_id()
+        crypto = LicenseCrypto()
+        lic_key = crypto.sign_license(machine_id=target_mid, customer_name=name, days=days, max_sessions=max_sessions)
+        
         registry = self._load_registry()
-        raw_uuid = uuid.uuid4().hex[:12].upper()
-        lic_key = f"LIC-{datetime.datetime.now().strftime('%Y%m')}-{raw_uuid[:4]}-{raw_uuid[4:8]}-{raw_uuid[8:]}"
-        expires_at = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d 23:59:59")
+        expires_at = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d 23:59:59") if days > 0 else "2099-12-31 23:59:59"
         lic_data = {
             "name": name,
+            "machine_id": target_mid,
             "max_sessions": max_sessions,
             "expires_at": expires_at,
+            "type": "RSA-PSS-SHA256",
             "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "activated_sessions": []
         }
@@ -200,16 +214,37 @@ class SessionManager:
         return {"license_key": lic_key, **lic_data}
 
     def activate_license(self, license_key: str, conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
-        """在当前会话窗口中激活商业授权"""
+        """在当前会话窗口中激活商业授权 (支持 RSA 防伪验签与硬件机器码比对)"""
         cid = self.get_current_conversation_id(conversation_id)
         clean_key = license_key.strip()
         registry = self._load_registry()
-        
-        licenses = registry.get("licenses", {})
-        if clean_key not in licenses:
-            return False, f"❌ 授权码无效：未找到授权码【{clean_key}】，请核对或联系管理员。", {}
 
-        lic_info = licenses[clean_key]
+        # 1. 优先走 RSA-2048 非对称数字验签与一机一码校验
+        if clean_key.startswith("LIC-RSA-"):
+            crypto = LicenseCrypto()
+            try:
+                payload = crypto.verify_license(clean_key)
+            except LicenseCryptError as e:
+                return False, f"❌ 商业授权激活失败：{e}", {}
+
+            lic_info = {
+                "name": payload.get("name", "商业客户"),
+                "machine_id": payload.get("mid", "*"),
+                "max_sessions": payload.get("max_s", 1),
+                "expires_at": payload.get("exp", "unlimited"),
+                "type": "RSA-HARDWARE-BOUND"
+            }
+        else:
+            # 兼容管理员万能激活码或注册表旧码
+            licenses = registry.get("licenses", {})
+            if clean_key not in licenses and clean_key != MASTER_LICENSE_KEY:
+                return False, f"❌ 授权码无效：未找到授权码【{clean_key}】，请核对或联系管理员。", {}
+            lic_info = licenses.get(clean_key, {
+                "name": "超级管理员主授权",
+                "max_sessions": -1,
+                "expires_at": "2099-12-31 23:59:59"
+            })
+
         # 校验有效期
         expires_at = lic_info.get("expires_at", "")
         if expires_at and expires_at != "unlimited":
@@ -234,14 +269,16 @@ class SessionManager:
         session_entry["status"] = "AUTHORIZED"
         session_entry["license_key"] = clean_key
         session_entry["license_name"] = lic_info.get("name", "商业授权")
+        session_entry["machine_id"] = lic_info.get("machine_id", get_machine_id())
         session_entry["activated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sessions[cid] = session_entry
 
         self._save_registry(registry)
         succ_msg = (
             f"🎉 **商业授权激活成功！**\n\n"
-            f"🔑 **授权码**: `{clean_key}`\n"
+            f"🔑 **授权类型**: `RSA-2048 非对称防伪硬件绑定`\n"
             f"👤 **授权对象**: `{lic_info.get('name')}`\n"
+            f"💻 **绑定设备**: `{lic_info.get('machine_id', '当前设备')}`\n"
             f"⏳ **有效期至**: `{lic_info.get('expires_at')}`\n"
             f"🆔 **当前窗口**: `{cid}`\n\n"
             f"👉 下一步：请绑定当前窗口专属的 Wildberries 店铺：\n"
@@ -250,7 +287,7 @@ class SessionManager:
         return True, succ_msg, session_entry
 
     def verify_session_authorized(self, conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
-        """校验当前会话是否具备有效授权"""
+        """校验当前会话是否具备有效授权，若为 RSA 硬件绑定码，穿透强校验硬件指纹防篡改与跨机白嫖"""
         cid = self.get_current_conversation_id(conversation_id)
         registry = self._load_registry()
         session_entry = registry.get("sessions", {}).get(cid)
@@ -261,18 +298,31 @@ class SessionManager:
                 f"🛑【商业授权拦截】当前 Antigravity 会话窗口未获得商业授权！\n"
                 f"================================================================================\n"
                 f"🆔 当前会话窗口 ID : {cid}\n"
+                f"💻 本机硬件机器码   : {get_machine_id()}\n"
                 f"🔒 授权状态         : 未授权 (UNAUTHORIZED)\n\n"
                 f"⚠️ 安全铁律：\n"
-                f"   本系统执行零信任商业授权门禁。新开启的 Antigravity 聊天窗口必须获得商业\n"
+                f"   本系统执行零信任商业授权门禁与一机一码物理绑定。新开启的窗口必须获得商业\n"
                 f"   授权码激活后，方可开启 Wildberries 极速上架引擎。\n\n"
                 f"👉 激活方法：\n"
-                f"   请在对话窗口输入激活指令：\n"
-                f"   激活授权 <License_Key>\n"
-                f"   （例如：激活授权 LIC-2026-XXXX-XXXX）\n\n"
+                f"   1. 发送「获取机器码」获取本机专属硬件指纹并发送给管理员；\n"
+                f"   2. 在对话框输入激活指令：激活授权 LIC-RSA-...\n\n"
                 f"📞 获取授权码请联系系统管理员。\n"
                 f"================================================================================\n"
             )
             return False, unauth_msg, {}
+
+        # 硬件指纹防伪复验：如果会话绑定的是 RSA 授权码，强制再次比对本机实际硬件指纹
+        lic_key = session_entry.get("license_key", "")
+        if lic_key.startswith("LIC-RSA-"):
+            crypto = LicenseCrypto()
+            try:
+                crypto.verify_license(lic_key)
+            except LicenseCryptError as e:
+                # 授权被篡改或机器被更换
+                session_entry["status"] = "UNAUTHORIZED"
+                self._save_registry(registry)
+                return False, f"🛑【硬件授权失效被阻断】{e}", {}
+
         return True, "已授权", session_entry
 
     def bind_store(self, store_name: str, token: str, warehouse_id: Optional[int] = None,
@@ -415,6 +465,15 @@ class SessionManager:
         text = raw_text.strip()
         cid = self.get_current_conversation_id(conversation_id)
 
+        # 0. 获取硬件机器码 (Machine ID)
+        if text in ["获取机器码", "查看机器码", "机器码", "machine_id", "machine-id", "硬件指纹", "mid"]:
+            mid = get_machine_id()
+            return (
+                f"💻 **当前电脑专属硬件机器码 (Machine ID)**:\n\n"
+                f"`{mid}`\n\n"
+                f"👉 请将上述机器码复制发送给系统管理员，管理员将为您签发绑定该设备的不可篡改专属商业授权！"
+            )
+
         # 1. 激活授权
         act_match = re.search(r'(?:激活授权|激活|license)[:：\s]+([^\s\n]+)', text, re.IGNORECASE)
         if act_match or (text.startswith("LIC-") and len(text) > 10):
@@ -522,8 +581,12 @@ def main():
     # 2. generate-license
     p_gen = subparsers.add_parser("generate-license", help="管理员生成商业授权码")
     p_gen.add_argument("--name", default="商业客户", help="授权对象名称")
+    p_gen.add_argument("--mid", default=None, help="绑定的目标机器码 (默认本机, 或 '*' 通配)")
     p_gen.add_argument("--max-sessions", type=int, default=1, help="允许激活的会话窗口数 (-1 表示无限)")
     p_gen.add_argument("--days", type=int, default=365, help="有效天数")
+
+    # 2.1 machine-id
+    p_mid = subparsers.add_parser("machine-id", help="查看当前设备的硬件机器码")
 
     # 3. activate
     p_act = subparsers.add_parser("activate", help="在当前会话激活授权")
@@ -565,8 +628,11 @@ def main():
     if args.action == "status" or not args.action:
         msg = mgr.parse_command("店铺状态", getattr(args, 'conversation_id', None))
         print(msg)
+    elif args.action == "machine-id":
+        msg = mgr.parse_command("获取机器码")
+        print(msg)
     elif args.action == "generate-license":
-        res = mgr.generate_license(args.name, args.max_sessions, args.days)
+        res = mgr.generate_license(args.name, args.max_sessions, args.days, getattr(args, 'mid', None))
         print(f"✅ 成功生成商业授权码: {res['license_key']}")
         print(json.dumps(res, ensure_ascii=False, indent=2))
     elif args.action == "activate":
