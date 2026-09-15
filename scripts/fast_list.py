@@ -154,9 +154,55 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         wb_sell_price = int(round(ozon_rub * price_multiplier))
         wb_strike_price = int(round(wb_sell_price * 2.0))  # 50% 折扣下的划线标价 = 12倍
 
-    # 3. Category & Dims & Chars (Rule 3: 真实物理包装尺寸与精确毛重)
-    # 3. Category & Dims & Chars (严格多层语义漏斗，绝不盲目兜底)
+    # 3. Category & Dims & Chars (Rule 3: 真实物理形态包装尺寸与精确毛重智能推导 + 饱和注入带ID展示属性)
     title_lower = clean_title.lower()
+
+    # 提取真实容量 (ml / L)
+    m_vol = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:мл|ml)\b', title_lower)
+    if m_vol:
+        vol_ml = int(float(m_vol.group(1).replace(',', '.')))
+    else:
+        m_vol_l = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:л|l|литр(?:а|ов)?)\b', title_lower)
+        if m_vol_l:
+            vol_ml = int(float(m_vol_l.group(1).replace(',', '.')) * 1000)
+        else:
+            vol_ml = 750  # 默认成人运动水杯标准容量
+
+    # 根据材质与容量动态推导物理净尺寸与包装毛重
+    if any(w in title_lower for w in ['сталь', 'нержавеющ', 'металл', 'steel', 'термо']):
+        bottle_mat = ["нержавеющая сталь", "пищевая сталь"]
+        tare_weight = 180
+    elif any(w in title_lower for w in ['стекл', 'glass']):
+        bottle_mat = ["стекло", "пищевой силикон"]
+        tare_weight = 250
+    else:
+        bottle_mat = ["тритан", "пищевой пластик"]
+        tare_weight = 120
+
+    if vol_ml <= 400:
+        item_h, item_d = 17, 6
+        net_weight = tare_weight + 20
+    elif vol_ml <= 550:
+        item_h, item_d = 21, 7
+        net_weight = tare_weight + 30
+    elif vol_ml <= 750:
+        item_h, item_d = 24, 7
+        net_weight = tare_weight + 50
+    elif vol_ml <= 1000:
+        item_h, item_d = 27, 8
+        net_weight = tare_weight + 80
+    elif vol_ml <= 1500:
+        item_h, item_d = 30, 9
+        net_weight = tare_weight + 120
+    else:
+        item_h, item_d = 33, 11
+        net_weight = tare_weight + 180
+
+    pack_h = item_h + 2
+    pack_w = item_d + 1
+    pack_l = item_d + 1
+    dynamic_dims = (pack_l, pack_w, pack_h)
+    weight_g = net_weight + 60
 
     # 漏斗第 1 层：运动饮水腰包 / 越野滑雪保温水壶包 / 饮水系统 (Термобаки, SubjectID: 5632)
     if any(k in title_lower for k in ['термоподсумок', 'термобак', 'подсумок', 'гидратор', 'bottle bag', 'поясной бак', 'поясная питьевая']):
@@ -166,15 +212,11 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         # WB 平台约束：Термобаки 类目标题上限 60 字符
         if len(clean_title) > 60:
             clean_title = clean_title[:57].rstrip() + "..."
-        vol = 1.0
-        m_vol = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:л|литр|мл)', title_lower)
-        if m_vol:
-            val = float(m_vol.group(1).replace(',', '.'))
-            vol = val / 1000.0 if val > 20 else val
+        vol_l = round(vol_ml / 1000.0, 1) if vol_ml > 50 else round(vol_ml, 1)
         chars = [
             {"id": 640, "name": "Спортивное назначение", "value": ["беговые лыжи", "бег", "туризм"]},  # maxCount: 3
             {"id": 17596, "name": "Материал изделия", "value": ["текстиль", "полиэстер", "термоизоляция"]},  # maxCount: 3
-            {"id": 63260, "name": "Объем (л)", "value": round(vol, 1)},
+            {"id": 63260, "name": "Объем (л)", "value": vol_l},
             {"id": 254882, "name": "Модель спортивная", "value": ["поясной"]},  # maxCount: 1
             {"id": 378533, "name": "Комплектация", "value": ["термоподсумок"]}  # maxCount: 12
         ]
@@ -198,25 +240,29 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         dims = (19, 9, 9)
         weight_g = 350
         chars = [
-            {"name": "Материал посуды", "value": ["нержавеющая сталь"]},
-            {"name": "Особенности кружки", "value": ["двойные стенки", "герметичная крышка"]},
-            {"name": "Спортивное назначение", "value": ["туризм", "автоспорт"]},
-            {"name": "Назначение посуды", "value": ["для горячих напитков", "для авто"]},
-            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+            {"id": 17596, "name": "Материал изделия", "value": ["нержавеющая сталь"]},
+            {"id": 89010, "name": "Объем товара", "value": vol_ml},
+            {"id": 90630, "name": "Высота предмета", "value": 19},
+            {"id": 90673, "name": "Ширина предмета", "value": 8},
+            {"id": 640, "name": "Спортивное назначение", "value": ["туризм", "автоспорт"]},
+            {"id": 19717, "name": "Возрастные ограничения", "value": ["без ограничений"]},
+            {"id": 378533, "name": "Комплектация", "value": ["термокружка"]}
         ]
 
     # 漏斗第 4 层：真正保温壶 / 真空保温瓶 (Термосы, SubjectID: 511)
     # 严格排除 "термостойкая" (耐热玻璃/塑料) 以及带有 "бутылка" 的普通水杯
     elif ('термос' in title_lower and 'термостойк' not in title_lower and not any(w in title_lower for w in ['бутылка', 'бутылочка', 'фляга'])) or title_lower.startswith('термос'):
         subj_id = 511  # Термосы
-        dims = (28, 9, 9)
-        weight_g = 480
+        dims = dynamic_dims
         chars = [
-            {"name": "Материал термоса", "value": ["нержавеющая сталь"]},
-            {"name": "Доп. опции термоса", "value": ["вакуумный", "с кнопкой-клапаном"]},
-            {"name": "Спортивное назначение", "value": ["туризм", "активный отдых", "лыжный спорт"]},
-            {"name": "Назначение посуды", "value": ["для горячих напитков", "для чая и кофе"]},
-            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+            {"id": 63260, "name": "Объем (л)", "value": round(vol_ml / 1000.0, 2)},
+            {"id": 90630, "name": "Высота предмета", "value": item_h},
+            {"id": 16062, "name": "Материал термоса", "value": ["нержавеющая сталь"]},
+            {"id": 16066, "name": "Доп. опции термоса", "value": ["вакуумный", "с кнопкой-клапаном"]},
+            {"id": 640, "name": "Спортивное назначение", "value": ["туризм", "активный отдых"]},
+            {"id": 58813, "name": "Назначение посуды", "value": ["для горячих напитков"]},
+            {"id": 19717, "name": "Возрастные ограничения", "value": ["без ограничений"]},
+            {"id": 378533, "name": "Комплектация", "value": ["термос"]}
         ]
 
     # 漏斗第 5 层：敞口马克杯 / 水杯 / 咖啡杯 (Кружки, SubjectID: 812)
@@ -225,23 +271,27 @@ def parse_ozon_page(sku: str, file_path: str, price_multiplier: float = 6.0):
         dims = (12, 10, 10)
         weight_g = 320
         chars = [
-            {"name": "Материал посуды", "value": ["керамика", "фарфор", "нержавеющая сталь"]},
-            {"name": "Особенности кружки", "value": ["с ручкой", "термостойкая"]},
-            {"name": "Назначение посуды", "value": ["для чая и кофе", "для холодных и горячих напитков"]},
-            {"name": "Возрастные ограничения", "value": ["без ограничений"]}
+            {"id": 17596, "name": "Материал изделия", "value": ["керамика", "фарфор", "нержавеющая сталь"]},
+            {"id": 89010, "name": "Объем товара", "value": vol_ml},
+            {"id": 90630, "name": "Высота предмета", "value": 11},
+            {"id": 90673, "name": "Ширина предмета", "value": 9},
+            {"id": 19717, "name": "Возрастные ограничения", "value": ["без ограничений"]},
+            {"id": 378533, "name": "Комплектация", "value": ["кружка"]}
         ]
 
     # 漏斗第 6 层：运动水杯 / 便携式水壶 / 摇摇杯 (Бутылки для воды, SubjectID: 384)
     elif any(k in title_lower for k in ['бутылк', 'бутылочк', 'фляг', 'шейкер', 'насадка для бутылки']):
         subj_id = 384  # Бутылки для воды
-        dims = (26, 9, 9)
-        weight_g = 250
+        dims = dynamic_dims
         chars = [
-            {"name": "Спортивное назначение", "value": ["фитнес", "бег", "велоспорт", "туризм"]},
-            {"name": "Материал изделия", "value": ["тритан", "пищевой пластик", "силикон"]},
-            {"name": "Доп. опции бутылки", "value": ["с трубочкой", "с мерной шкалой", "с ремешком"]},
-            {"name": "Возрастные ограничения", "value": ["без ограничений"]},
-            {"name": "Назначение подарка", "value": ["для себя", "другу", "спортсмену"]}
+            {"id": 89010, "name": "Объем товара", "value": vol_ml},
+            {"id": 90630, "name": "Высота предмета", "value": item_h},
+            {"id": 90673, "name": "Ширина предмета", "value": item_d},
+            {"id": 640, "name": "Спортивное назначение", "value": ["фитнес", "бег", "туризм"]},
+            {"id": 17596, "name": "Материал изделия", "value": bottle_mat},
+            {"id": 19717, "name": "Возрастные ограничения", "value": ["без ограничений"]},
+            {"id": 23822, "name": "Доп. опции бутылки", "value": ["с мерной шкалой", "с ремешком"]},
+            {"id": 378533, "name": "Комплектация", "value": ["бутылка для воды"]}
         ]
 
     # 漏斗第 7 层：绝对零容忍盲目兜底拦截！未知类目立即报错阻断
