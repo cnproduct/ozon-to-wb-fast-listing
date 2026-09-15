@@ -192,9 +192,29 @@ python scripts/feishu_wb_bot.py
 ```text
 3461665428
 3521064413
-售价5倍，库存10
+售价6倍，库存5
 ```
 机器人将自动处理抓取、合规建卡、传图、打折与现货上架，并实时回传 WB 在售链接卡片！
+
+### 模式 C：极速全自动流水线上架 (Fast Listing Production Engine)
+
+只要提供 SKU 列表或包含 SKU 的 `.txt` 文本文件路径，即可一气呵成完成“自动查重 -> 抓取 -> EAN条码 -> 原生weightBrutto建卡 -> 异步超清相册 -> 莫斯科1仓现货库存 -> 50%大促纯卢布折扣 -> 本地归档”十二步全流程：
+
+```bash
+# 方式 1: 直接输入 SKU 列表或 .txt 文档路径
+python scripts/fast_list.py --skus "skus.txt" --batch-size 25 --stock 5 --multiplier 6.0
+
+# 方式 2: 逗号/空格分隔的数字 SKU
+python scripts/fast_list.py --skus "3149221235, 1746056982, 177045040"
+```
+
+### 模式 D：全店卡片毛重与 50% 官方大促折扣全量修复巡检 (Weight & Promo Enforcer)
+
+自动扫描全店卡片，识别缺失毛重与 `isValid=False` 的卡片，自动隔离官方封禁卡片并单件降级容错写入公斤毛重；同时对齐下发 Rule 2 纯卢布 12 倍标价与 50% 官方大促折扣：
+
+```bash
+python scripts/update_weights_and_promos.py
+```
 
 ---
 

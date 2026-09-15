@@ -47,6 +47,9 @@ products_to_upload.json
 final_*
 live_backend_*
 wb_verified_*
+all_cosmetics_listed.json
+dead_skus.json
+batch_1_pilot_table.md
 scripts/test_*.py
 scripts/check_*.py
 scripts/find_*.py
