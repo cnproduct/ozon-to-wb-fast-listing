@@ -376,5 +376,39 @@ def match_subject_and_specs(title: str, category_path: str = "") -> Dict[str, An
             ]
         }
 
+    # 8. Mops, Cleaning Tools, Bicycle Lighting & Parts, Depilation, Car Vacuums, Board Games
+    try:
+        from smart_category_matcher import SmartCategoryMatcher
+        matcher = SmartCategoryMatcher()
+        sid, sname = matcher.match(clean_t, category_path)
+        if sid:
+            l, w, h, wt_g = 20, 15, 8, 450
+            if sid == 2012: l, w, h, wt_g = 28, 20, 10, 650
+            elif sid == 4512: l, w, h, wt_g = 14, 10, 5, 220
+            elif sid == 1934: l, w, h, wt_g = 18, 12, 8, 450
+            elif sid == 1594: l, w, h, wt_g = 42, 25, 22, 1850
+            elif sid == 1436: l, w, h, wt_g = 30, 28, 26, 950
+            elif sid == 2918: l, w, h, wt_g = 10, 7, 3, 140
+            elif sid in [357, 372, 359, 1566, 360]: l, w, h, wt_g = 12, 6, 6, 180
+            elif sid == 2317: l, w, h, wt_g = 45, 12, 12, 850
+            elif sid in [6487, 1050, 4412, 1401, 562, 4588, 6464, 1399]: l, w, h, wt_g = 16, 10, 6, 280
+            elif sid == 2197: l, w, h, wt_g = 32, 28, 10, 2200
+
+            return {
+                "subjectID": sid,
+                "subjectName": sname,
+                "length": l,
+                "width": w,
+                "height": h,
+                "weight_g": wt_g,
+                "characteristics": [
+                    {"id": 14177451, "name": "Страна производства", "value": ["Китай"]},
+                    {"id": 14177449, "name": "Цвет", "value": ["черный", "белый"]},
+                    {"id": 378533, "name": "Комплектация", "value": [sname.lower(), "упаковка"]}
+                ]
+            }
+    except Exception as e:
+        pass
+
     # 严格零容忍：未匹配到任何官方品类时严禁擅自兜底，抛出明确异常阻断
     raise ValueError(f"无法确定商品的 WB 官方类目，严禁兜底: '{title}' (path: '{category_path}')")
