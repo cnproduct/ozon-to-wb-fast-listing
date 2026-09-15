@@ -391,9 +391,35 @@ class SessionManager:
         sessions = registry.setdefault("sessions", {})
         curr_session = sessions.get(cid, {})
         existing_store = curr_session.get("bound_store")
+        lic_key = curr_session.get("license_key", "")
+        is_admin = (lic_key == MASTER_LICENSE_KEY)
 
-        # 2. 单窗口单店铺互斥检查 (Store Mutex Lock)
+        # 2. 单窗口换店次数上限检查 (商业客户最多允许换店 1 次，管理员不受限)
+        is_store_change = bool((force and existing_store) or curr_session.get("had_bound_store", False))
+        
+        if is_store_change and not is_admin:
+            current_switches = curr_session.get("switch_count", 0)
+            if current_switches >= 1:
+                locked_store_name = existing_store.get('store_name') if existing_store else curr_session.get('last_store_name', '已绑店铺')
+                limit_msg = (
+                    f"\n"
+                    f"================================================================================\n"
+                    f"🛑【换店配额已耗尽】当前会话窗口已达到店铺更换上限 (最多 1 次)！\n"
+                    f"================================================================================\n"
+                    f"🏢 当前锁定店铺 : {locked_store_name}\n"
+                    f"🔒 换店配额状态 : 1 / 1 (已用尽，本窗口已永久锁定)\n\n"
+                    f"⚠️ 安全与商业授权铁律：\n"
+                    f"   为防止店铺数据混淆串店与保障商业授权合规，每个会话窗口仅提供 1 次更换店铺的容错机会。\n"
+                    f"   当前会话窗口已永久锁定至店铺【{locked_store_name}】，禁止再次更换为【{store_name}】！\n\n"
+                    f"👉 如需管理新店铺【{store_name}】，请在 Antigravity 中开启全新的聊天窗口并获取专属授权。\n"
+                    f"================================================================================\n"
+                )
+                return False, limit_msg, existing_store or {}
+
+        # 2.1 单窗口单店铺互斥检查 (Store Mutex Lock)
         if existing_store and not force:
+            used_sw = curr_session.get('switch_count', 0)
+            sw_tip = "无限制 (超级管理员)" if is_admin else f"{used_sw}/1 ({'已用尽，本窗口无法再换店' if used_sw >= 1 else '剩余 1 次更换机会'})"
             mutex_msg = (
                 f"\n"
                 f"================================================================================\n"
@@ -401,14 +427,13 @@ class SessionManager:
                 f"================================================================================\n"
                 f"🏢 已绑店铺 : {existing_store.get('store_name')}\n"
                 f"📦 履约仓库 : {existing_store.get('warehouse_name')} (ID: {existing_store.get('wb_warehouse_id')})\n"
-                f"🔑 令牌到期 : {existing_store.get('token_expiry')}\n\n"
+                f"🔑 令牌到期 : {existing_store.get('token_expiry')}\n"
+                f"🔒 换店配额 : {sw_tip}\n\n"
                 f"🔒 互斥铁律：\n"
                 f"   每一个 Antigravity 对话窗口只允许绑定一家 Wildberries 店铺，严禁在同一窗口\n"
                 f"   混绑 2 家及以上店铺，以防商品串店误传或库存错乱！\n\n"
                 f"👉 如需将当前窗口切换到新店铺【{store_name}】，请使用明确的切换指令：\n"
                 f"   切换店铺 店铺简称：{store_name} API令牌：{token[:15]}... 仓库ID：{warehouse_id or existing_store.get('wb_warehouse_id')}\n"
-                f"   或者先执行：\n"
-                f"   解绑店铺\n"
                 f"================================================================================\n"
             )
             return False, mutex_msg, existing_store
@@ -452,11 +477,26 @@ class SessionManager:
             "bound_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
+        # 更新换店计数与状态
+        if is_store_change and not is_admin:
+            curr_session["switch_count"] = curr_session.get("switch_count", 0) + 1
+        curr_session["had_bound_store"] = True
+        curr_session["last_store_name"] = store_record["store_name"]
         curr_session["bound_store"] = store_record
         sessions[cid] = curr_session
         self._save_registry(registry)
 
         action_desc = "切换重绑" if force and existing_store else "绑定"
+        switch_quota_tip = ""
+        if not is_admin:
+            used_switches = curr_session.get("switch_count", 0)
+            if used_switches >= 1:
+                switch_quota_tip = "\n🔒 **换店配额状态**: `1/1 (换店配额已用尽，本窗口已永久锁定该店铺)`"
+            else:
+                switch_quota_tip = "\n💡 **换店配额状态**: `0/1 (为防串店，本窗口享有最多 1 次更换店铺的机会)`"
+        else:
+            switch_quota_tip = "\n👑 **换店配额状态**: `无限制 (超级管理员特权)`"
+
         succ_msg = (
             f"✅ **当前会话窗口已成功{action_desc}专属店铺【{store_record['store_name']}】！**\n\n"
             f"🏢 **店铺简称**: `{store_record['store_name']}`\n"
@@ -465,6 +505,7 @@ class SessionManager:
             f"💰 **结算货币**: `{currency}`\n"
             f"📈 **默认策略**: `{multiplier}倍实售` | `{discount}%大促折` | `{stock}件现货`\n"
             f"🔒 **单店互斥保证**: 本会话窗口仅对接该店铺，所有极速上架任务均在此店铺安全执行！"
+            f"{switch_quota_tip}"
         )
         return True, succ_msg, store_record
 
@@ -482,9 +523,23 @@ class SessionManager:
         registry = self._load_registry()
         sessions = registry.get("sessions", {})
         if cid in sessions and sessions[cid].get("bound_store"):
-            old = sessions[cid].pop("bound_store")
+            old = sessions[cid].get("bound_store")
+            lic_key = sessions[cid].get("license_key", "")
+            is_admin = (lic_key == MASTER_LICENSE_KEY)
+            
+            # 若非管理员且换店次数已用尽，禁止解绑绕过
+            if not is_admin and sessions[cid].get("switch_count", 0) >= 1:
+                return False, (
+                    f"🛑【禁止解绑】当前会话窗口已使用过换店配额 (1/1)，已永久锁定为店铺【{old.get('store_name')}】。\n"
+                    f"如需绑定新店铺，请在 Antigravity 中开启全新的聊天窗口并获取授权。"
+                )
+
+            sessions[cid].pop("bound_store")
+            if not is_admin:
+                sessions[cid]["switch_count"] = sessions[cid].get("switch_count", 0) + 1
             self._save_registry(registry)
-            return True, f"✅ 已成功解绑当前窗口绑定的店铺【{old.get('store_name')}】！当前窗口仍处于授权状态，请绑定新店铺后再进行上架。"
+            tip = "本窗口换店配额已使用 (1/1)，下一次绑定新店铺后将永久锁定，无法再次更改。" if not is_admin else "管理员不受换店次数限制。"
+            return True, f"✅ 已成功解绑当前窗口绑定的店铺【{old.get('store_name')}】！当前窗口仍处于授权状态，注意：{tip}"
         return False, "ℹ️ 当前会话窗口尚未绑定任何店铺。"
 
     def get_active_session_credentials(self, conversation_id: Optional[str] = None) -> Dict[str, Any]:
@@ -551,6 +606,15 @@ class SessionManager:
                     f"🏢 **店铺绑定**: `尚未绑定店铺`\n\n"
                     f"👉 请输入 `绑定店铺 店铺简称：... API令牌：... 仓库ID：...` 进行绑定。"
                 )
+            is_adm = (sess.get('license_key') == MASTER_LICENSE_KEY)
+            sw_count = sess.get('switch_count', 0)
+            if is_adm:
+                quota_str = "无限制 (超级管理员)"
+            elif sw_count >= 1:
+                quota_str = f"{sw_count}/1 (已用尽，本窗口已永久锁定)"
+            else:
+                quota_str = f"{sw_count}/1 (剩余 1 次更换机会)"
+
             return (
                 f"🏢 **当前会话窗口专属店铺档案**:\n\n"
                 f"• **窗口 ID**: `{cid}`\n"
@@ -560,6 +624,7 @@ class SessionManager:
                 f"• **结算货币**: `{store.get('store_currency', 'CNY')}`\n"
                 f"• **默认策略**: `{store.get('default_multiplier', 6.0)}倍实售` | `{store.get('default_discount', 50)}%大促折` | `{store.get('default_stock', 5)}件库存`\n"
                 f"• **Token 到期**: `{store.get('token_expiry')}`\n"
+                f"• **换店配额**: `{quota_str}`\n"
                 f"• **绑定时间**: `{store.get('bound_at')}`\n\n"
                 f"🔒 本窗口仅对接该店铺，严禁串店。"
             )

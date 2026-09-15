@@ -27,7 +27,7 @@ description: Wildberries (WB) 全自动极速智能上架与全量多图直传�
 >     - **零信任商业授权门禁**：每一个新开启的 Antigravity 聊天会话窗口默认处于未授权状态（`UNAUTHORIZED`）。任何新窗口在执行上架或调用搬家引擎前，系统必须核验当前窗口会话 ID 的授权状态。若未激活，系统立即阻断上架并主动引导用户输入商业授权码：`激活授权 <License_Key>`。
 >     - **一机一码物理硬件强绑定 (Machine ID Binding)**：用户输入 `获取机器码` 即可提取本机主板与 CPU 绑定的固定硬件指纹（`MID-XXXX-XXXX-XXXX-XXXX`）；管理员使用非对称保密私钥为其签发不可伪造专属授权码（`python scripts/session_manager.py generate-license --mid <MID> --name "客户名"`）。严禁跨电脑运行，跨设备运行将触发物理指纹阻断拦截。
 >     - **单窗口 1:1 店铺互斥锁定 (Store Mutex Lock)**：每一个 Antigravity 聊天窗口有且仅允许绑定一家 Wildberries 店铺。严禁在同一个窗口内并发混绑 2 家及以上店铺，从物理根源上彻底杜绝商品串店误传与库存错乱隐患。
->     - **平滑安全换店 (Store Switching)**：若用户需要在当前窗口更换绑定的店铺，必须使用明确指令：`切换店铺 店铺简称：... API令牌：... 仓库ID：...` 或先执行 `解绑店铺`。系统将在线验真新店铺 API Token 有效性及履约仓库后，安全原子化更新当前窗口绑定。
+>     - **平滑安全换店与单窗口最多换店 1 次限制 (Store Switching Quota Limit)**：若用户需要在当前窗口更换绑定的店铺，必须使用明确指令：`切换店铺 店铺简称：... API令牌：... 仓库ID：...`。为杜绝客户买 1 个授权轮播换绑多家店铺白嫖并彻底防止商品串店，**每个商业会话窗口最多仅允许更换 1 次店铺（`switch_count <= 1`）**。换店后窗口永久锁定新店铺，再次换店或解绑将被强制阻断并引导开启新窗口；超级管理员 (Master VIP) 不受此限。
 >     - **发布包二进制混淆防护 (PyArmor Binary Release)**：交付客户的正式包均由 `python scripts/build_protected_release.py` 一键编译为原生 `.pyd` 运行时与加密实体，私钥 `admin_private_key.pem` 严格保存在管理员本地，杜绝客户查看或篡改底层源码。
 >     - **Cloudflare Workers 云端鉴权网关、远程在线封禁与用量看板 (Stage 2 商业化扩展)**：接入轻量 Serverless 网关（`cloud/worker.js`）。支持毫秒级远程封禁违规授权码、充值续期与实时用量看板（Web `/admin`），并在离线或弱网时自动平滑回退至本地 RSA-2048 硬件验签，兼顾管理控制力与商户使用稳定性。
 >     - **会话持久化与状态查询**：会话档案与授权信息统一由 `scripts/session_manager.py` 调度并落盘在 `~/.wb_session_registry.json`，用户可随时输入 `店铺状态` 查看当前窗口的专属店铺信息。
