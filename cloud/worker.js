@@ -15,7 +15,7 @@ const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCA
 
 const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
 
-// Pricing Model: 600 RMB per store (按店铺收费，每店 600 元)
+// Pricing Model: 600 RMB per store / 1 Year (按店铺收费，每店 600 元/年，支付当日起 365 天有效)
 const PLANS = {
   single_store: {
     id: "single_store",
@@ -23,8 +23,8 @@ const PLANS = {
     stores: 1,
     price: "600.00",
     original_price: "999.00",
-    days: 3650,
-    desc: "1:1 店铺专属互斥锁定 · Ozon 极速搬家 · 50%大促折算 · 莫斯科1仓现货秒级注入 · 赠 1 次安全换店配额"
+    days: 365,
+    desc: "1:1 店铺专属互斥锁定 · 1年有效(365天，自支付当日起算) · Ozon 极速搬家 · 50%大促折算 · 莫斯科1仓现货秒级注入 · 赠 1 次安全换店配额"
   },
   dual_store: {
     id: "dual_store",
@@ -32,8 +32,8 @@ const PLANS = {
     stores: 2,
     price: "1200.00",
     original_price: "1998.00",
-    days: 3650,
-    desc: "支持 2 家 Wildberries 店铺独立授权 · 专属一对一上架技术指导 · 双店矩阵卖家推荐"
+    days: 365,
+    desc: "支持 2 家 Wildberries 店铺独立授权 · 1年有效(365天) · 专属一对一上架技术指导 · 双店矩阵卖家推荐"
   },
   triple_store: {
     id: "triple_store",
@@ -41,8 +41,8 @@ const PLANS = {
     stores: 3,
     price: "1800.00",
     original_price: "2997.00",
-    days: 3650,
-    desc: "支持 3 家 Wildberries 店铺 · 3 个独立店铺授权码 · 团队规模化上架首选"
+    days: 365,
+    desc: "支持 3 家 Wildberries 店铺 · 3 个独立店铺授权码 · 1年有效(365天) · 团队规模化上架首选"
   }
 };
 
@@ -66,17 +66,17 @@ function canonicalJson(obj) {
 }
 
 /**
- * Node.js Crypto RSA-PSS SHA-256 license key generation
+ * Node.js Crypto RSA-PSS SHA-256 license key generation (Default: 365 days / 1 year validity)
  */
-function signLicenseKey(mid, customerName, storeName, days = 3650, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
+function signLicenseKey(mid, customerName, storeName, days = 365, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   const iatStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
   
-  const expDate = new Date(now.getTime() + (days > 0 ? days : 3650) * 24 * 60 * 60 * 1000);
+  const expDate = new Date(now.getTime() + (days > 0 ? days : 365) * 24 * 60 * 60 * 1000);
   const expStr = days > 0
     ? `${expDate.getFullYear()}-${pad(expDate.getMonth() + 1)}-${pad(expDate.getDate())} 23:59:59`
-    : '2099-12-31 23:59:59';
+    : `${now.getFullYear() + 1}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} 23:59:59`;
 
   const payload = {
     v: '2.0',
@@ -1011,7 +1011,7 @@ export default {
           const mid = extra.mid || (orderInfo && orderInfo.machine_id) || "MID-UNKNOWN";
           const customerName = extra.name || (orderInfo && orderInfo.customer_name) || "支付宝客户";
           const storeName = extra.store || (orderInfo && orderInfo.store_name) || "Wildberries店铺";
-          const days = Number(extra.days || (orderInfo && orderInfo.days) || 3650);
+          const days = Number(extra.days || (orderInfo && orderInfo.days) || 365);
 
           // Sign the RSA license
           const { license_key, payload } = signLicenseKey(mid, customerName, storeName, days, 1, rsaSignKeyB64);
