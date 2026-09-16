@@ -311,6 +311,7 @@ class SessionManager:
         registry = self._load_registry()
         session_entry = registry.get("sessions", {}).get(cid)
         if not session_entry or session_entry.get("status") != "AUTHORIZED":
+            cashier_url = "https://wb-auth-gateway.cnproduct.workers.dev/pay"
             unauth_msg = (
                 f"\n"
                 f"================================================================================\n"
@@ -318,13 +319,13 @@ class SessionManager:
                 f"================================================================================\n"
                 f"🆔 当前会话窗口 ID : {cid}\n"
                 f"🔒 授权状态         : 未授权 (UNAUTHORIZED)\n\n"
-                f"🚀 欢迎使用 Wildberries 极速智能搬家上架助手！请按以下标准 6 步快速开启：\n\n"
-                f"1️⃣ 第一步【获取会话ID】: 您当前的窗口 Conversation ID 为 `{cid}`（或输入「获取会话ID」）\n"
-                f"2️⃣ 第二步【支付宝支付】: 支付宝扫码支付 600 元（¥600/店铺/窗口，单店 1:1 独立互斥隔离）\n"
-                f"3️⃣ 第三步【获取授权码】: 支付成功后自动或由管理员下发专属防伪授权码 (License Key)\n"
-                f"4️⃣ 第四步【激活当前窗口】: 在当前对话框输入：激活授权 <你的商业授权码>\n"
-                f"5️⃣ 第五步【绑定目标店铺】: 输入：绑定店铺 店铺简称：我的店铺 API令牌：eyJ... 仓库ID：2200658\n"
-                f"6️⃣ 第六步【极速智能上架】: 直接粘贴 Ozon SKU 列表或发送 .txt 文件，全自动全要素搬家上架！\n\n"
+                f"🚀 欢迎使用 Wildberries 极速智能搬家上架助手！请按以下标准 5 步快速开启：\n\n"
+                f"1️⃣ 第一步【获取会话ID与支付】: 当前 Conversation ID 为 `{cid}`，支付宝扫码支付 600 元（¥600/店铺，一店一码 1:1 独立隔离）\n"
+                f"    👉 官方在线收银台: {cashier_url}\n"
+                f"2️⃣ 第二步【自动获取授权码】: 支付成功后系统秒级自动签发专属防伪授权码 (License Key)\n"
+                f"3️⃣ 第三步【激活当前窗口】: 在当前对话框输入：激活授权 <你的商业授权码>\n"
+                f"4️⃣ 第四步【绑定目标店铺】: 输入：绑定店铺 店铺简称：我的店铺 API令牌：eyJ... 仓库ID：2200658\n"
+                f"5️⃣ 第五步【极速智能上架】: 直接粘贴 Ozon SKU 列表或发送 .txt 文件，全自动全要素搬家上架！\n\n"
                 f"💡 提示：多店铺卖家可在新窗口输入第 2 个授权码绑定第 2 家店铺，多窗多店并发独立运行！\n"
                 f"📞 官方客服与授权咨询请联系管理员电话: 15959543210\n"
                 f"================================================================================\n"
@@ -568,18 +569,20 @@ class SessionManager:
         text = raw_text.strip()
         cid = self.get_current_conversation_id(conversation_id)
 
-        # 0. 获取当前会话窗口 ID (Conversation ID)
+        # 0. 获取当前会话窗口 ID 与支付信息 (Conversation ID & Pay)
         if text in ["获取会话ID", "获取会话id", "查看会话ID", "会话ID", "会话id", "conversation_id", "cid", "获取ID", "获取id", "id"]:
+            cashier_url = "https://wb-auth-gateway.cnproduct.workers.dev/pay"
             return (
                 f"🆔 **当前 Antigravity 会话窗口专属 ID (Conversation ID)**:\n\n"
                 f"`{cid}`\n\n"
-                f"🚀 **标准商业化开通与上架 6 步指引**：\n"
-                f"1️⃣ 复制上述 Conversation ID；\n"
-                f"2️⃣ 支付宝扫码支付 600 元（¥600/店铺/窗口，单店 1:1 独立互斥隔离）；\n"
-                f"3️⃣ 获取系统/管理员下发的专属防伪授权码；\n"
-                f"4️⃣ 在当前窗口发送：`激活授权 <你的授权码>`；\n"
-                f"5️⃣ 发送：`绑定店铺 店铺简称：... API令牌：... 仓库ID：...`；\n"
-                f"6️⃣ 发送 Ozon SKU 列表或 .txt 文档，开启极速智能搬家！"
+                f"💰 **商业收费法则**：**每家 Wildberries 店铺收费 600 元人民币（¥600/店铺，一店一码 1:1 独立隔离）**。\n"
+                f"👉 **[点击打开官方在线收银台自助支付]({cashier_url})**\n\n"
+                f"🚀 **标准商业化开通与上架 5 步极速流程**：\n"
+                f"1️⃣ **第一步【获取会话ID与支付】**：复制上方 Conversation ID，打开收银台支付宝扫码支付 600 元（显示一店一码）；\n"
+                f"2️⃣ **第二步【自动获取授权码】**：支付成功后系统秒级自动签发专属防伪授权码 (License Key)；\n"
+                f"3️⃣ **第三步【激活当前窗口】**：在当前窗口发送：`激活授权 <你的商业授权码>`；\n"
+                f"4️⃣ **第四步【绑定目标店铺】**：发送：`绑定店铺 店铺简称：... API令牌：... 仓库ID：...`；\n"
+                f"5️⃣ **第五步【极速智能上架】**：直接发送 Ozon SKU 列表或 .txt 文档，开启极速智能搬家！"
             )
 
         # 0.1 获取硬件机器码 (可选保留)
