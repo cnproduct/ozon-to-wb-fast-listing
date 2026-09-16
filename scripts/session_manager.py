@@ -573,14 +573,19 @@ class SessionManager:
         text = raw_text.strip()
         cid = self.get_current_conversation_id(conversation_id)
 
-        # 0. 获取授权码 / 商业收银台 / 会话ID (自动获取会话ID并分发支付宝支付二维码与极简指引)
-        if text in [
+        # 0. 获取授权码 / 商业收银台 / 会话ID / wb上架激活码 (自动获取会话ID并分发支付宝支付二维码与极简指引)
+        trigger_keywords = [
+            "wb上架激活码", "wb激活码", "wb上架授权码", "wb授权码", "wb上架", "激活码", "获取激活码", "购买激活码", "申请激活码",
             "获取授权码", "获取授权", "授权码", "申请授权", "申请授权码", "购买授权", "开通授权", 
             "开通", "购买", "购买套餐", "收费标准", "收费", "价格", "收银台", "cashier", "pay", 
-            "获取会话ID", "获取会话id", "查看会话ID", "会话ID", "会话id", "conversation_id", "cid", "获取ID", "获取id", "id"
-        ]:
+            "获取会话id", "查看会话id", "会话id", "conversation_id", "cid", "获取id", "id"
+        ]
+        if text.lower() in [k.lower() for k in trigger_keywords] or (
+            ("激活码" in text or "授权码" in text or "收银台" in text or "购买" in text) 
+            and not text.startswith("LIC-") and not text.startswith("激活授权") and not text.startswith("激活")
+        ):
             cashier_url = f"https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={cid}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{cid}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{cid}"
             return (
                 f"🛒 **Wildberries 极速智能上架助手 · 商业授权专属开通**\n\n"
                 f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
