@@ -63,9 +63,9 @@ class StoreManager:
             "wb_api_token": (cfg.get("wb_api_token") or os.getenv("WB_API_TOKEN") or "").strip(),
             "wb_warehouse_id": int(cfg.get("wb_warehouse_id") or os.getenv("WB_WAREHOUSE_ID") or 2200658),
             "warehouse_name": cfg.get("warehouse_name", "莫斯科1仓"),
-            "default_multiplier": float(cfg.get("default_multiplier", 5.0)),
+            "default_multiplier": float(cfg.get("default_multiplier", 6.0)),
             "default_discount": int(cfg.get("default_discount", 50)),
-            "default_stock": int(cfg.get("default_stock", 10)),
+            "default_stock": int(cfg.get("default_stock", 5)),
             "operator": cfg.get("operator", "程智鹏"),
             "owner": cfg.get("owner", "许惹人"),
             "is_custom_binding": False
