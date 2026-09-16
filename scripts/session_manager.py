@@ -598,7 +598,7 @@ class SessionManager:
                 f"`{cid}`\n\n"
                 f"💰 **商业收费法则**：**每家 Wildberries 店铺收费 600 元人民币（¥600/店铺/年，自支付当日起 365 天有效，一店一码 1:1 独立互斥隔离）**。\n\n"
                 f"👉 **[点击打开支付宝在线收银台支付]({cashier_url})**\n\n"
-                f"![支付宝扫码支付]({qr_url})\n\n"
+                f"<img src="{qr_url}" width="100" height="100" style="width:100px;height:100px;max-width:100px;display:block;margin:8px 0;border:1px solid #e2e8f0;border-radius:6px;" alt="支付宝扫码支付" />\n\n"
                 f"--- \n"
                 f"⚡ **全自动智能流转 4 步闭环**：\n"
                 f"1️⃣ **第1步【获取授权与支付】**：手机支付宝扫码支付 600 元（自支付当日起 365 天有效）；\n"

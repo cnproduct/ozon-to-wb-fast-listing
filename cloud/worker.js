@@ -462,6 +462,7 @@ export default {
     // 4.1 Cashier UI: GET /pay
     if (path === "/pay" && method === "GET") {
       const orderIdParam = url.searchParams.get("order_id") || "";
+      const cidParam = url.searchParams.get("cid") || url.searchParams.get("mid") || "";
       const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -600,22 +601,22 @@ export default {
       border: none;
       border-radius: 10px;
       padding: 14px;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: background 0.2s;
+      gap: 10px;
+      transition: 0.2s;
+      margin-bottom: 20px;
     }
     .btn-pay:hover { background: #0958d9; }
     .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .features-list {
-      margin-top: 22px;
       border-top: 1px solid var(--border);
-      padding-top: 16px;
+      padding-top: 18px;
     }
     .feature-item {
       display: flex;
@@ -665,27 +666,27 @@ export default {
 <body>
   <div class="cashier-card">
     <div class="brand-header">
-      <div class="brand-badge">⚡ Wildberries 官方智能上架助手</div>
+      <div class="brand-badge">⚡ Wildberries 极速智能上架助手</div>
       <h1>单店商业授权 · 支付宝收银台</h1>
-      <p class="subtitle">单店 1:1 专属锁定 · 一机一码硬件绑定 · 支付 600 元/店秒级自动发码</p>
+      <p class="subtitle">单店 1:1 专属隔离 · 绑定当前窗口专属 ID · 支付 600 元/店秒级自动激活</p>
     </div>
 
     <div class="price-tag-banner">
       <div class="price-tag-info">
         <span class="price-tag-label">收费计费标准</span>
-        <span class="price-tag-desc">按 Wildberries 店铺计费 (1店1码)</span>
+        <span class="price-tag-desc">按 Wildberries 店铺计费 (1店1码 · 365天有效)</span>
       </div>
       <div class="price-tag-num">
-        ¥600.00 <small>/ 店铺</small>
+        ¥600.00 <small>/ 店铺/年</small>
       </div>
     </div>
 
     <div id="checkout-section">
       <div class="form-group">
-        <label>💻 目标电脑机器码 (Machine ID) <span style="color: #ef4444;">*</span></label>
-        <input type="text" id="mid-input" class="input-box" placeholder="MID-XXXX-XXXX-XXXX-XXXX" />
+        <label>🆔 当前窗口专属 ID (Conversation ID) <span style="color: #ef4444;">*</span></label>
+        <input type="text" id="mid-input" class="input-box" placeholder="例如：4a4303ef-da29-4edb-aa22-8a8d3bcc0ecc" value="${cidParam}" />
         <div class="input-tip">
-          💡 获取方法：在 Antigravity 对话框中输入「<code>获取机器码</code>」，复制专属硬件指纹粘贴在此。
+          🛡️ 系统已自动提取当前 Antigravity 聊天窗口 ID，支付成功后系统秒级自动签发授权并自动激活本窗口。
         </div>
       </div>
 
@@ -783,7 +784,7 @@ export default {
       const customer = document.getElementById('customer-input').value.trim();
 
       if (!mid) {
-        alert('请输入电脑机器码 (MID)！');
+        alert('请输入当前窗口专属 ID (Conversation ID)！');
         document.getElementById('mid-input').focus();
         return;
       }
@@ -875,10 +876,11 @@ export default {
     if (path === "/api/pay/create-order" && method === "POST") {
       try {
         const body = await request.json();
-        const { mid, store_name = "我的WB店铺", name = "商业客户", plan_id = "single_store" } = body;
+        const { mid, cid, store_name = "我的WB店铺", name = "商业客户", plan_id = "single_store" } = body;
+        const targetId = (cid || mid || "").trim();
 
-        if (!mid) {
-          return new Response(JSON.stringify({ ok: false, error: "缺少机器码 (MID)" }), {
+        if (!targetId) {
+          return new Response(JSON.stringify({ ok: false, error: "缺少窗口专属 ID (Conversation ID)" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
