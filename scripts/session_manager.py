@@ -591,7 +591,7 @@ class SessionManager:
             and not text.startswith("LIC-") and not text.startswith("激活授权") and not text.startswith("激活")
         ):
             cashier_url = f"https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={cid}"
-            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{cid}"
+            qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{cid}"
             return (
                 f"🛒 **Wildberries 极速智能上架助手 · 商业授权专属开通**\n\n"
                 f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
