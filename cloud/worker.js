@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 
 /**
  * Cloudflare Workers Commercial License & Anti-Piracy Gateway + Alipay Self-Service Cashier
+ * Pricing: ¥600 RMB per store (单店商业授权 ¥600.00 / 店铺)
  * Zero-server, zero-maintenance global edge authentication, remote management, and automated Alipay license dispensing.
  */
 
@@ -14,11 +15,35 @@ const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCA
 
 const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
 
-// Pricing Plans
+// Pricing Model: 600 RMB per store (按店铺收费，每店 600 元)
 const PLANS = {
-  monthly: { id: "monthly", name: "月度专业版 (30 天)", days: 30, price: "299.00", original_price: "499.00", desc: "极速批量上架 · 官方条码注入 · 50%大促折算 · 莫斯科1仓现货" },
-  quarterly: { id: "quarterly", name: "季度进阶版 (90 天)", days: 90, price: "799.00", original_price: "1299.00", desc: "多店安全隔离 · 莫斯科1仓库存 · 赠 1 次换店配额 · 热门推荐" },
-  yearly: { id: "yearly", name: "年度尊享版 (365 天)", days: 365, price: "2499.00", original_price: "3999.00", desc: "旗舰无限并发 · 优先版本更新特权 · 专属VIP技术支持" }
+  single_store: {
+    id: "single_store",
+    name: "单店商业授权 (1 家店铺)",
+    stores: 1,
+    price: "600.00",
+    original_price: "999.00",
+    days: 3650,
+    desc: "1:1 店铺专属互斥锁定 · Ozon 极速搬家 · 50%大促折算 · 莫斯科1仓现货秒级注入 · 赠 1 次安全换店配额"
+  },
+  dual_store: {
+    id: "dual_store",
+    name: "双店进阶套餐 (2 家店铺)",
+    stores: 2,
+    price: "1200.00",
+    original_price: "1998.00",
+    days: 3650,
+    desc: "支持 2 家 Wildberries 店铺独立授权 · 专属一对一上架技术指导 · 双店矩阵卖家推荐"
+  },
+  triple_store: {
+    id: "triple_store",
+    name: "多店旗舰版 (3 家店铺)",
+    stores: 3,
+    price: "1800.00",
+    original_price: "2997.00",
+    days: 3650,
+    desc: "支持 3 家 Wildberries 店铺 · 3 个独立店铺授权码 · 团队规模化上架首选"
+  }
 };
 
 /**
@@ -43,7 +68,7 @@ function canonicalJson(obj) {
 /**
  * Node.js Crypto RSA-PSS SHA-256 license key generation
  */
-function signLicenseKey(mid, customerName, days, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
+function signLicenseKey(mid, customerName, storeName, days = 3650, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   const iatStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -57,6 +82,7 @@ function signLicenseKey(mid, customerName, days, maxSessions = 1, privKeyB64 = D
     v: '2.0',
     mid: mid.trim().toUpperCase(),
     name: (customerName || '商业客户').trim(),
+    store: (storeName || '专属WB店铺').trim(),
     max_s: maxSessions,
     iat: iatStr,
     exp: expStr,
@@ -305,6 +331,7 @@ export default {
       return new Response(JSON.stringify({
         status: "healthy",
         service: "Wildberries Commercial License & Alipay Payment Gateway",
+        pricing_model: "¥600 RMB per store (单店商业授权 ¥600/店铺)",
         app_id: alipayAppId,
         timestamp: new Date().toISOString()
       }), {
@@ -395,6 +422,7 @@ export default {
         valid: true,
         license_key: key,
         name: record.name,
+        store_name: record.store_name || record.store || "",
         machine_id: record.machine_id,
         expires_at: record.expires_at,
         permissions: record.permissions || ["listing", "pricing", "stocks", "fast_list"]
@@ -428,7 +456,7 @@ export default {
     }
 
     // ==========================================
-    // 4. Alipay Cashier & Order APIs
+    // 4. Alipay Cashier & Order APIs (¥600/Store)
     // ==========================================
 
     // 4.1 Cashier UI: GET /pay
@@ -439,7 +467,7 @@ export default {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wildberries 极速上架助手 · 官方商业授权收银台</title>
+  <title>Wildberries 极速上架助手 · 单店商业授权收银台</title>
   <style>
     :root {
       --primary: #6366f1;
@@ -491,7 +519,23 @@ export default {
     h1 { font-size: 22px; font-weight: 700; color: #fff; }
     p.subtitle { color: var(--text-sub); font-size: 13px; margin-top: 6px; }
 
-    .form-group { margin-bottom: 20px; }
+    .price-tag-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(16, 185, 129, 0.15));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .price-tag-info { display: flex; flex-direction: column; }
+    .price-tag-label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+    .price-tag-desc { font-size: 13px; color: #38bdf8; font-weight: 600; margin-top: 2px; }
+    .price-tag-num { font-size: 26px; font-weight: 800; color: #34d399; }
+    .price-tag-num small { font-size: 13px; color: #94a3b8; font-weight: normal; }
+
+    .form-group { margin-bottom: 18px; }
     label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; }
     .input-box {
       width: 100%;
@@ -513,7 +557,7 @@ export default {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
     @media (max-width: 540px) {
       .plans-grid { grid-template-columns: 1fr; }
@@ -522,7 +566,7 @@ export default {
       background: #0f172a;
       border: 2px solid var(--border);
       border-radius: 12px;
-      padding: 16px 12px;
+      padding: 14px 10px;
       text-align: center;
       cursor: pointer;
       position: relative;
@@ -530,23 +574,23 @@ export default {
     }
     .plan-card:hover { border-color: #64748b; }
     .plan-card.active {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.08);
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.08);
     }
     .plan-badge {
       position: absolute;
       top: -10px;
       right: -6px;
-      background: #ef4444;
+      background: #10b981;
       color: #fff;
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 9999px;
       font-weight: 700;
     }
-    .plan-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-    .plan-price { font-size: 22px; font-weight: 800; color: #38bdf8; }
-    .plan-price small { font-size: 12px; color: var(--text-sub); font-weight: normal; }
+    .plan-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .plan-price { font-size: 20px; font-weight: 800; color: #38bdf8; }
+    .plan-price small { font-size: 11px; color: var(--text-sub); font-weight: normal; }
     .plan-orig { font-size: 11px; color: #64748b; text-decoration: line-through; margin-top: 2px; }
 
     .btn-pay {
@@ -569,7 +613,7 @@ export default {
     .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .features-list {
-      margin-top: 24px;
+      margin-top: 22px;
       border-top: 1px solid var(--border);
       padding-top: 16px;
     }
@@ -621,9 +665,19 @@ export default {
 <body>
   <div class="cashier-card">
     <div class="brand-header">
-      <div class="brand-badge">⚡ Wildberries 官方上架引擎</div>
-      <h1>商业授权自助收银台</h1>
-      <p class="subtitle">RSA-2048 非对称防伪 · 一机一码硬件绑定 · 支付后秒级自动发卡</p>
+      <div class="brand-badge">⚡ Wildberries 官方智能上架助手</div>
+      <h1>单店商业授权 · 支付宝收银台</h1>
+      <p class="subtitle">单店 1:1 专属锁定 · 一机一码硬件绑定 · 支付 600 元/店秒级自动发码</p>
+    </div>
+
+    <div class="price-tag-banner">
+      <div class="price-tag-info">
+        <span class="price-tag-label">收费计费标准</span>
+        <span class="price-tag-desc">按 Wildberries 店铺计费 (1店1码)</span>
+      </div>
+      <div class="price-tag-num">
+        ¥600.00 <small>/ 店铺</small>
+      </div>
     </div>
 
     <div id="checkout-section">
@@ -631,33 +685,40 @@ export default {
         <label>💻 目标电脑机器码 (Machine ID) <span style="color: #ef4444;">*</span></label>
         <input type="text" id="mid-input" class="input-box" placeholder="MID-XXXX-XXXX-XXXX-XXXX" />
         <div class="input-tip">
-          💡 获取方法：在 Antigravity 聊天窗口中输入「<code>获取机器码</code>」，复制生成的专属指纹粘贴至此处。
+          💡 获取方法：在 Antigravity 对话框中输入「<code>获取机器码</code>」，复制专属硬件指纹粘贴在此。
         </div>
       </div>
 
       <div class="form-group">
-        <label>👤 客户名称 / 联系方式 (选填)</label>
+        <label>🏪 绑定 Wildberries 店铺名称 / 简称 <span style="color: #ef4444;">*</span></label>
+        <input type="text" id="store-input" class="input-box" placeholder="例如：我的WB一店 / 莫斯科优选店" style="font-family: sans-serif;" />
+        <div class="input-tip">
+          🛡️ 单窗口 1:1 专属店铺锁定，从物理根源杜绝商品串店与库存错乱隐患。
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>👤 客户联系人 / 手机号 (选填)</label>
         <input type="text" id="customer-input" class="input-box" placeholder="例如：张先生 (13800000000)" style="font-family: sans-serif;" />
       </div>
 
-      <label>📦 选择授权套餐</label>
+      <label>📦 选择店铺授权套餐</label>
       <div class="plans-grid">
-        <div class="plan-card" onclick="selectPlan('monthly')" id="plan-monthly">
-          <div class="plan-title">月度专业版</div>
-          <div class="plan-price">¥299<small>/30天</small></div>
-          <div class="plan-orig">原价 ¥499</div>
+        <div class="plan-card active" onclick="selectPlan('single_store')" id="plan-single_store">
+          <div class="plan-badge">标准单店</div>
+          <div class="plan-title">单店商业授权</div>
+          <div class="plan-price">¥600<small>/1家店</small></div>
+          <div class="plan-orig">原价 ¥999</div>
         </div>
-        <div class="plan-card active" onclick="selectPlan('quarterly')" id="plan-quarterly">
-          <div class="plan-badge">热门推荐</div>
-          <div class="plan-title">季度进阶版</div>
-          <div class="plan-price">¥799<small>/90天</small></div>
-          <div class="plan-orig">原价 ¥1299</div>
+        <div class="plan-card" onclick="selectPlan('dual_store')" id="plan-dual_store">
+          <div class="plan-title">双店进阶版</div>
+          <div class="plan-price">¥1200<small>/2家店</small></div>
+          <div class="plan-orig">原价 ¥1998</div>
         </div>
-        <div class="plan-card" onclick="selectPlan('yearly')" id="plan-yearly">
-          <div class="plan-badge">立省¥1500</div>
-          <div class="plan-title">年度尊享版</div>
-          <div class="plan-price">¥2499<small>/365天</small></div>
-          <div class="plan-orig">原价 ¥3999</div>
+        <div class="plan-card" onclick="selectPlan('triple_store')" id="plan-triple_store">
+          <div class="plan-title">三店旗舰版</div>
+          <div class="plan-price">¥1800<small>/3家店</small></div>
+          <div class="plan-orig">原价 ¥2997</div>
         </div>
       </div>
 
@@ -665,17 +726,17 @@ export default {
         <svg style="width: 20px; height: 20px;" viewBox="0 0 1024 1024" fill="currentColor">
           <path d="M793.6 128H230.4C174.08 128 128 174.08 128 230.4v563.2C128 849.92 174.08 896 230.4 896h563.2c56.32 0 102.4-46.08 102.4-102.4V230.4C896 174.08 849.92 128 793.6 128z m-204.8 542.72c-20.48 5.12-40.96 10.24-66.56 15.36 51.2 56.32 128 97.28 215.04 117.76-25.6 20.48-56.32 35.84-92.16 46.08-76.8-25.6-143.36-71.68-189.44-133.12-51.2 15.36-107.52 25.6-163.84 25.6-112.64 0-168.96-51.2-168.96-128 0-71.68 56.32-128 153.6-128 66.56 0 128 15.36 179.2 40.96V409.6H332.8v-71.68h122.88V256h81.92v81.92h143.36v71.68H537.6v76.8c56.32 15.36 112.64 35.84 163.84 66.56l-46.08 69.12c-20.48-10.24-40.96-20.48-66.56-30.72z m-168.96-20.48c-40.96-15.36-87.04-25.6-133.12-25.6-56.32 0-87.04 25.6-87.04 61.44 0 40.96 35.84 61.44 92.16 61.44 35.84 0 76.8-5.12 128-20.48V650.24z"/>
         </svg>
-        <span id="btn-text">支付宝一键安全支付 (¥799.00)</span>
+        <span id="btn-text">支付宝一键安全支付 (¥600.00) · 立即发码</span>
       </button>
 
       <div class="features-list">
         <div class="feature-item">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-          支持 Ozon 商品标题、属性、多图、真实包装尺寸一键极速搬家至 Wildberries
+          支持 Ozon 标题、属性、多图、真实物理包装尺寸 100% 极速搬家至 WB
         </div>
         <div class="feature-item">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-          自动生成官方 EAN-13 条形码、价格隔离区自动拦截与 50% 促销折扣闭环
+          官方 EAN-13 条码自动批量申请、50% 官方大促折扣与莫斯科1仓现货秒级注入
         </div>
         <div class="feature-item">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -686,40 +747,49 @@ export default {
 
     <!-- Success Result -->
     <div id="success-section" class="success-modal">
-      <h2 style="color: #34d399; font-size: 18px; margin-bottom: 8px;">🎉 支付成功！授权码已生成</h2>
+      <h2 style="color: #34d399; font-size: 18px; margin-bottom: 8px;">🎉 支付成功！专属店铺授权码已生成</h2>
       <p style="font-size: 13px; color: #a7f3d0;">您的专属商业授权已签发并自动完成云端登记：</p>
       
       <div id="license-key-box" class="lic-display"></div>
       
       <button class="btn-copy" onclick="copyLicense()">📋 一键复制授权码</button>
       
-      <div style="margin-top: 16px; font-size: 12px; color: #cbd5e1; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
-        <strong>🚀 激活步骤：</strong><br>
-        1. 点击上方按钮复制授权码；<br>
+      <div style="margin-top: 16px; font-size: 12px; color: #cbd5e1; text-align: left; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; line-height: 1.6;">
+        <strong style="color: #38bdf8;">🚀 激活上架步骤：</strong><br>
+        1. 点击上方绿色按钮复制授权码；<br>
         2. 回到 Antigravity 聊天窗口中输入：<br>
-        <code style="color: #38bdf8; font-weight: bold;">激活授权 &lt;复制的授权码&gt;</code><br>
-        3. 绑定您的 Wildberries 店铺即可开始极速搬家！
+        <code style="color: #34d399; font-weight: bold; background: #0f172a; padding: 2px 6px; border-radius: 4px;">激活授权 &lt;复制的授权码&gt;</code><br>
+        3. 绑定您的 Wildberries 店铺：<br>
+        <code style="color: #38bdf8; font-weight: bold; background: #0f172a; padding: 2px 6px; border-radius: 4px;">切换店铺 店铺简称：我的WB店 API令牌：... 仓库ID：...</code><br>
+        4. 输入 Ozon SKU 即可启动全自动极速搬家上架！
       </div>
     </div>
   </div>
 
   <script>
-    let currentPlan = 'quarterly';
-    const planPrices = { monthly: '299.00', quarterly: '799.00', yearly: '2499.00' };
+    let currentPlan = 'single_store';
+    const planPrices = { single_store: '600.00', dual_store: '1200.00', triple_store: '1800.00' };
 
     function selectPlan(planId) {
       currentPlan = planId;
       document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('active'));
       document.getElementById('plan-' + planId).classList.add('active');
-      document.getElementById('btn-text').innerText = '支付宝一键安全支付 (¥' + planPrices[planId] + ')';
+      document.getElementById('btn-text').innerText = '支付宝一键安全支付 (¥' + planPrices[planId] + ') · 立即发码';
     }
 
     async function handlePay() {
       const mid = document.getElementById('mid-input').value.trim();
+      const storeName = document.getElementById('store-input').value.trim();
       const customer = document.getElementById('customer-input').value.trim();
+
       if (!mid) {
         alert('请输入电脑机器码 (MID)！');
         document.getElementById('mid-input').focus();
+        return;
+      }
+      if (!storeName) {
+        alert('请输入要绑定的 Wildberries 店铺名称/简称！');
+        document.getElementById('store-input').focus();
         return;
       }
 
@@ -733,7 +803,8 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mid: mid,
-            name: customer || '商业客户',
+            store_name: storeName,
+            name: customer || storeName || '商业客户',
             plan_id: currentPlan
           })
         });
@@ -762,7 +833,7 @@ export default {
     function copyLicense() {
       const text = document.getElementById('license-key-box').innerText;
       navigator.clipboard.writeText(text).then(() => {
-        alert('✅ 授权码已成功复制到剪贴板！');
+        alert('✅ 专属店铺授权码已成功复制到剪贴板！');
       }).catch(() => {
         alert('复制失败，请手动选择复制。');
       });
@@ -804,7 +875,7 @@ export default {
     if (path === "/api/pay/create-order" && method === "POST") {
       try {
         const body = await request.json();
-        const { mid, name = "商业客户", plan_id = "quarterly" } = body;
+        const { mid, store_name = "我的WB店铺", name = "商业客户", plan_id = "single_store" } = body;
 
         if (!mid) {
           return new Response(JSON.stringify({ ok: false, error: "缺少机器码 (MID)" }), {
@@ -813,7 +884,7 @@ export default {
           });
         }
 
-        const plan = PLANS[plan_id] || PLANS.quarterly;
+        const plan = PLANS[plan_id] || PLANS.single_store;
         const now = new Date();
         const pad = (n) => String(n).padStart(2, '0');
         const timeStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
@@ -823,13 +894,22 @@ export default {
         const notifyUrl = `${url.origin}/api/pay/alipay-callback`;
         const returnUrl = `${url.origin}/pay?order_id=${orderId}`;
 
+        const passbackObj = {
+          mid: mid.trim().toUpperCase(),
+          name: name.trim(),
+          store: store_name.trim(),
+          days: plan.days,
+          stores: plan.stores,
+          plan_id: plan.id
+        };
+
         const bizContent = {
           out_trade_no: orderId,
           total_amount: plan.price,
-          subject: `Wildberries极速上架助手-${plan.name}`,
+          subject: `Wildberries极速上架助手-单店商业授权(¥600/店)`,
           product_code: "FAST_INSTANT_TRADE_PAY",
-          body: JSON.stringify({ mid: mid.trim().toUpperCase(), name: name.trim(), days: plan.days }),
-          passback_params: encodeURIComponent(JSON.stringify({ mid: mid.trim().toUpperCase(), name: name.trim(), days: plan.days }))
+          body: JSON.stringify(passbackObj),
+          passback_params: encodeURIComponent(JSON.stringify(passbackObj))
         };
 
         const nowFormat = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -861,9 +941,11 @@ export default {
             status: "PENDING",
             machine_id: mid.trim().toUpperCase(),
             customer_name: name.trim(),
+            store_name: store_name.trim(),
             plan_id: plan.id,
             plan_name: plan.name,
             amount: plan.price,
+            stores: plan.stores,
             days: plan.days,
             created_at: nowFormat
           };
@@ -875,6 +957,7 @@ export default {
           order_id: orderId,
           amount: plan.price,
           plan_name: plan.name,
+          store_name: store_name.trim(),
           pay_url: payUrl
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -927,15 +1010,17 @@ export default {
 
           const mid = extra.mid || (orderInfo && orderInfo.machine_id) || "MID-UNKNOWN";
           const customerName = extra.name || (orderInfo && orderInfo.customer_name) || "支付宝客户";
-          const days = Number(extra.days || (orderInfo && orderInfo.days) || 30);
+          const storeName = extra.store || (orderInfo && orderInfo.store_name) || "Wildberries店铺";
+          const days = Number(extra.days || (orderInfo && orderInfo.days) || 3650);
 
           // Sign the RSA license
-          const { license_key, payload } = signLicenseKey(mid, customerName, days, 1, rsaSignKeyB64);
+          const { license_key, payload } = signLicenseKey(mid, customerName, storeName, days, 1, rsaSignKeyB64);
 
           // Save license to KV
           if (env.WB_LICENSES) {
             const licRecord = {
               name: customerName,
+              store_name: storeName,
               machine_id: mid,
               max_sessions: 1,
               expires_at: payload.exp,
@@ -958,6 +1043,7 @@ export default {
               amount: totalAmount,
               machine_id: mid,
               customer_name: customerName,
+              store_name: storeName,
               license_key: license_key,
               expires_at: payload.exp,
               paid_at: new Date().toISOString()
@@ -992,6 +1078,7 @@ export default {
         ok: true,
         status: ord.status,
         license_key: ord.license_key || "",
+        store_name: ord.store_name || "",
         expires_at: ord.expires_at || "",
         machine_id: ord.machine_id || "",
         amount: ord.amount || ""
@@ -1041,7 +1128,7 @@ export default {
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>商业授权与支付宝财务云端控制台</title>
+  <title>商业授权与支付宝财务控制台 (¥600/店铺)</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; margin: 0; }
     .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; }
@@ -1077,17 +1164,17 @@ export default {
 </head>
 <body>
   <div class="header">
-    <h1>🛡️ Wildberries 商业授权与支付宝财务控制台</h1>
+    <h1>🛡️ Wildberries 商业授权与支付宝财务控制台 (收费: ¥600/店)</h1>
     <a href="/pay" target="_blank" style="padding: 8px 16px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">🛒 打开自选收银台</a>
   </div>
 
   <div class="stats-bar">
     <div class="stat-card">
-      <div class="stat-label">总授权实例</div>
+      <div class="stat-label">总授权店铺数</div>
       <div class="stat-num">${licenses.length}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">在线正常授权</div>
+      <div class="stat-label">在线正常店铺</div>
       <div class="stat-num" style="color: #10b981;">${licenses.filter(l => l.status !== 'BANNED').length}</div>
     </div>
     <div class="stat-card">
@@ -1101,7 +1188,7 @@ export default {
   </div>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('licenses')">🔑 授权实例列表 (${licenses.length})</button>
+    <button class="tab-btn active" onclick="switchTab('licenses')">🔑 店铺授权列表 (${licenses.length})</button>
     <button class="tab-btn" onclick="switchTab('orders')">💳 支付宝财务订单 (${orders.length})</button>
   </div>
 
@@ -1109,10 +1196,10 @@ export default {
     <table>
       <thead>
         <tr>
-          <th>授权客户</th>
+          <th>客户 / 店铺名称</th>
           <th>绑定机器码 (MID)</th>
           <th>授权码 (License Key)</th>
-          <th>到期时间</th>
+          <th>授权有效期</th>
           <th>累积用量</th>
           <th>来源</th>
           <th>状态</th>
@@ -1122,12 +1209,15 @@ export default {
       <tbody>
         ${licenses.map(lic => `
           <tr>
-            <td><strong>${lic.name || "未命名客户"}</strong></td>
+            <td>
+              <strong>${lic.name || "未命名客户"}</strong><br>
+              <small style="color: #6366f1;">🏪 ${lic.store_name || lic.store || "默认店铺"}</small>
+            </td>
             <td><code>${lic.machine_id || "未激活首机"}</code></td>
             <td class="key-cell">${lic.key}</td>
             <td>${lic.expires_at || "永久"}</td>
             <td>${lic.usage_count || 0} 件</td>
-            <td>${lic.source === 'ALIPAY_SELF_SERVICE' ? '<span style="color:#1677ff;">支付宝自购</span>' : '管理员签发'}</td>
+            <td>${lic.source === 'ALIPAY_SELF_SERVICE' ? '<span style="color:#1677ff; font-weight:600;">支付宝购 (¥600/店)</span>' : '管理员签发'}</td>
             <td>
               <span class="badge ${lic.status === "BANNED" ? "badge-banned" : "badge-active"}">
                 ${lic.status === "BANNED" ? "已封禁" : "正常授权"}
@@ -1138,7 +1228,7 @@ export default {
                 ? `<button class="action-btn btn-unban" onclick="action('unban', '${encodeURIComponent(lic.key)}')">解封</button>`
                 : `<button class="action-btn btn-ban" onclick="action('ban', '${encodeURIComponent(lic.key)}')">在线封禁</button>`
               }
-              <button class="action-btn btn-renew" onclick="renew('${encodeURIComponent(lic.key)}')">续期+30天</button>
+              <button class="action-btn btn-renew" onclick="renew('${encodeURIComponent(lic.key)}')">续期+365天</button>
             </td>
           </tr>
         `).join("")}
@@ -1151,7 +1241,8 @@ export default {
       <thead>
         <tr>
           <th>商户订单号</th>
-          <th>套餐名称</th>
+          <th>授权套餐</th>
+          <th>店铺简称</th>
           <th>实付金额</th>
           <th>客户名称</th>
           <th>绑定机器码</th>
@@ -1165,6 +1256,7 @@ export default {
           <tr>
             <td><code>${ord.order_id}</code></td>
             <td><strong>${ord.plan_name || "-"}</strong></td>
+            <td><strong style="color: #6366f1;">${ord.store_name || "-"}</strong></td>
             <td style="color: #059669; font-weight: 700;">¥${ord.amount || "0.00"}</td>
             <td>${ord.customer_name || "-"}</td>
             <td><code>${ord.machine_id || "-"}</code></td>
@@ -1206,7 +1298,7 @@ export default {
       if (res.ok) { location.reload(); } else { alert("操作失败: " + await res.text()); }
     }
     async function renew(key) {
-      const days = prompt("请输入要延期的天数 (默认 30 天):", "30");
+      const days = prompt("请输入要延期的天数 (默认 365 天):", "365");
       if (!days) return;
       const res = await fetch("/admin/api/renew?key=" + adminKey, {
         method: "POST",
@@ -1259,7 +1351,7 @@ export default {
     // 5.4 Admin API: Remote Renewal: POST /admin/api/renew
     if (path === "/admin/api/renew" && method === "POST") {
       if (!isAdmin) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
-      const { license_key, days = 30 } = await request.json();
+      const { license_key, days = 365 } = await request.json();
       const val = await env.WB_LICENSES.get(license_key);
       if (!val) return new Response("Not found", { status: 404, headers: corsHeaders });
       const rec = JSON.parse(val);

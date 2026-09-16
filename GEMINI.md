@@ -6,8 +6,9 @@
 ## 核心执行铁律
 
 1. **【零信任商业授权门禁、一机一码硬件绑定与单窗口 1:1 店铺互斥隔离铁律 (Mode B 商业授权)】**：
+   - **商业收费法则与单店一码制**：**每家 Wildberries 店铺收费 600 元人民币（¥600/店铺，按店铺核算）**，每个店铺对应一个专属不可篡改授权码（1店1码），用户支付宝扫码支付 600 元即自动下发一个店铺授权码。
    - **零信任商业授权门禁**：每一个新开启的 Antigravity 聊天会话窗口默认处于未授权状态（`UNAUTHORIZED`）。任何新窗口在执行上架或调用搬家引擎前，系统必须核验当前窗口会话 ID 的授权状态。若未激活，系统立即阻断上架并主动引导用户输入商业授权码：`激活授权 <License_Key>`。
-   - **一机一码物理硬件强绑定 (Machine ID Binding)**：用户在对话框中输入 `获取机器码` 即可获得本机专属硬件指纹（`MID-XXXX-XXXX-XXXX-XXXX`）。管理员使用私钥为该机器码签发专属不可篡改授权码（`python scripts/session_manager.py generate-license --mid <MID> --name "客户名"`）。严禁将授权码拷贝至其他设备运行，跨设备运行将立即触发硬件拦截。
+   - **一机一码物理硬件强绑定 (Machine ID Binding)**：用户在对话框中输入 `获取机器码` 即可获得本机专属硬件指纹（`MID-XXXX-XXXX-XXXX-XXXX`）。管理员使用私钥为该机器码签发专属不可篡改授权码（`python scripts/session_manager.py generate-license --mid <MID> --name "客户名" --store "店铺名"`）。严禁将授权码拷贝至其他设备运行，跨设备运行将立即触发硬件拦截。
    - **单窗口 1:1 店铺互斥锁定 (Store Mutex Lock)**：每一个 Antigravity 聊天窗口有且仅允许绑定一家 Wildberries 店铺。严禁在同一个窗口内并发混绑 2 家及以上店铺，从物理根源上彻底杜绝商品串店误传与库存错乱隐患。
    - **平滑安全换店与单窗口最多换店 1 次限制 (Store Switching Quota Limit)**：若用户需要在当前窗口更换绑定的店铺，可使用明确指令：`切换店铺 店铺简称：... API令牌：... 仓库ID：...`。为杜绝客户买 1 个授权轮播换绑多家店铺白嫖并彻底防止商品串店，**每个商业会话窗口最多仅允许更换 1 次店铺（`switch_count <= 1`）**。换店后窗口永久锁定新店铺，再次换店或解绑将被强制阻断并引导开启新窗口；超级管理员 (Master VIP) 不受此限。
    - **商业发布包源码防复刻编译 (PyArmor Protected Release)**：系统交付给客户的发布包统一由 `python scripts/build_protected_release.py` 一键生成，剥离全部明文 Python 源码，仅保留 Windows 原生 `.pyd` 运行时与加密实体，私钥 `admin_private_key.pem` 严格保留在管理员本地，杜绝客户反编译或篡改鉴权。
