@@ -24,6 +24,7 @@ import base64
 import datetime
 import argparse
 import requests
+import hashlib
 from typing import Dict, Any, Tuple, List, Optional
 
 try:
