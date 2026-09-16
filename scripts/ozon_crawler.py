@@ -23,6 +23,7 @@ import re
 import sys
 import json
 import time
+import glob
 import argparse
 import html as html_lib
 from typing import List, Dict, Any, Optional
@@ -409,6 +410,34 @@ class OzonCrawler:
 
         return res
 
+    def _find_cached_step_html(self, sku: str, is_features: bool = False) -> Optional[str]:
+        sku_str = str(sku).strip()
+        step_dirs = [
+            os.path.join(WORKSPACE_DIR, 'cache', 'steps'),
+            os.path.join(WORKSPACE_DIR, 'steps')
+        ]
+        appdata_gemini = os.path.expanduser(r'~/.gemini/antigravity/brain')
+        if os.path.exists(appdata_gemini):
+            for conv in os.listdir(appdata_gemini):
+                p = os.path.join(appdata_gemini, conv, '.system_generated', 'steps')
+                if os.path.exists(p):
+                    step_dirs.append(p)
+
+        target_pattern = rf'ozon\.ru/product/[^/]*?{sku_str}/features' if is_features else rf'ozon\.ru/product/[^/]*?{sku_str}/?'
+        for s_dir in step_dirs:
+            if not os.path.exists(s_dir):
+                continue
+            for p in glob.glob(os.path.join(s_dir, '*', 'content.md')):
+                try:
+                    with open(p, 'r', encoding='utf-8', errors='ignore') as f:
+                        header = ''.join([f.readline() for _ in range(10)])
+                        if re.search(target_pattern, header):
+                            f.seek(0)
+                            return f.read()
+                except Exception:
+                    pass
+        return None
+
     def fetch_product_by_sku(self, sku: str) -> Optional[Dict[str, Any]]:
         """
         完整执行 Ozon 双路由抓取并合并输出标准化商品结构
@@ -435,7 +464,14 @@ class OzonCrawler:
         print(f"[*] [路由 1] 正在请求 Ozon PDP 主页: {pdp_url}")
         pdp_html = self._get_page_html(pdp_url)
         
-        if not pdp_html or len(pdp_html) < 2000 or 'Похоже, нет соединения' in pdp_html:
+        # 若网络请求失败或被反爬拦截，无缝回退至本地 brain steps 缓存
+        if not pdp_html or len(pdp_html) < 2000 or 'Похоже, нет соединения' in pdp_html or 'нет соединения' in pdp_html:
+            cached_step = self._find_cached_step_html(sku_str, is_features=False)
+            if cached_step and len(cached_step) > 2000:
+                print(f"[+] SKU [{sku_str}] 命中本地 Antigravity 网页抓取快照档案")
+                pdp_html = cached_step
+
+        if not pdp_html or len(pdp_html) < 2000 or 'Похоже, нет соединения' in pdp_html or 'нет соединения' in pdp_html:
             print(f"[-] SKU [{sku_str}] PDP 请求受阻 (触发 Ozon 反爬或无网络响应)")
             return None
 
@@ -449,7 +485,10 @@ class OzonCrawler:
         # 请求规格特性页 (Features)
         print(f"[*] [路由 2] 正在请求 Ozon Features 规格页: {features_url}")
         feat_html = self._get_page_html(features_url)
-        if feat_html and len(feat_html) > 1000 and 'Похоже, нет соединения' not in feat_html:
+        if not feat_html or len(feat_html) < 1000 or 'Похоже, нет соединения' in feat_html or 'нет соединения' in feat_html:
+            feat_html = self._find_cached_step_html(sku_str, is_features=True)
+
+        if feat_html and len(feat_html) > 1000 and 'Похоже, нет соединения' not in feat_html and 'нет соединения' not in feat_html:
             features_data = self.parse_features_html(feat_html)
             if features_data.get('length_cm'):
                 product_data['length_cm'] = int(features_data['length_cm'])
