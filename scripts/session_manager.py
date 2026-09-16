@@ -58,18 +58,32 @@ def is_admin_master_key(key: str) -> bool:
 
 def decode_jwt_expiry(token: str) -> str:
     """解析 WB JWT 令牌中的到期时间与组织信息 (免第三方依赖)"""
+    return extract_wb_store_fingerprint(token).get("token_expiry", "未知")
+
+def extract_wb_store_fingerprint(token: str) -> Dict[str, Any]:
+    """从 WB OpenAPI Token 中解析卖家 ID 与 SHA-256 指纹，作为店铺不可篡改的唯一标识"""
+    clean = token.strip()
+    token_fp = hashlib.sha256(clean.encode('utf-8')).hexdigest()[:16].upper()
+    seller_id = "未知"
+    exp_str = "未知"
     try:
-        parts = token.strip().split('.')
+        parts = clean.split('.')
         if len(parts) >= 2:
             payload = parts[1]
             payload += '=' * (-len(payload) % 4)
             data = json.loads(base64.b64decode(payload).decode('utf-8'))
+            seller_id = str(data.get('s') or data.get('supplier_id') or data.get('sub') or data.get('id') or f"WB-{token_fp[:8]}")
             if 'exp' in data:
                 dt = datetime.datetime.fromtimestamp(data['exp'])
-                return dt.strftime('%Y-%m-%d %H:%M:%S')
+                exp_str = dt.strftime('%Y-%m-%d %H:%M:%S')
     except Exception:
-        pass
-    return "未知"
+        seller_id = f"WB-{token_fp[:8]}"
+    return {
+        "seller_id": seller_id,
+        "token_fingerprint": f"TOKEN-{token_fp}",
+        "store_uid": f"STORE-{seller_id}" if seller_id != "未知" else f"STORE-{token_fp}",
+        "token_expiry": exp_str
+    }
 
 class SessionAuthorizationError(Exception):
     """会话未授权异常"""
@@ -88,16 +102,7 @@ class SessionManager:
         """确保会话注册表存在并初始化结构"""
         if not os.path.exists(self.registry_path):
             initial_data = {
-                "master_key": MASTER_LICENSE_KEY,
-                "licenses": {
-                    MASTER_LICENSE_KEY: {
-                        "name": "超级管理员永久授权 (Master VIP)",
-                        "max_sessions": -1,
-                        "expires_at": "2099-12-31 23:59:59",
-                        "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "activated_sessions": []
-                    }
-                },
+                "licenses": {},
                 "sessions": {}
             }
             # 如果存在本地默认 config.json，将其作为主窗口初始绑定
@@ -109,13 +114,16 @@ class SessionManager:
                         cfg = json.load(f)
                     if cfg.get("wb_api_token"):
                         token = cfg.get("wb_api_token").strip()
-                        initial_data["licenses"][MASTER_LICENSE_KEY]["activated_sessions"].append(active_conv)
+                        fp = extract_wb_store_fingerprint(token)
                         initial_data["sessions"][active_conv] = {
                             "status": "AUTHORIZED",
-                            "license_key": MASTER_LICENSE_KEY,
+                            "license_key": "DEFAULT-LOCAL-DEV",
                             "activated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "bound_store": {
                                 "store_name": cfg.get("store_name", "RR007"),
+                                "store_uid": fp.get("store_uid"),
+                                "seller_id": fp.get("seller_id"),
+                                "token_fingerprint": fp.get("token_fingerprint"),
                                 "wb_api_token": token,
                                 "wb_warehouse_id": int(cfg.get("wb_warehouse_id", 2200658)),
                                 "warehouse_name": cfg.get("warehouse_name", "莫斯科1仓"),
@@ -123,7 +131,7 @@ class SessionManager:
                                 "default_discount": int(cfg.get("default_discount", 50)),
                                 "default_stock": int(cfg.get("default_stock", 5)),
                                 "store_currency": cfg.get("store_currency", "CNY"),
-                                "token_expiry": decode_jwt_expiry(token),
+                                "token_expiry": fp.get("token_expiry", "未知"),
                                 "bound_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             }
                         }
@@ -474,9 +482,30 @@ class SessionManager:
             target_wh_id = target_wh_id or 2200658
             target_wh_name = "莫斯科1仓"
 
-        exp_time = decode_jwt_expiry(clean_token)
+        store_fp = extract_wb_store_fingerprint(clean_token)
+        lic_entry = registry.setdefault("licenses", {}).setdefault(lic_key, {})
+        if not is_admin:
+            bound_uid = lic_entry.get("bound_store_uid")
+            if bound_uid and bound_uid != store_fp["store_uid"]:
+                locked_name = lic_entry.get("bound_store_name", "已绑店铺")
+                return False, (
+                    f"\n"
+                    f"================================================================================\n"
+                    f"🛑【授权码店铺互斥阻断】该授权码已永久绑定至店铺【{locked_name}】！\n"
+                    f"================================================================================\n"
+                    f"🏢 已锁定店铺 ID : {bound_uid}\n"
+                    f"🏢 尝试绑定店铺 ID : {store_fp['store_uid']}\n\n"
+                    f"⚠️ 商业授权铁律（一店一码 1:1 独立隔离）：\n"
+                    f"   每个商业授权码仅允许绑定 1 家 Wildberries 店铺，严禁跨店混用！\n"
+                    f"👉 如需上架新店铺【{store_name}】，请在当前或新窗口输入「获取授权码」开通专属新授权。\n"
+                    f"================================================================================\n"
+                ), {}
+
         store_record = {
             "store_name": store_name.strip() or f"WB店铺-{target_wh_id}",
+            "store_uid": store_fp["store_uid"],
+            "seller_id": store_fp["seller_id"],
+            "token_fingerprint": store_fp["token_fingerprint"],
             "wb_api_token": clean_token,
             "wb_warehouse_id": target_wh_id,
             "warehouse_name": target_wh_name,
@@ -484,9 +513,15 @@ class SessionManager:
             "default_discount": int(discount),
             "default_stock": int(stock),
             "store_currency": currency,
-            "token_expiry": exp_time,
+            "token_expiry": store_fp["token_expiry"],
             "bound_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+
+        # 锁定授权码到该店铺
+        if not lic_entry.get("bound_store_uid"):
+            lic_entry["bound_store_uid"] = store_fp["store_uid"]
+            lic_entry["bound_token_fingerprint"] = store_fp["token_fingerprint"]
+            lic_entry["bound_store_name"] = store_record["store_name"]
 
         # 更新换店计数与状态
         if is_store_change and not is_admin:
@@ -510,9 +545,11 @@ class SessionManager:
 
         succ_msg = (
             f"✅ **当前会话窗口已成功{action_desc}专属店铺【{store_record['store_name']}】！**\n\n"
-            f"🏢 **店铺简称**: `{store_record['store_name']}`\n"
+            f"🏢 **店铺名称**: `{store_record['store_name']}`\n"
+            f"🆔 **店铺固定 ID**: `{store_record['store_uid']}` (卖家 ID: `{store_record['seller_id']}`)\n"
+            f"🔒 **Token 凭据指纹**: `{store_record['token_fingerprint']}`\n"
             f"📦 **履约仓库**: `{target_wh_name}` (ID: `{target_wh_id}`)\n"
-            f"🔑 **Token 状态**: `有效 (到期: {exp_time})`\n"
+            f"🔑 **Token 状态**: `有效 (到期: {store_fp['token_expiry']})`\n"
             f"💰 **结算货币**: `{currency}`\n"
             f"📈 **默认策略**: `{multiplier}倍实售` | `{discount}%大促折` | `{stock}件现货`\n"
             f"🔒 **单店互斥保证**: 本会话窗口仅对接该店铺，所有极速上架任务均在此店铺安全执行！"
@@ -598,7 +635,7 @@ class SessionManager:
                 f"`{cid}`\n\n"
                 f"💰 **商业收费法则**：**每家 Wildberries 店铺收费 600 元人民币（¥600/店铺/年，自支付当日起 365 天有效，一店一码 1:1 独立互斥隔离）**。\n\n"
                 f"👉 **[点击打开支付宝在线收银台支付]({cashier_url})**\n\n"
-                f"<img src="{qr_url}" width="100" height="100" style="width:100px;height:100px;max-width:100px;display:block;margin:8px 0;border:1px solid #e2e8f0;border-radius:6px;" alt="支付宝扫码支付" />\n\n"
+                f"| 📱 手机支付宝扫码支付 (约 3cm × 3cm) |\n| :---: |\n| <div style="width: 100px; height: 100px; max-width: 100px; max-height: 100px; overflow: hidden; margin: 0 auto;"><img src="{qr_url}" width="100" height="100" style="width: 100px !important; height: 100px !important; max-width: 100px !important; display: block; border-radius: 6px;" alt="支付宝扫码支付" /></div> |\n\n"
                 f"--- \n"
                 f"⚡ **全自动智能流转 4 步闭环**：\n"
                 f"1️⃣ **第1步【获取授权与支付】**：手机支付宝扫码支付 600 元（自支付当日起 365 天有效）；\n"

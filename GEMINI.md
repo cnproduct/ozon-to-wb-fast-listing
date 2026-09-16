@@ -25,7 +25,9 @@
 
 👉 **[点击打开支付宝在线收银台支付](https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={{CURRENT_CONVERSATION_ID}})**
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{{CURRENT_CONVERSATION_ID}}" width="100" height="100" style="width:100px;height:100px;max-width:100px;display:block;margin:8px 0;border:1px solid #e2e8f0;border-radius:6px;" alt="支付宝扫码支付" />
+| 📱 手机支付宝扫码支付 (约 3cm × 3cm) |
+| :---: |
+| <div style="width: 100px; height: 100px; max-width: 100px; max-height: 100px; overflow: hidden; margin: 0 auto;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{{CURRENT_CONVERSATION_ID}}" width="100" height="100" style="width: 100px !important; height: 100px !important; max-width: 100px !important; display: block; border-radius: 6px;" alt="支付宝扫码支付" /></div> |
 
 --- 
 ⚡ **全自动智能流转 4 步闭环**：
