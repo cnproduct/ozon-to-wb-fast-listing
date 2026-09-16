@@ -48,7 +48,12 @@ except ImportError:
     from scripts.cloud_auth import CloudAuthClient
 
 REGISTRY_FILE = os.path.expanduser("~/.wb_session_registry.json")
-MASTER_LICENSE_KEY = "LIC-MASTER-2026-VIP"
+MASTER_KEY_HASH = "89eb68aceb56daa9ba1e15e6bb7ed373463e5a677ec20d3c1745e23fd88eceb1"
+
+def is_admin_master_key(key: str) -> bool:
+    if not key:
+        return False
+    return hashlib.sha256(key.strip().encode('utf-8')).hexdigest() == MASTER_KEY_HASH
 
 def decode_jwt_expiry(token: str) -> str:
     """解析 WB JWT 令牌中的到期时间与组织信息 (免第三方依赖)"""
@@ -242,7 +247,7 @@ class SessionManager:
         else:
             # 兼容管理员万能激活码或注册表旧码
             licenses = registry.get("licenses", {})
-            if clean_key not in licenses and clean_key != MASTER_LICENSE_KEY:
+            if clean_key not in licenses and not is_admin_master_key(clean_key):
                 return False, f"❌ 授权码无效：未找到授权码【{clean_key}】，请核对或联系管理员。", {}
             lic_info = licenses.get(clean_key, {
                 "name": "超级管理员主授权",
@@ -660,7 +665,7 @@ class SessionManager:
                     f"🏢 **店铺绑定**: `尚未绑定店铺`\n\n"
                     f"👉 请输入 `绑定店铺 店铺简称：... API令牌：... 仓库ID：...` 进行绑定。"
                 )
-            is_adm = (sess.get('license_key') == MASTER_LICENSE_KEY)
+            is_adm = is_admin_master_key(sess.get('license_key', ''))
             sw_count = sess.get('switch_count', 0)
             if is_adm:
                 quota_str = "无限制 (超级管理员)"
