@@ -1,570 +1,1281 @@
+import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
+
 /**
- * ==============================================================================
- * Wildberries 极速搬家助手 - Cloudflare Workers 商业授权网关与可视化用量看板
- * (Cloudflare Serverless License Gateway & Admin Dashboard)
- * ==============================================================================
- * 特性：
- * 1. 零服务器成本：运行于 Cloudflare 免费版 Workers (每日 100,000 次免费请求)；
- * 2. 全球边缘毫秒级响应：实时验真、在线秒级封禁、充值续费与用量统计；
- * 3. 自带精美 HTML5 可视化 Web 管理后台 (/admin)：无需额外部署前端，开箱即用；
- * 4. 高可靠持久化：依托 Cloudflare KV (WB_LICENSES) 分布式存储。
- * ==============================================================================
+ * Cloudflare Workers Commercial License & Anti-Piracy Gateway + Alipay Self-Service Cashier
+ * Zero-server, zero-maintenance global edge authentication, remote management, and automated Alipay license dispensing.
  */
 
-const DEFAULT_ADMIN_SECRET = "WB-ADMIN-SECRET-2026";
+// Embedded default credentials
+const DEFAULT_ALIPAY_APP_ID = "2021007100687379";
+const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = `MIIEugIAMA0GCSqGSIb3DQEBAQUABIIEpTCCBKECAAKCAQEAjSPTqDh+BumFzULXlAZKtnaxuG1+tIXX/JLtga4nzenBwcujEYAO7X525XgpNpsbB0lqsHmn8IzlbrEScFzewolpKF+xpcMXvrIW+Wf4f2W/mTkTuIBh1Dk0x7EP/Hw6VkX2E9qTtLjg9hxhf6eO9yCvNiYcVcsmQmgqbqG6dSmvKytVSnviVClMcV+yuk+e6dgZIsHf+KI2VWXZXgro2j6/uzI+uqlCSg+6zEnj+fgkYqXeyDxcugR+gn6Fl1hjvciIGVRkbFQf9C+vUndKkd96Sung7dBCiuly0ab9hV/mEiem2RB8VOouq5yvyS4XLecusOFfUisL3zN1OG3gLwIDAQABAoIBAGsF0rZJeA8HvqUB3XRqPPcVE/g0VxLONxRX2W8vPxGeAoVQQ+u+PhOKhN/F+QJmJN2mpxcAeP8n58XC0aeQVH4RMkMiJRP71qKMam1ekIkR/3JRXInYF9aUNliCBAxBqv7GeC1f3gb49eTJaokg5oCwMQwPZAcOT4mlcR+I1VmHTPfgycxWjT1tcDr0p7Xhnw1gA9A04soXyt3qflNRItMVMIc7dlhQnh3gBYsXF7Ze6CW2plqKkV7kb56XwLuxqGLEPlF8RKnmnzShfW8MEjxO7G9xDDAg/dduVy3Ay4lgq3JKtNdY0uQYZoVNh8e3KhT3wFYpyQwMaGalQFl+w0kCgYEAwFvDVfC3nlkVj3PpulzRmfsmLrkCYc+BNWQ+5W3JlkoMnNzd+K7Pdm3Kf6l/+jaCluCcZvhUaf4/+yjSdtcSkkpk5HsA/YjBFLd2FOUWIOLw33iedpAJpe78qhMl9J56fCai6IKw3pyCQi06nUhlx/djMs7j9oGJt8WOxek0RK0CgYEAu9X/BK0z1QTrAKbpjz4TwYvxHMRg6aZ/Ac8Wzpy854lBvetDtCN1vj9x5ujXnJ5ZrP2B4dfIcUk/ULOKuzvfvLV74EsXWdrgl8bsf7wnCwKCB4+csQBxABn8B3uc6axReI4t2T41u9n3SjcOZGI4JyznY63jQ87Yb6ZTSDMrd8sCgYB3y+5QJHVGgbaCu66xaMMEwbva10/beG7AwKjHG+Oy3HUUcB0xljUQTXoSnY5dVvtnWYUuP7PauwQ/uAGzD2i6gOhqvwwz2apd64/3nWB1pMBcfHM75aKMm9TxWrGFsfkYPruwUEw0p4YcDqz1bTQuICzAZMbmK3CIadnr+bualQKBgAkKKXW+KCpuTCkB32enYygDZh0uTkOwYZhisQRMgsLZ1jIfqmh29Gmtf/vO5OGCtWof4SpPSjQ5hDSMD3cnUIMycL3An2URpZFoX2VeVrqu6jcW8EGMdeO9XGW3yztrsZgNr6Mu3UMnIEGQGL84At/Px2sCqVdQExZ8eLGW1Na1AoGAYPJpodlLgcGD5srCgqiDm6WgmEJdj4UdxDNhixyatN3h+YOG1lJlLth2WHYwwP/A+5H7w1UgpmHQNt2U6PEB8Te6RG0Dhs1vOrPoqWfjcZUlC5HS0GaMGQUVE1qZyzIHWnmx2L3E1U7naJJsvwwvZ8zEqfOOG_SgQXBt2gCawVo=`;
+
+const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdOBuGCeyxVO+NCZuEiIVk+har+YaYrW7GzWS3AEPinZ5sb/2oqymr3Coa8JmcmW5sah59Fro3d8SJCkFroRniPOZn/HohxP+8hz9Zh0L5vIWUYPz+fDF675wxzg5TappT0gOgADio+8LtrbPaB5T7i0VgN2qfytDJkFgLvweMHJaLz/WoXNVhVAcOqwj611TX3KlckFebOQQbwoSW4juaPf4qYBRMPSGZxzMo3sNtwKUmd0YHk0wtsbIRacCvfCC0lIo9cjZ2XPLQj4tGRob/X9XUK6EjHpCUpPrRMm+jBlz5B9XoND6SEJy2xpVVnij1fe8ux6ZTkfTygH/Er1UwIDAQAB`;
+
+const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
+
+// Pricing Plans
+const PLANS = {
+  monthly: { id: "monthly", name: "月度专业版 (30 天)", days: 30, price: "299.00", original_price: "499.00", desc: "极速批量上架 · 官方条码注入 · 50%大促折算 · 莫斯科1仓现货" },
+  quarterly: { id: "quarterly", name: "季度进阶版 (90 天)", days: 90, price: "799.00", original_price: "1299.00", desc: "多店安全隔离 · 莫斯科1仓库存 · 赠 1 次换店配额 · 热门推荐" },
+  yearly: { id: "yearly", name: "年度尊享版 (365 天)", days: 365, price: "2499.00", original_price: "3999.00", desc: "旗舰无限并发 · 优先版本更新特权 · 专属VIP技术支持" }
+};
+
+/**
+ * Deterministic JSON stringifier matching Python json.dumps(..., separators=(',', ':'), sort_keys=True)
+ */
+function canonicalJson(obj) {
+  if (Array.isArray(obj)) {
+    return '[' + obj.map(canonicalJson).join(',') + ']';
+  }
+  if (obj !== null && typeof obj === 'object') {
+    const keys = Object.keys(obj).sort();
+    return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalJson(obj[k])).join(',') + '}';
+  }
+  if (typeof obj === 'string') {
+    return JSON.stringify(obj).replace(/[\u007f-\uffff]/g, c => {
+      return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+    });
+  }
+  return JSON.stringify(obj);
+}
+
+/**
+ * Node.js Crypto RSA-PSS SHA-256 license key generation
+ */
+function signLicenseKey(mid, customerName, days, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const iatStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  
+  const expDate = new Date(now.getTime() + (days > 0 ? days : 3650) * 24 * 60 * 60 * 1000);
+  const expStr = days > 0
+    ? `${expDate.getFullYear()}-${pad(expDate.getMonth() + 1)}-${pad(expDate.getDate())} 23:59:59`
+    : '2099-12-31 23:59:59';
+
+  const payload = {
+    v: '2.0',
+    mid: mid.trim().toUpperCase(),
+    name: (customerName || '商业客户').trim(),
+    max_s: maxSessions,
+    iat: iatStr,
+    exp: expStr,
+    perm: ['listing', 'pricing', 'stocks', 'fast_list']
+  };
+
+  const serialized = canonicalJson(payload);
+  const cleanB64 = privKeyB64.replace(/-----BEGIN[A-Z\s]+-----/g, '').replace(/-----END[A-Z\s]+-----/g, '').replace(/[\r\n\s]+/g, '');
+  const keyBuf = Buffer.from(cleanB64, 'base64');
+
+  const sign = crypto.createSign('SHA256');
+  sign.update(Buffer.from(serialized, 'utf8'));
+  const signature = sign.sign({
+    key: keyBuf,
+    format: 'der',
+    type: 'pkcs8',
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+    saltLength: crypto.constants.RSA_PSS_SALTLEN_MAX_SIGN
+  });
+
+  const pkg = {
+    p: payload,
+    s: signature.toString('base64')
+  };
+
+  const licToken = Buffer.from(canonicalJson(pkg), 'utf8').toString('base64');
+  return {
+    license_key: 'LIC-RSA-' + licToken,
+    payload
+  };
+}
+
+const SHA256_DIGEST_INFO_PREFIX = Buffer.from('3031300d060960864801650304020105000420', 'hex');
+
+function modPow(b, exp, mod) {
+  let res = 1n;
+  b = b % mod;
+  while (exp > 0n) {
+    if (exp % 2n === 1n) res = (res * b) % mod;
+    b = (b * b) % mod;
+    exp /= 2n;
+  }
+  return res;
+}
+
+function parseRsaKeyBigInt(keyB64) {
+  const cleanB64 = keyB64.replace(/-----BEGIN[A-Z\s]+-----/g, '').replace(/-----END[A-Z\s]+-----/g, '').replace(/[\r\n\s]+/g, '');
+  const buf = Buffer.from(cleanB64, 'base64');
+  let pos = 0;
+  function readByte() { return buf[pos++]; }
+  function readLength() {
+    let b = readByte();
+    if (b < 0x80) return b;
+    let numBytes = b & 0x7f;
+    let len = 0;
+    for (let i = 0; i < numBytes; i++) {
+      len = (len << 8) | readByte();
+    }
+    return len;
+  }
+  function readInteger() {
+    let tag = readByte();
+    let len = readLength();
+    let intBuf = buf.subarray(pos, pos + len);
+    pos += len;
+    if (intBuf.length === 0) return 0n;
+    return BigInt('0x' + intBuf.toString('hex'));
+  }
+
+  if (buf[0] === 0x30) {
+    readByte();
+    readLength();
+    let v = readInteger();
+    if (v === 0n && buf[pos] === 0x30) {
+      readByte();
+      let algLen = readLength();
+      pos += algLen;
+      if (buf[pos] === 0x04) {
+        readByte();
+        readLength();
+        if (buf[pos] === 0x30) {
+          readByte();
+          readLength();
+          let rsaVer = readInteger();
+          let n = readInteger();
+          let e = readInteger();
+          let d = readInteger();
+          return { n, e, d };
+        }
+      }
+    }
+  }
+
+  pos = 0;
+  if (buf[0] === 0x30) {
+    readByte();
+    readLength();
+    let v = readInteger();
+    let n = readInteger();
+    let e = readInteger();
+    let d = readInteger();
+    return { n, e, d };
+  }
+  throw new Error('Unsupported RSA private key format');
+}
+
+function parseRsaPubKeyBigInt(pubKeyB64) {
+  const cleanB64 = pubKeyB64.replace(/-----BEGIN[A-Z\s]+-----/g, '').replace(/-----END[A-Z\s]+-----/g, '').replace(/[\r\n\s]+/g, '');
+  const buf = Buffer.from(cleanB64, 'base64');
+  let pos = 0;
+  function readByte() { return buf[pos++]; }
+  function readLength() {
+    let b = readByte();
+    if (b < 0x80) return b;
+    let numBytes = b & 0x7f;
+    let len = 0;
+    for (let i = 0; i < numBytes; i++) {
+      len = (len << 8) | readByte();
+    }
+    return len;
+  }
+  function readInteger() {
+    let tag = readByte();
+    let len = readLength();
+    let intBuf = buf.subarray(pos, pos + len);
+    pos += len;
+    if (intBuf.length === 0) return 0n;
+    return BigInt('0x' + intBuf.toString('hex'));
+  }
+
+  if (buf[0] === 0x30) {
+    readByte();
+    readLength();
+    if (buf[pos] === 0x30) {
+      readByte();
+      let algLen = readLength();
+      pos += algLen;
+      if (buf[pos] === 0x03) {
+        readByte();
+        readLength();
+        readByte(); // skip unused bits count
+        if (buf[pos] === 0x30) {
+          readByte();
+          readLength();
+          let n = readInteger();
+          let e = readInteger();
+          return { n, e };
+        }
+      }
+    }
+  }
+
+  pos = 0;
+  if (buf[0] === 0x30) {
+    readByte();
+    readLength();
+    let n = readInteger();
+    let e = readInteger();
+    return { n, e };
+  }
+  throw new Error('Unsupported RSA public key format');
+}
+
+/**
+ * RSASSA-PKCS1-v1_5 SHA-256 for Alipay Request signing
+ */
+function signAlipayParams(params, privKeyB64) {
+  const keys = Object.keys(params)
+    .filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== undefined && params[k] !== null && params[k] !== '')
+    .sort();
+  const prestr = keys.map(k => `${k}=${params[k]}`).join('&');
+
+  const { n, d } = parseRsaKeyBigInt(privKeyB64);
+  const hash = crypto.createHash('sha256').update(Buffer.from(prestr, 'utf8')).digest();
+  const digestInfo = Buffer.concat([SHA256_DIGEST_INFO_PREFIX, hash]);
+  const psLen = 256 - 3 - digestInfo.length;
+  const ps = Buffer.alloc(psLen, 0xff);
+  const em = Buffer.concat([Buffer.from([0x00, 0x01]), ps, Buffer.from([0x00]), digestInfo]);
+
+  const mBn = BigInt('0x' + em.toString('hex'));
+  const sBn = modPow(mBn, d, n);
+
+  let sHex = sBn.toString(16);
+  while (sHex.length < 512) sHex = '0' + sHex;
+  return Buffer.from(sHex, 'hex').toString('base64');
+}
+
+/**
+ * RSASSA-PKCS1-v1_5 SHA-256 for Alipay Webhook Callback Verification
+ */
+function verifyAlipayNotify(params, pubKeyB64) {
+  const sign = params.sign;
+  if (!sign) return false;
+  const keys = Object.keys(params)
+    .filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== undefined && params[k] !== null && params[k] !== '')
+    .sort();
+  const prestr = keys.map(k => `${k}=${params[k]}`).join('&');
+
+  try {
+    const { n, e } = parseRsaPubKeyBigInt(pubKeyB64);
+    const hash = crypto.createHash('sha256').update(Buffer.from(prestr, 'utf8')).digest();
+    const digestInfo = Buffer.concat([SHA256_DIGEST_INFO_PREFIX, hash]);
+    const psLen = 256 - 3 - digestInfo.length;
+    const ps = Buffer.alloc(psLen, 0xff);
+    const expectedEm = Buffer.concat([Buffer.from([0x00, 0x01]), ps, Buffer.from([0x00]), digestInfo]);
+
+    const sBn = BigInt('0x' + Buffer.from(sign, 'base64').toString('hex'));
+    const mBn = modPow(sBn, e, n);
+
+    let mHex = mBn.toString(16);
+    while (mHex.length < 512) mHex = '0' + mHex;
+    const actualEm = Buffer.from(mHex, 'hex');
+
+    return expectedEm.equals(actualEm);
+  } catch (err) {
+    console.error('Alipay verify error:', err);
+    return false;
+  }
+}
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
-    const adminSecret = env.ADMIN_SECRET || DEFAULT_ADMIN_SECRET;
+    const method = request.method;
 
-    // CORS 跨域处理
-    if (request.method === "OPTIONS") {
-      return handleCors();
+    // CORS Headers
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Secret",
+    };
+
+    if (method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
     }
 
-    try {
-      // 1. 客户端验真接口: POST /api/verify
-      if (path === "/api/verify" && request.method === "POST") {
-        return await handleVerify(request, env);
-      }
+    const adminSecret = env.ADMIN_SECRET || "WB-ADMIN-SECRET-2026";
+    const alipayAppId = env.ALIPAY_APP_ID || DEFAULT_ALIPAY_APP_ID;
+    const alipayPrivKey = env.ALIPAY_PRIVATE_KEY || DEFAULT_ALIPAY_PRIVATE_KEY_B64;
+    const alipayPubKey = env.ALIPAY_PUBLIC_KEY || DEFAULT_ALIPAY_PUBLIC_KEY_B64;
+    const rsaSignKeyB64 = env.RSA_SIGNING_KEY || DEFAULT_RSA_SIGNING_KEY_B64;
 
-      // 2. 客户端上架用量上报: POST /api/usage/record
-      if (path === "/api/usage/record" && request.method === "POST") {
-        return await handleRecordUsage(request, env);
-      }
+    // 1. Health Check
+    if (path === "/" || path === "/health") {
+      return new Response(JSON.stringify({
+        status: "healthy",
+        service: "Wildberries Commercial License & Alipay Payment Gateway",
+        app_id: alipayAppId,
+        timestamp: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
-      // 3. 管理员: 在线封禁 POST /api/admin/ban
-      if (path === "/api/admin/ban" && request.method === "POST") {
-        if (!checkAdminAuth(request, adminSecret)) return unauthResponse();
-        return await handleAdminBan(request, env);
-      }
+    // 2. Client License Verification Endpoint: GET /api/verify?key=...&mid=...
+    if (path === "/api/verify" && method === "GET") {
+      const key = url.searchParams.get("key");
+      const mid = url.searchParams.get("mid");
 
-      // 4. 管理员: 解除封禁 POST /api/admin/unban
-      if (path === "/api/admin/unban" && request.method === "POST") {
-        if (!checkAdminAuth(request, adminSecret)) return unauthResponse();
-        return await handleAdminUnban(request, env);
-      }
-
-      // 5. 管理员: 充值续期 POST /api/admin/renew
-      if (path === "/api/admin/renew" && request.method === "POST") {
-        if (!checkAdminAuth(request, adminSecret)) return unauthResponse();
-        return await handleAdminRenew(request, env);
-      }
-
-      // 6. 管理员: 获取全部授权列表 GET /api/admin/list
-      if (path === "/api/admin/list" && request.method === "GET") {
-        if (!checkAdminAuth(request, adminSecret)) return unauthResponse();
-        return await handleAdminList(env);
-      }
-
-      // 7. 可视化 Web 管理面板: GET /admin
-      if (path === "/admin") {
-        return handleAdminDashboard(url, adminSecret, env);
-      }
-
-      // 8. 默认健康检查根路由
-      if (path === "/" || path === "/health") {
-        return jsonResponse({
-          status: "ONLINE",
-          service: "Wildberries Fast Listing Cloud Auth Gateway",
-          version: "v3.0.0",
-          server_time: new Date().toISOString()
+      if (!key) {
+        return new Response(JSON.stringify({ valid: false, error: "Missing license key" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
 
-      return jsonResponse({ error: "Endpoint Not Found" }, 404);
-    } catch (err) {
-      return jsonResponse({ error: err.message, stack: err.stack }, 500);
-    }
-  }
-};
+      if (!env.WB_LICENSES) {
+        return new Response(JSON.stringify({ valid: false, error: "KV namespace WB_LICENSES not bound" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
 
-/**
- * 客户端授权验真处理器
- */
-async function handleVerify(request, env) {
-  const body = await request.json();
-  const { license_key, machine_id, conversation_id } = body;
+      const recordJson = await env.WB_LICENSES.get(key);
+      if (!recordJson) {
+        return new Response(JSON.stringify({ valid: false, error: "License not found or expired" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
 
-  if (!license_key) {
-    return jsonResponse({ valid: false, reason: "EMPTY_LICENSE", message: "授权码不能为空" }, 400);
-  }
+      let record;
+      try {
+        record = JSON.parse(recordJson);
+      } catch (e) {
+        return new Response(JSON.stringify({ valid: false, error: "Malformed license record" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
 
-  const clientIp = request.headers.get("cf-connecting-ip") || "unknown";
-  const kvKey = `lic:${license_key}`;
-  let record = await getKv(env, kvKey);
+      if (record.status === "BANNED") {
+        return new Response(JSON.stringify({
+          valid: false,
+          error: "License has been remotely REVOKED/BANNED by administrator",
+          ban_reason: record.ban_reason || "Violation of terms"
+        }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
 
-  // 首次云端登记 (自动将合规 RSA 凭证录入云端数据库)
-  if (!record) {
-    record = {
-      license_key,
-      machine_id: machine_id || "*",
-      customer_name: body.customer_name || "自主激活客户",
-      status: "ACTIVE",
-      ban_reason: "",
-      expires_at: body.expires_at || "2027-12-31 23:59:59",
-      max_sessions: body.max_sessions || 1,
-      total_uploaded: 0,
-      created_at: new Date().toISOString(),
-      last_seen: new Date().toISOString(),
-      client_ip: clientIp
-    };
-    await putKv(env, kvKey, record);
-  } else {
-    // 更新最后活跃时间与 IP
-    record.last_seen = new Date().toISOString();
-    record.client_ip = clientIp;
-  }
+      if (record.expires_at && record.expires_at !== "2099-12-31 23:59:59") {
+        const expDate = new Date(record.expires_at.replace(" ", "T"));
+        if (new Date() > expDate) {
+          return new Response(JSON.stringify({ valid: false, error: "License has expired", expires_at: record.expires_at }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+      }
 
-  // 1. 检查是否已被管理员在线封禁
-  if (record.status === "BANNED") {
-    return jsonResponse({
-      valid: false,
-      status: "BANNED",
-      reason: "BANNED",
-      message: `🚨【该商业授权已被管理员在线封禁】原因：${record.ban_reason || "违规使用或退款注销"}`
-    });
-  }
+      if (record.machine_id && mid && record.machine_id !== mid && record.machine_id !== "*") {
+        return new Response(JSON.stringify({
+          valid: false,
+          error: "Hardware mismatch: License is bound to another machine",
+          bound_mid: record.machine_id,
+          request_mid: mid
+        }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
 
-  // 2. 检查硬件机器码是否匹配
-  if (record.machine_id && record.machine_id !== "*" && machine_id) {
-    if (record.machine_id.toUpperCase() !== machine_id.toUpperCase()) {
-      return jsonResponse({
-        valid: false,
-        status: "MACHINE_MISMATCH",
-        reason: "MACHINE_MISMATCH",
-        message: `🛑【硬件机器码不匹配】授权绑定机器码 [${record.machine_id}]，当前运行机器码 [${machine_id}]，严禁跨设备运行！`
+      if (!record.machine_id && mid) {
+        record.machine_id = mid;
+        record.first_activated_at = new Date().toISOString();
+        await env.WB_LICENSES.put(key, JSON.stringify(record));
+      }
+
+      record.last_verified_at = new Date().toISOString();
+      await env.WB_LICENSES.put(key, JSON.stringify(record));
+
+      return new Response(JSON.stringify({
+        valid: true,
+        license_key: key,
+        name: record.name,
+        machine_id: record.machine_id,
+        expires_at: record.expires_at,
+        permissions: record.permissions || ["listing", "pricing", "stocks", "fast_list"]
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
-  }
 
-  // 3. 检查有效期
-  if (record.expires_at && record.expires_at !== "unlimited") {
-    const expDt = new Date(record.expires_at.replace(" ", "T"));
-    if (new Date() > expDt) {
-      record.status = "EXPIRED";
-      await putKv(env, kvKey, record);
-      return jsonResponse({
-        valid: false,
-        status: "EXPIRED",
-        reason: "EXPIRED",
-        message: `⏰【商业授权已到期】该授权已于 ${record.expires_at} 到期，请联系管理员续费充值！`
-      });
+    // 3. Client Usage Reporting Endpoint: POST /api/report_usage
+    if (path === "/api/report_usage" && method === "POST") {
+      try {
+        const body = await request.json();
+        const { key, amount = 1 } = body;
+        if (!key || !env.WB_LICENSES) {
+          return new Response(JSON.stringify({ ok: false }), { status: 400, headers: corsHeaders });
+        }
+        const recordJson = await env.WB_LICENSES.get(key);
+        if (recordJson) {
+          const record = JSON.parse(recordJson);
+          record.usage_count = (record.usage_count || 0) + Number(amount);
+          record.last_used_at = new Date().toISOString();
+          await env.WB_LICENSES.put(key, JSON.stringify(record));
+          return new Response(JSON.stringify({ ok: true, total_usage: record.usage_count }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+        return new Response(JSON.stringify({ ok: false, error: "License not found" }), { status: 404, headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: e.message }), { status: 500, headers: corsHeaders });
+      }
     }
-  }
 
-  // 保存最新记录并返回成功
-  await putKv(env, kvKey, record);
+    // ==========================================
+    // 4. Alipay Cashier & Order APIs
+    // ==========================================
 
-  return jsonResponse({
-    valid: true,
-    status: "ACTIVE",
-    customer_name: record.customer_name,
-    expires_at: record.expires_at,
-    total_uploaded: record.total_uploaded || 0,
-    server_time: new Date().toISOString()
-  });
-}
-
-/**
- * 客户端上报搬家上架件数
- */
-async function handleRecordUsage(request, env) {
-  const body = await request.json();
-  const { license_key, items_count } = body;
-  const count = parseInt(items_count || 0);
-
-  if (!license_key || count <= 0) {
-    return jsonResponse({ success: false, message: "参数无效" }, 400);
-  }
-
-  const kvKey = `lic:${license_key}`;
-  let record = await getKv(env, kvKey);
-  if (!record) {
-    record = {
-      license_key,
-      total_uploaded: 0,
-      created_at: new Date().toISOString()
-    };
-  }
-
-  record.total_uploaded = (record.total_uploaded || 0) + count;
-  record.last_upload_at = new Date().toISOString();
-  await putKv(env, kvKey, record);
-
-  return jsonResponse({
-    success: true,
-    added: count,
-    total_uploaded: record.total_uploaded
-  });
-}
-
-/**
- * 管理员在线封禁
- */
-async function handleAdminBan(request, env) {
-  const { license_key, reason } = await request.json();
-  if (!license_key) return jsonResponse({ success: false, message: "缺少 license_key" }, 400);
-
-  const kvKey = `lic:${license_key}`;
-  let record = await getKv(env, kvKey);
-  if (!record) {
-    record = { license_key, created_at: new Date().toISOString() };
-  }
-
-  record.status = "BANNED";
-  record.ban_reason = reason || "违反服务条款或恶意倒卖";
-  record.banned_at = new Date().toISOString();
-  await putKv(env, kvKey, record);
-
-  return jsonResponse({
-    success: true,
-    message: `✅ 已成功封禁授权码 [${license_key}]`,
-    record
-  });
-}
-
-/**
- * 管理员解除封禁
- */
-async function handleAdminUnban(request, env) {
-  const { license_key } = await request.json();
-  if (!license_key) return jsonResponse({ success: false, message: "缺少 license_key" }, 400);
-
-  const kvKey = `lic:${license_key}`;
-  let record = await getKv(env, kvKey);
-  if (!record) return jsonResponse({ success: false, message: "记录不存在" }, 404);
-
-  record.status = "ACTIVE";
-  record.ban_reason = "";
-  record.unbanned_at = new Date().toISOString();
-  await putKv(env, kvKey, record);
-
-  return jsonResponse({
-    success: true,
-    message: `✅ 已成功解封授权码 [${license_key}]`,
-    record
-  });
-}
-
-/**
- * 管理员充值续期
- */
-async function handleAdminRenew(request, env) {
-  const { license_key, add_days } = await request.json();
-  const days = parseInt(add_days || 30);
-  if (!license_key) return jsonResponse({ success: false, message: "缺少 license_key" }, 400);
-
-  const kvKey = `lic:${license_key}`;
-  let record = await getKv(env, kvKey);
-  if (!record) return jsonResponse({ success: false, message: "记录不存在" }, 404);
-
-  let baseDt = new Date();
-  if (record.expires_at && record.expires_at !== "unlimited") {
-    const curExp = new Date(record.expires_at.replace(" ", "T"));
-    if (curExp > baseDt) {
-      baseDt = curExp;
-    }
-  }
-
-  baseDt.setDate(baseDt.getDate() + days);
-  const newExpStr = `${baseDt.toISOString().slice(0, 10)} 23:59:59`;
-
-  record.expires_at = newExpStr;
-  if (record.status === "EXPIRED") {
-    record.status = "ACTIVE";
-  }
-  record.renewed_at = new Date().toISOString();
-  await putKv(env, kvKey, record);
-
-  return jsonResponse({
-    success: true,
-    message: `✅ 已成功为 [${record.customer_name || license_key}] 续费 ${days} 天！`,
-    new_expires_at: newExpStr,
-    record
-  });
-}
-
-/**
- * 管理员获取全部列表
- */
-async function handleAdminList(env) {
-  const list = [];
-  if (env.WB_LICENSES) {
-    const keys = await env.WB_LICENSES.list({ prefix: "lic:" });
-    for (const k of keys.keys) {
-      const data = await env.WB_LICENSES.get(k.name, "json");
-      if (data) list.push(data);
-    }
-  }
-  return jsonResponse({ total: list.length, items: list });
-}
-
-/**
- * 可视化 Web 管理看板
- */
-async function handleAdminDashboard(url, adminSecret, env) {
-  const keyParam = url.searchParams.get("key");
-  const isAuthed = keyParam === adminSecret;
-
-  const html = `<!DOCTYPE html>
+    // 4.1 Cashier UI: GET /pay
+    if (path === "/pay" && method === "GET") {
+      const orderIdParam = url.searchParams.get("order_id") || "";
+      const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WB 极速上架助手 - 商业授权与用量看板</title>
+  <title>Wildberries 极速上架助手 · 官方商业授权收银台</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
       --primary: #6366f1;
       --primary-hover: #4f46e5;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
       --border: #334155;
+      --accent-green: #10b981;
+      --alipay-blue: #1677ff;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
-    .container { max-width: 1280px; margin: 0 auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-    .title { font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-    .badge-pro { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; padding: 4px 10px; border-radius: 9999px; font-size: 12px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .stat-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-    .stat-value { font-size: 28px; font-weight: bold; }
-    .stat-green { color: var(--success); }
-    .stat-red { color: var(--danger); }
-    .stat-indigo { color: var(--primary); }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th { background: #182234; padding: 14px 16px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); }
-    td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-    tr:hover { background: rgba(255,255,255,0.02); }
-    .status-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-    .status-ACTIVE { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid var(--success); }
-    .status-BANNED { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid var(--danger); }
-    .status-EXPIRED { background: rgba(245,158,11,0.15); color: var(--warning); border: 1px solid var(--warning); }
-    .btn { padding: 6px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-ban { background: var(--danger); color: white; margin-right: 6px; }
-    .btn-unban { background: var(--success); color: white; margin-right: 6px; }
-    .btn-renew { background: var(--primary); color: white; }
-    .btn:hover { opacity: 0.85; }
-    .login-box { max-width: 400px; margin: 100px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 32px; text-align: center; }
-    .input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid var(--border); border-radius: 6px; color: white; margin: 16px 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .cashier-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 620px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .brand-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #fff; }
+    p.subtitle { color: var(--text-sub); font-size: 13px; margin-top: 6px; }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; }
+    .input-box {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      font-family: monospace;
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-box:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.25); }
+    .input-tip { font-size: 11px; color: var(--text-sub); margin-top: 6px; line-height: 1.4; }
+    .input-tip code { background: #334155; padding: 2px 6px; border-radius: 4px; color: #38bdf8; }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) {
+      .plans-grid { grid-template-columns: 1fr; }
+    }
+    .plan-card {
+      background: #0f172a;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .plan-card:hover { border-color: #64748b; }
+    .plan-card.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.08);
+    }
+    .plan-badge {
+      position: absolute;
+      top: -10px;
+      right: -6px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+    .plan-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .plan-price { font-size: 22px; font-weight: 800; color: #38bdf8; }
+    .plan-price small { font-size: 12px; color: var(--text-sub); font-weight: normal; }
+    .plan-orig { font-size: 11px; color: #64748b; text-decoration: line-through; margin-top: 2px; }
+
+    .btn-pay {
+      width: 100%;
+      background: var(--alipay-blue);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-pay:hover { background: #0958d9; }
+    .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .features-list {
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+    .feature-item svg { width: 14px; height: 14px; color: var(--accent-green); flex-shrink: 0; }
+
+    /* Success / Result View */
+    .success-modal {
+      display: none;
+      background: #022c22;
+      border: 1px solid #059669;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .lic-display {
+      background: #064e3b;
+      border: 1px dashed #10b981;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: #a7f3d0;
+      margin: 12px 0;
+      text-align: left;
+    }
+    .btn-copy {
+      background: var(--accent-green);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-copy:hover { background: #059669; }
   </style>
 </head>
 <body>
-  <div class="container">
-    ${!isAuthed ? `
-      <div class="login-box">
-        <h2>🔒 管理员安全登录</h2>
-        <p style="color: var(--text-muted); margin-top: 8px; font-size: 14px;">请输入 ADMIN_SECRET 口令以访问商业控制中心</p>
-        <form method="GET" action="/admin">
-          <input type="password" name="key" class="input" placeholder="输入管理密钥" required autofocus>
-          <button type="submit" class="btn btn-renew" style="width: 100%; padding: 10px;">解锁登录</button>
-        </form>
-      </div>
-    ` : `
-      <div class="header">
-        <div class="title">
-          <span>🚀 WB 极速搬家助手 · 云端商业授权与用量看板</span>
-          <span class="badge-pro">PRO 商业版</span>
-        </div>
-        <div>
-          <span style="color: var(--text-muted); font-size: 13px; margin-right: 12px;">全球边缘节点: Cloudflare</span>
-          <a href="/admin" class="btn btn-renew">刷新数据</a>
+  <div class="cashier-card">
+    <div class="brand-header">
+      <div class="brand-badge">⚡ Wildberries 官方上架引擎</div>
+      <h1>商业授权自助收银台</h1>
+      <p class="subtitle">RSA-2048 非对称防伪 · 一机一码硬件绑定 · 支付后秒级自动发卡</p>
+    </div>
+
+    <div id="checkout-section">
+      <div class="form-group">
+        <label>💻 目标电脑机器码 (Machine ID) <span style="color: #ef4444;">*</span></label>
+        <input type="text" id="mid-input" class="input-box" placeholder="MID-XXXX-XXXX-XXXX-XXXX" />
+        <div class="input-tip">
+          💡 获取方法：在 Antigravity 聊天窗口中输入「<code>获取机器码</code>」，复制生成的专属指纹粘贴至此处。
         </div>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-title">活跃商户授权</div>
-          <div class="stat-value stat-green" id="stat-active">-</div>
+      <div class="form-group">
+        <label>👤 客户名称 / 联系方式 (选填)</label>
+        <input type="text" id="customer-input" class="input-box" placeholder="例如：张先生 (13800000000)" style="font-family: sans-serif;" />
+      </div>
+
+      <label>📦 选择授权套餐</label>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="selectPlan('monthly')" id="plan-monthly">
+          <div class="plan-title">月度专业版</div>
+          <div class="plan-price">¥299<small>/30天</small></div>
+          <div class="plan-orig">原价 ¥499</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">已封禁恶意商户</div>
-          <div class="stat-value stat-red" id="stat-banned">-</div>
+        <div class="plan-card active" onclick="selectPlan('quarterly')" id="plan-quarterly">
+          <div class="plan-badge">热门推荐</div>
+          <div class="plan-title">季度进阶版</div>
+          <div class="plan-price">¥799<small>/90天</small></div>
+          <div class="plan-orig">原价 ¥1299</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">累计上架商品总数</div>
-          <div class="stat-value stat-indigo" id="stat-uploads">-</div>
+        <div class="plan-card" onclick="selectPlan('yearly')" id="plan-yearly">
+          <div class="plan-badge">立省¥1500</div>
+          <div class="plan-title">年度尊享版</div>
+          <div class="plan-price">¥2499<small>/365天</small></div>
+          <div class="plan-orig">原价 ¥3999</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h3>商户授权档案列表 (实时在线控制)</h3>
-          <span id="stat-total" style="color: var(--text-muted); font-size: 13px;"></span>
+      <button id="pay-btn" class="btn-pay" onclick="handlePay()">
+        <svg style="width: 20px; height: 20px;" viewBox="0 0 1024 1024" fill="currentColor">
+          <path d="M793.6 128H230.4C174.08 128 128 174.08 128 230.4v563.2C128 849.92 174.08 896 230.4 896h563.2c56.32 0 102.4-46.08 102.4-102.4V230.4C896 174.08 849.92 128 793.6 128z m-204.8 542.72c-20.48 5.12-40.96 10.24-66.56 15.36 51.2 56.32 128 97.28 215.04 117.76-25.6 20.48-56.32 35.84-92.16 46.08-76.8-25.6-143.36-71.68-189.44-133.12-51.2 15.36-107.52 25.6-163.84 25.6-112.64 0-168.96-51.2-168.96-128 0-71.68 56.32-128 153.6-128 66.56 0 128 15.36 179.2 40.96V409.6H332.8v-71.68h122.88V256h81.92v81.92h143.36v71.68H537.6v76.8c56.32 15.36 112.64 35.84 163.84 66.56l-46.08 69.12c-20.48-10.24-40.96-20.48-66.56-30.72z m-168.96-20.48c-40.96-15.36-87.04-25.6-133.12-25.6-56.32 0-87.04 25.6-87.04 61.44 0 40.96 35.84 61.44 92.16 61.44 35.84 0 76.8-5.12 128-20.48V650.24z"/>
+        </svg>
+        <span id="btn-text">支付宝一键安全支付 (¥799.00)</span>
+      </button>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          支持 Ozon 商品标题、属性、多图、真实包装尺寸一键极速搬家至 Wildberries
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>商户名称</th>
-              <th>绑定机器码 (Machine ID)</th>
-              <th>状态</th>
-              <th>累计上架件数</th>
-              <th>有效期至</th>
-              <th>最后活跃时间</th>
-              <th>在线控制操作</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">正在加载实时数据...</td></tr>
-          </tbody>
-        </table>
+        <div class="feature-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          自动生成官方 EAN-13 条形码、价格隔离区自动拦截与 50% 促销折扣闭环
+        </div>
+        <div class="feature-item">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          单窗口 1:1 店铺互斥锁定防串店，保障账户资产与数据绝对安全
+        </div>
       </div>
+    </div>
 
-      <script>
-        const ADMIN_KEY = "${keyParam}";
-        async function loadData() {
-          try {
-            const res = await fetch("/api/admin/list", {
-              headers: { "Authorization": "Bearer " + ADMIN_KEY }
-            });
-            const data = await res.json();
-            const items = data.items || [];
-            
-            let activeCount = 0, bannedCount = 0, totalUploads = 0;
-            const tbody = document.getElementById("table-body");
-            tbody.innerHTML = "";
-
-            if (items.length === 0) {
-              tbody.innerHTML = "<tr><td colspan='7' style='text-align: center; color: var(--text-muted); padding: 30px;'>暂无已激活的商户记录</td></tr>";
-            }
-
-            items.forEach(it => {
-              if (it.status === "ACTIVE") activeCount++;
-              if (it.status === "BANNED") bannedCount++;
-              totalUploads += (it.total_uploaded || 0);
-
-              const tr = document.createElement("tr");
-              tr.innerHTML = \`
-                <td><strong>\${it.customer_name || "未知客户"}</strong></td>
-                <td><code style="background: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 12px;">\${it.machine_id || "*"}</code></td>
-                <td><span class="status-badge status-\${it.status}">\${it.status}</span></td>
-                <td><strong style="color: #6366f1;">\${it.total_uploaded || 0} 件</strong></td>
-                <td>\${it.expires_at || "永久"}</td>
-                <td style="color: var(--text-muted); font-size: 12px;">\${it.last_seen ? it.last_seen.slice(0, 19).replace('T', ' ') : '-'}</td>
-                <td>
-                  \${it.status === "BANNED" ? 
-                    \`<button class="btn btn-unban" onclick="unbanLic('\${it.license_key}')">解封</button>\` : 
-                    \`<button class="btn btn-ban" onclick="banLic('\${it.license_key}')">封禁</button>\`
-                  }
-                  <button class="btn btn-renew" onclick="renewLic('\${it.license_key}', 30)">+30天</button>
-                  <button class="btn btn-renew" onclick="renewLic('\${it.license_key}', 365)" style="background: #a855f7;">+1年</button>
-                </td>
-              \`;
-              tbody.appendChild(tr);
-            });
-
-            document.getElementById("stat-active").innerText = activeCount;
-            document.getElementById("stat-banned").innerText = bannedCount;
-            document.getElementById("stat-uploads").innerText = totalUploads + " 件";
-            document.getElementById("stat-total").innerText = "共 " + items.length + " 家商户档案";
-          } catch (e) {
-            alert("加载数据异常: " + e.message);
-          }
-        }
-
-        async function banLic(key) {
-          const reason = prompt("请输入封禁原因（例如：倒卖软件/退款）：", "违规盗版封禁");
-          if (!reason) return;
-          await fetch("/api/admin/ban", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_KEY },
-            body: JSON.stringify({ license_key: key, reason })
-          });
-          loadData();
-        }
-
-        async function unbanLic(key) {
-          if (!confirm("确认解封该商户？")) return;
-          await fetch("/api/admin/unban", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_KEY },
-            body: JSON.stringify({ license_key: key })
-          });
-          loadData();
-        }
-
-        async function renewLic(key, days) {
-          if (!confirm("确认为该商户续费 " + days + " 天？")) return;
-          await fetch("/api/admin/renew", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + ADMIN_KEY },
-            body: JSON.stringify({ license_key: key, add_days: days })
-          });
-          loadData();
-        }
-
-        loadData();
-      </script>
-    `}
+    <!-- Success Result -->
+    <div id="success-section" class="success-modal">
+      <h2 style="color: #34d399; font-size: 18px; margin-bottom: 8px;">🎉 支付成功！授权码已生成</h2>
+      <p style="font-size: 13px; color: #a7f3d0;">您的专属商业授权已签发并自动完成云端登记：</p>
+      
+      <div id="license-key-box" class="lic-display"></div>
+      
+      <button class="btn-copy" onclick="copyLicense()">📋 一键复制授权码</button>
+      
+      <div style="margin-top: 16px; font-size: 12px; color: #cbd5e1; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
+        <strong>🚀 激活步骤：</strong><br>
+        1. 点击上方按钮复制授权码；<br>
+        2. 回到 Antigravity 聊天窗口中输入：<br>
+        <code style="color: #38bdf8; font-weight: bold;">激活授权 &lt;复制的授权码&gt;</code><br>
+        3. 绑定您的 Wildberries 店铺即可开始极速搬家！
+      </div>
+    </div>
   </div>
+
+  <script>
+    let currentPlan = 'quarterly';
+    const planPrices = { monthly: '299.00', quarterly: '799.00', yearly: '2499.00' };
+
+    function selectPlan(planId) {
+      currentPlan = planId;
+      document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('active'));
+      document.getElementById('plan-' + planId).classList.add('active');
+      document.getElementById('btn-text').innerText = '支付宝一键安全支付 (¥' + planPrices[planId] + ')';
+    }
+
+    async function handlePay() {
+      const mid = document.getElementById('mid-input').value.trim();
+      const customer = document.getElementById('customer-input').value.trim();
+      if (!mid) {
+        alert('请输入电脑机器码 (MID)！');
+        document.getElementById('mid-input').focus();
+        return;
+      }
+
+      const payBtn = document.getElementById('pay-btn');
+      payBtn.disabled = true;
+      payBtn.innerText = '正在生成支付宝收银台...';
+
+      try {
+        const res = await fetch('/api/pay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mid: mid,
+            name: customer || '商业客户',
+            plan_id: currentPlan
+          })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert('创建支付订单失败: ' + (data.error || '未知错误'));
+          payBtn.disabled = false;
+          selectPlan(currentPlan);
+          return;
+        }
+
+        // Redirect to Alipay
+        if (data.pay_url) {
+          window.location.href = data.pay_url;
+        } else {
+          alert('未获取到支付跳转链接');
+          payBtn.disabled = false;
+        }
+      } catch (err) {
+        alert('网络请求异常: ' + err.message);
+        payBtn.disabled = false;
+        selectPlan(currentPlan);
+      }
+    }
+
+    function copyLicense() {
+      const text = document.getElementById('license-key-box').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ 授权码已成功复制到剪贴板！');
+      }).catch(() => {
+        alert('复制失败，请手动选择复制。');
+      });
+    }
+
+    // Auto-check if returning with order_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingOrderId = urlParams.get('order_id') || "${orderIdParam}";
+    if (existingOrderId) {
+      pollOrderStatus(existingOrderId);
+    }
+
+    async function pollOrderStatus(orderId) {
+      try {
+        const res = await fetch('/api/pay/order-status?order_id=' + encodeURIComponent(orderId));
+        const data = await res.json();
+        if (data.ok && data.status === 'PAID') {
+          document.getElementById('checkout-section').style.display = 'none';
+          document.getElementById('success-section').style.display = 'block';
+          document.getElementById('license-key-box').innerText = data.license_key;
+        } else {
+          // Poll again
+          setTimeout(() => pollOrderStatus(orderId), 2000);
+        }
+      } catch (e) {
+        setTimeout(() => pollOrderStatus(orderId), 3000);
+      }
+    }
+  </script>
 </body>
 </html>`;
 
-  return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" }
-  });
-}
-
-/**
- * 辅助工具函数
- */
-function checkAdminAuth(request, adminSecret) {
-  const authHeader = request.headers.get("Authorization") || "";
-  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-  return token === adminSecret;
-}
-
-function unauthResponse() {
-  return jsonResponse({ error: "Unauthorized: Invalid Admin Secret" }, 401);
-}
-
-function jsonResponse(data, status = 200) {
-  return new Response(JSON.stringify(data, null, 2), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      return new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+      });
     }
-  });
-}
 
-function handleCors() {
-  return new Response(null, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization"
+    // 4.2 Create Order: POST /api/pay/create-order
+    if (path === "/api/pay/create-order" && method === "POST") {
+      try {
+        const body = await request.json();
+        const { mid, name = "商业客户", plan_id = "quarterly" } = body;
+
+        if (!mid) {
+          return new Response(JSON.stringify({ ok: false, error: "缺少机器码 (MID)" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const plan = PLANS[plan_id] || PLANS.quarterly;
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const timeStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        const orderId = `WB_ORD_${timeStr}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+        // Prepare Alipay page.pay parameters
+        const notifyUrl = `${url.origin}/api/pay/alipay-callback`;
+        const returnUrl = `${url.origin}/pay?order_id=${orderId}`;
+
+        const bizContent = {
+          out_trade_no: orderId,
+          total_amount: plan.price,
+          subject: `Wildberries极速上架助手-${plan.name}`,
+          product_code: "FAST_INSTANT_TRADE_PAY",
+          body: JSON.stringify({ mid: mid.trim().toUpperCase(), name: name.trim(), days: plan.days }),
+          passback_params: encodeURIComponent(JSON.stringify({ mid: mid.trim().toUpperCase(), name: name.trim(), days: plan.days }))
+        };
+
+        const nowFormat = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        
+        const params = {
+          app_id: alipayAppId,
+          method: "alipay.trade.page.pay",
+          format: "JSON",
+          return_url: returnUrl,
+          notify_url: notifyUrl,
+          charset: "utf-8",
+          sign_type: "RSA2",
+          timestamp: nowFormat,
+          version: "1.0",
+          biz_content: JSON.stringify(bizContent)
+        };
+
+        const sign = signAlipayParams(params, alipayPrivKey);
+        params.sign = sign;
+
+        // Build redirect URL
+        const queryStr = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
+        const payUrl = `https://openapi.alipay.com/gateway.do?${queryStr}`;
+
+        // Save Pending Order into KV
+        if (env.WB_LICENSES) {
+          const orderRecord = {
+            order_id: orderId,
+            status: "PENDING",
+            machine_id: mid.trim().toUpperCase(),
+            customer_name: name.trim(),
+            plan_id: plan.id,
+            plan_name: plan.name,
+            amount: plan.price,
+            days: plan.days,
+            created_at: nowFormat
+          };
+          await env.WB_LICENSES.put(`ORD:${orderId}`, JSON.stringify(orderRecord), { expirationTtl: 86400 * 7 });
+        }
+
+        return new Response(JSON.stringify({
+          ok: true,
+          order_id: orderId,
+          amount: plan.price,
+          plan_name: plan.name,
+          pay_url: payUrl
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message, stack: err.stack }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
     }
-  });
-}
 
-// 内存容错回退机制（兼容本地调试或无 KV 绑定的极速运行测试）
-const IN_MEMORY_KV = new Map();
+    // 4.3 Alipay Webhook Callback: POST /api/pay/alipay-callback
+    if (path === "/api/pay/alipay-callback" && method === "POST") {
+      try {
+        const formData = await request.formData();
+        const params = {};
+        for (const [k, v] of formData.entries()) {
+          params[k] = v;
+        }
 
-async function getKv(env, key) {
-  if (env && env.WB_LICENSES) {
-    return await env.WB_LICENSES.get(key, "json");
+        // Verify Alipay Signature
+        const isValid = verifyAlipayNotify(params, alipayPubKey);
+        if (!isValid) {
+          console.error("Alipay Webhook signature verification failed!");
+          return new Response("failure", { status: 400 });
+        }
+
+        const tradeStatus = params.trade_status;
+        const outTradeNo = params.out_trade_no;
+        const tradeNo = params.trade_no;
+        const totalAmount = params.total_amount;
+
+        if (tradeStatus === "TRADE_SUCCESS" || tradeStatus === "TRADE_FINISHED") {
+          let orderInfo = null;
+          if (env.WB_LICENSES) {
+            const ordJson = await env.WB_LICENSES.get(`ORD:${outTradeNo}`);
+            if (ordJson) {
+              orderInfo = JSON.parse(ordJson);
+            }
+          }
+
+          // Extract passback params
+          let extra = {};
+          if (params.passback_params) {
+            try {
+              extra = JSON.parse(decodeURIComponent(params.passback_params));
+            } catch (e) {}
+          }
+
+          const mid = extra.mid || (orderInfo && orderInfo.machine_id) || "MID-UNKNOWN";
+          const customerName = extra.name || (orderInfo && orderInfo.customer_name) || "支付宝客户";
+          const days = Number(extra.days || (orderInfo && orderInfo.days) || 30);
+
+          // Sign the RSA license
+          const { license_key, payload } = signLicenseKey(mid, customerName, days, 1, rsaSignKeyB64);
+
+          // Save license to KV
+          if (env.WB_LICENSES) {
+            const licRecord = {
+              name: customerName,
+              machine_id: mid,
+              max_sessions: 1,
+              expires_at: payload.exp,
+              type: "RSA-PSS-SHA256",
+              created_at: new Date().toISOString(),
+              source: "ALIPAY_SELF_SERVICE",
+              trade_no: tradeNo,
+              order_id: outTradeNo,
+              amount: totalAmount,
+              activated_sessions: []
+            };
+            await env.WB_LICENSES.put(license_key, JSON.stringify(licRecord));
+
+            // Update order status
+            const updatedOrder = {
+              ...(orderInfo || {}),
+              order_id: outTradeNo,
+              status: "PAID",
+              trade_no: tradeNo,
+              amount: totalAmount,
+              machine_id: mid,
+              customer_name: customerName,
+              license_key: license_key,
+              expires_at: payload.exp,
+              paid_at: new Date().toISOString()
+            };
+            await env.WB_LICENSES.put(`ORD:${outTradeNo}`, JSON.stringify(updatedOrder), { expirationTtl: 86400 * 30 });
+          }
+
+          return new Response("success", { status: 200, headers: { "Content-Type": "text/plain" } });
+        }
+
+        return new Response("success", { status: 200 });
+      } catch (err) {
+        console.error("Alipay callback error:", err);
+        return new Response("failure", { status: 500 });
+      }
+    }
+
+    // 4.4 Check Order Status: GET /api/pay/order-status?order_id=...
+    if (path === "/api/pay/order-status" && method === "GET") {
+      const orderId = url.searchParams.get("order_id");
+      if (!orderId || !env.WB_LICENSES) {
+        return new Response(JSON.stringify({ ok: false, error: "Missing order_id" }), { status: 400, headers: corsHeaders });
+      }
+
+      const ordJson = await env.WB_LICENSES.get(`ORD:${orderId}`);
+      if (!ordJson) {
+        return new Response(JSON.stringify({ ok: false, status: "NOT_FOUND" }), { status: 404, headers: corsHeaders });
+      }
+
+      const ord = JSON.parse(ordJson);
+      return new Response(JSON.stringify({
+        ok: true,
+        status: ord.status,
+        license_key: ord.license_key || "",
+        expires_at: ord.expires_at || "",
+        machine_id: ord.machine_id || "",
+        amount: ord.amount || ""
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // ==========================================
+    // 5. Admin Dashboard & Operations
+    // ==========================================
+    const reqSecret = request.headers.get("X-Admin-Secret") || url.searchParams.get("key");
+    const isAdmin = reqSecret === adminSecret;
+
+    // 5.1 Admin Web Dashboard: GET /admin
+    if (path === "/admin" && method === "GET") {
+      if (!isAdmin) {
+        return new Response("Unauthorized: Invalid Admin Secret. Append ?key=YOUR_SECRET to the URL.", {
+          status: 401,
+          headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+      }
+
+      // Fetch all licenses & orders from KV
+      const listRes = await env.WB_LICENSES.list();
+      const licenses = [];
+      const orders = [];
+
+      for (const k of listRes.keys) {
+        const val = await env.WB_LICENSES.get(k.name);
+        try {
+          const parsed = JSON.parse(val);
+          if (k.name.startsWith("ORD:")) {
+            orders.push(parsed);
+          } else {
+            licenses.push({ key: k.name, ...parsed });
+          }
+        } catch (e) {
+          licenses.push({ key: k.name, raw: val });
+        }
+      }
+
+      // Sort orders descending
+      orders.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+
+      const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>商业授权与支付宝财务云端控制台</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; margin: 0; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; }
+    h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin: 0; }
+    .stats-bar { display: flex; gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; padding: 16px 20px; border-radius: 8px; border: 1px solid #e2e8f0; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .stat-num { font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+    .stat-label { font-size: 12px; color: #64748b; font-weight: 600; }
+    
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .tab-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+
+    .badge { padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-banned { background: #fee2e2; color: #991b1b; }
+    .badge-paid { background: #dbeafe; color: #1e40af; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+
+    table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 32px; }
+    th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+    th { background: #f1f5f9; font-weight: 600; color: #475569; }
+    tr:hover { background: #f8fafc; }
+    button.action-btn { padding: 6px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.15s; }
+    .btn-ban { background: #ef4444; color: white; }
+    .btn-ban:hover { background: #dc2626; }
+    .btn-unban { background: #10b981; color: white; }
+    .btn-unban:hover { background: #059669; }
+    .btn-renew { background: #3b82f6; color: white; margin-left: 4px; }
+    .btn-renew:hover { background: #2563eb; }
+    .key-cell { font-family: monospace; font-size: 11px; word-break: break-all; max-width: 260px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🛡️ Wildberries 商业授权与支付宝财务控制台</h1>
+    <a href="/pay" target="_blank" style="padding: 8px 16px; background: #1677ff; color: #fff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">🛒 打开自选收银台</a>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">总授权实例</div>
+      <div class="stat-num">${licenses.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">在线正常授权</div>
+      <div class="stat-num" style="color: #10b981;">${licenses.filter(l => l.status !== 'BANNED').length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">支付宝成交订单</div>
+      <div class="stat-num" style="color: #3b82f6;">${orders.filter(o => o.status === 'PAID').length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">累计交易金额</div>
+      <div class="stat-num" style="color: #8b5cf6;">¥${orders.filter(o => o.status === 'PAID').reduce((acc, cur) => acc + parseFloat(cur.amount || 0), 0).toFixed(2)}</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('licenses')">🔑 授权实例列表 (${licenses.length})</button>
+    <button class="tab-btn" onclick="switchTab('orders')">💳 支付宝财务订单 (${orders.length})</button>
+  </div>
+
+  <div id="tab-licenses">
+    <table>
+      <thead>
+        <tr>
+          <th>授权客户</th>
+          <th>绑定机器码 (MID)</th>
+          <th>授权码 (License Key)</th>
+          <th>到期时间</th>
+          <th>累积用量</th>
+          <th>来源</th>
+          <th>状态</th>
+          <th>管理操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${licenses.map(lic => `
+          <tr>
+            <td><strong>${lic.name || "未命名客户"}</strong></td>
+            <td><code>${lic.machine_id || "未激活首机"}</code></td>
+            <td class="key-cell">${lic.key}</td>
+            <td>${lic.expires_at || "永久"}</td>
+            <td>${lic.usage_count || 0} 件</td>
+            <td>${lic.source === 'ALIPAY_SELF_SERVICE' ? '<span style="color:#1677ff;">支付宝自购</span>' : '管理员签发'}</td>
+            <td>
+              <span class="badge ${lic.status === "BANNED" ? "badge-banned" : "badge-active"}">
+                ${lic.status === "BANNED" ? "已封禁" : "正常授权"}
+              </span>
+            </td>
+            <td>
+              ${lic.status === "BANNED" 
+                ? `<button class="action-btn btn-unban" onclick="action('unban', '${encodeURIComponent(lic.key)}')">解封</button>`
+                : `<button class="action-btn btn-ban" onclick="action('ban', '${encodeURIComponent(lic.key)}')">在线封禁</button>`
+              }
+              <button class="action-btn btn-renew" onclick="renew('${encodeURIComponent(lic.key)}')">续期+30天</button>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  </div>
+
+  <div id="tab-orders" style="display: none;">
+    <table>
+      <thead>
+        <tr>
+          <th>商户订单号</th>
+          <th>套餐名称</th>
+          <th>实付金额</th>
+          <th>客户名称</th>
+          <th>绑定机器码</th>
+          <th>支付宝流水号</th>
+          <th>支付时间</th>
+          <th>状态</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orders.map(ord => `
+          <tr>
+            <td><code>${ord.order_id}</code></td>
+            <td><strong>${ord.plan_name || "-"}</strong></td>
+            <td style="color: #059669; font-weight: 700;">¥${ord.amount || "0.00"}</td>
+            <td>${ord.customer_name || "-"}</td>
+            <td><code>${ord.machine_id || "-"}</code></td>
+            <td><small>${ord.trade_no || "-"}</small></td>
+            <td>${ord.paid_at || ord.created_at || "-"}</td>
+            <td>
+              <span class="badge ${ord.status === "PAID" ? "badge-paid" : "badge-pending"}">
+                ${ord.status === "PAID" ? "已支付" : "待支付"}
+              </span>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const adminKey = "${reqSecret}";
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (tab === 'licenses') {
+        document.getElementById('tab-licenses').style.display = 'block';
+        document.getElementById('tab-orders').style.display = 'none';
+        event.target.classList.add('active');
+      } else {
+        document.getElementById('tab-licenses').style.display = 'none';
+        document.getElementById('tab-orders').style.display = 'block';
+        event.target.classList.add('active');
+      }
+    }
+
+    async function action(type, key) {
+      if (!confirm("确认对该授权执行 " + type + " 操作？")) return;
+      const res = await fetch("/admin/api/" + type + "?key=" + adminKey, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ license_key: decodeURIComponent(key) })
+      });
+      if (res.ok) { location.reload(); } else { alert("操作失败: " + await res.text()); }
+    }
+    async function renew(key) {
+      const days = prompt("请输入要延期的天数 (默认 30 天):", "30");
+      if (!days) return;
+      const res = await fetch("/admin/api/renew?key=" + adminKey, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ license_key: decodeURIComponent(key), days: parseInt(days) })
+      });
+      if (res.ok) { location.reload(); } else { alert("续期失败: " + await res.text()); }
+    }
+  </script>
+</body>
+</html>`;
+
+      return new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+      });
+    }
+
+    // 5.2 Admin API: Remote Ban / Revoke: POST /admin/api/ban
+    if (path === "/admin/api/ban" && method === "POST") {
+      if (!isAdmin) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      const { license_key, reason = "Manual ban by admin" } = await request.json();
+      const val = await env.WB_LICENSES.get(license_key);
+      if (!val) return new Response("Not found", { status: 404, headers: corsHeaders });
+      const rec = JSON.parse(val);
+      rec.status = "BANNED";
+      rec.ban_reason = reason;
+      rec.banned_at = new Date().toISOString();
+      await env.WB_LICENSES.put(license_key, JSON.stringify(rec));
+      return new Response(JSON.stringify({ ok: true, license_key, status: "BANNED" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // 5.3 Admin API: Remote Unban: POST /admin/api/unban
+    if (path === "/admin/api/unban" && method === "POST") {
+      if (!isAdmin) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      const { license_key } = await request.json();
+      const val = await env.WB_LICENSES.get(license_key);
+      if (!val) return new Response("Not found", { status: 404, headers: corsHeaders });
+      const rec = JSON.parse(val);
+      rec.status = "ACTIVE";
+      delete rec.banned_at;
+      delete rec.ban_reason;
+      await env.WB_LICENSES.put(license_key, JSON.stringify(rec));
+      return new Response(JSON.stringify({ ok: true, license_key, status: "ACTIVE" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // 5.4 Admin API: Remote Renewal: POST /admin/api/renew
+    if (path === "/admin/api/renew" && method === "POST") {
+      if (!isAdmin) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      const { license_key, days = 30 } = await request.json();
+      const val = await env.WB_LICENSES.get(license_key);
+      if (!val) return new Response("Not found", { status: 404, headers: corsHeaders });
+      const rec = JSON.parse(val);
+      let curExp = rec.expires_at ? new Date(rec.expires_at.replace(" ", "T")) : new Date();
+      if (isNaN(curExp.getTime()) || curExp < new Date()) {
+        curExp = new Date();
+      }
+      curExp.setDate(curExp.getDate() + Number(days));
+      const pad = (n) => String(n).padStart(2, "0");
+      rec.expires_at = `${curExp.getFullYear()}-${pad(curExp.getMonth() + 1)}-${pad(curExp.getDate())} 23:59:59`;
+      await env.WB_LICENSES.put(license_key, JSON.stringify(rec));
+      return new Response(JSON.stringify({ ok: true, license_key, expires_at: rec.expires_at }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    return new Response("Not Found", { status: 404, headers: corsHeaders });
   }
-  return IN_MEMORY_KV.get(key) || null;
-}
-
-async function putKv(env, key, value) {
-  if (env && env.WB_LICENSES) {
-    await env.WB_LICENSES.put(key, JSON.stringify(value));
-  } else {
-    IN_MEMORY_KV.set(key, value);
-  }
-}
+};
