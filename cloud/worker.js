@@ -471,6 +471,75 @@ export default {
       }
     }
 
+    // 3.1 Session Agent Binding API: POST /api/session/bind-agent
+    if (path === "/api/session/bind-agent" && method === "POST") {
+      try {
+        const body = await request.json();
+        const { cid, mid, agent_id } = body;
+        if (!agent_id || (!cid && !mid) || !env.WB_LICENSES) {
+          return new Response(JSON.stringify({ ok: false, error: "Missing agent_id or session identifier" }), {
+            status: 400,
+            headers: corsHeaders
+          });
+        }
+        const cleanAgent = agent_id.trim();
+        const boundData = {
+          agent_id: cleanAgent,
+          cid: cid || "",
+          mid: mid || "",
+          bound_at: new Date().toISOString()
+        };
+        if (cid) {
+          await env.WB_LICENSES.put(`SESSION_AGENT:${cid}`, JSON.stringify(boundData));
+        }
+        if (mid) {
+          await env.WB_LICENSES.put(`SESSION_AGENT:${mid}`, JSON.stringify(boundData));
+        }
+        let agentProfile = null;
+        const agentRaw = await env.WB_LICENSES.get(`AGENT:${cleanAgent}`);
+        if (agentRaw) {
+          try { agentProfile = JSON.parse(agentRaw); } catch(e) {}
+        }
+        return new Response(JSON.stringify({
+          ok: true,
+          agent_id: cleanAgent,
+          agent_name: agentProfile ? agentProfile.name : cleanAgent,
+          bound_at: boundData.bound_at
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message }), {
+          status: 500,
+          headers: corsHeaders
+        });
+      }
+    }
+
+    // 3.2 Session Agent Lookup API: GET /api/session/agent?cid=...&mid=...
+    if (path === "/api/session/agent" && method === "GET") {
+      try {
+        const cid = url.searchParams.get("cid");
+        const mid = url.searchParams.get("mid");
+        if (!env.WB_LICENSES) return new Response(JSON.stringify({ ok: false }), { status: 500, headers: corsHeaders });
+        let raw = null;
+        if (cid) raw = await env.WB_LICENSES.get(`SESSION_AGENT:${cid}`);
+        if (!raw && mid) raw = await env.WB_LICENSES.get(`SESSION_AGENT:${mid}`);
+        if (raw) {
+          const data = JSON.parse(raw);
+          return new Response(JSON.stringify({ ok: true, ...data }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+        return new Response(JSON.stringify({ ok: false, error: "Not bound" }), {
+          status: 404,
+          headers: corsHeaders
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
     // ==========================================
     // 4. Alipay Cashier & Order APIs (¥600/Store)
     // ==========================================
@@ -933,13 +1002,24 @@ export default {
     if (path === "/api/pay/create-order" && method === "POST") {
       try {
         const body = await request.json();
-        const { mid, store_name = "我的WB店铺", name = "商业客户", plan_id = "single_store" } = body;
+        const { mid, store_name = "我的WB店铺", name = "商业客户", plan_id = "single_store", agent_id = "" } = body;
 
         if (!mid) {
           return new Response(JSON.stringify({ ok: false, error: "缺少机器码 (MID) 或会话 ID" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
+        }
+
+        let orderAgentId = (agent_id || "").trim();
+        if (!orderAgentId && env.WB_LICENSES && mid) {
+          const sessionAgentRaw = await env.WB_LICENSES.get(`SESSION_AGENT:${mid.trim()}`);
+          if (sessionAgentRaw) {
+            try {
+              const sa = JSON.parse(sessionAgentRaw);
+              if (sa.agent_id) orderAgentId = sa.agent_id;
+            } catch(e) {}
+          }
         }
 
         const plan = PLANS[plan_id] || PLANS.single_store;
@@ -962,7 +1042,8 @@ export default {
               expires_at: payload.exp,
               type: "RSA-FREE-TRIAL",
               created_at: new Date().toISOString(),
-              source: "FREE_TRIAL_2DAYS",
+              source: orderAgentId ? `AGENT:${orderAgentId}` : "FREE_TRIAL_2DAYS",
+              agent_id: orderAgentId,
               order_id: `TRIAL_${Date.now()}`,
               amount: "0.00",
               activated_sessions: []
@@ -998,7 +1079,8 @@ export default {
           store: store_name.trim(),
           days: plan.days,
           stores: plan.stores,
-          plan_id: plan.id
+          plan_id: plan.id,
+          agent_id: orderAgentId
         };
 
         const bizContent = {
@@ -1045,6 +1127,7 @@ export default {
             amount: plan.price,
             stores: plan.stores,
             days: plan.days,
+            agent_id: orderAgentId,
             created_at: nowFormat
           };
           await env.WB_LICENSES.put(`ORD:${orderId}`, JSON.stringify(orderRecord), { expirationTtl: 86400 * 7 });
@@ -1141,6 +1224,7 @@ export default {
           const customerName = extra.name || (orderInfo && orderInfo.customer_name) || "支付宝客户";
           const storeName = extra.store || (orderInfo && orderInfo.store_name) || "Wildberries店铺";
           const days = Number(extra.days || (orderInfo && orderInfo.days) || 3650);
+          const agentId = (extra.agent_id || (orderInfo && orderInfo.agent_id) || "").trim();
 
           // Sign the RSA license
           const { license_key, payload } = signLicenseKey(mid, customerName, storeName, days, 1, rsaSignKeyB64);
@@ -1157,13 +1241,27 @@ export default {
               expires_at: payload.exp,
               type: "RSA-PSS-SHA256",
               created_at: new Date().toISOString(),
-              source: "ALIPAY_SELF_SERVICE",
+              source: agentId ? `AGENT:${agentId}` : "ALIPAY_SELF_SERVICE",
+              agent_id: agentId,
               trade_no: tradeNo,
               order_id: outTradeNo,
               amount: totalAmount,
               activated_sessions: []
             };
             await env.WB_LICENSES.put(licKvKey, JSON.stringify(licRecord));
+
+            // If an agent is associated, attribute metrics
+            if (agentId) {
+              const agentRaw = await env.WB_LICENSES.get(`AGENT:${agentId}`);
+              if (agentRaw) {
+                try {
+                  const ag = JSON.parse(agentRaw);
+                  ag.total_stores_issued = Number(ag.total_stores_issued || 0) + 1;
+                  ag.total_direct_revenue = Number((Number(ag.total_direct_revenue || 0) + Number(totalAmount || 0)).toFixed(2));
+                  await env.WB_LICENSES.put(`AGENT:${agentId}`, JSON.stringify(ag));
+                } catch(e) {}
+              }
+            }
 
             // Update order status
             const updatedOrder = {
@@ -1177,6 +1275,7 @@ export default {
               store_name: storeName,
               license_key: license_key,
               expires_at: payload.exp,
+              agent_id: agentId,
               paid_at: new Date().toISOString()
             };
             await env.WB_LICENSES.put(`ORD:${outTradeNo}`, JSON.stringify(updatedOrder), { expirationTtl: 86400 * 30 });

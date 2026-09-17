@@ -112,12 +112,16 @@ class SessionManager:
                 try:
                     with open(workspace_config_path, 'r', encoding='utf-8') as f:
                         cfg = json.load(f)
+                    agent_id = cfg.get("agent_id", "").strip()
+                    agent_name = cfg.get("agent_name", agent_id).strip()
                     if cfg.get("wb_api_token"):
                         token = cfg.get("wb_api_token").strip()
                         fp = extract_wb_store_fingerprint(token)
                         initial_data["sessions"][active_conv] = {
                             "status": "AUTHORIZED",
                             "license_key": "DEFAULT-LOCAL-DEV",
+                            "agent_id": agent_id,
+                            "agent_name": agent_name,
                             "activated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "bound_store": {
                                 "store_name": cfg.get("store_name", "RR007"),
@@ -134,6 +138,13 @@ class SessionManager:
                                 "token_expiry": fp.get("token_expiry", "未知"),
                                 "bound_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             }
+                        }
+                    elif agent_id:
+                        initial_data["sessions"][active_conv] = {
+                            "status": "UNAUTHORIZED",
+                            "agent_id": agent_id,
+                            "agent_name": agent_name,
+                            "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         }
                 except Exception:
                     pass
@@ -630,6 +641,74 @@ class SessionManager:
             return True, f"✅ 已成功解绑当前窗口绑定的店铺【{old.get('store_name')}】！当前窗口仍处于授权状态，注意：{tip}"
         return False, "ℹ️ 当前会话窗口尚未绑定任何店铺。"
 
+    def bind_agent(self, agent_code: str, conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
+        """将当前会话窗口与专属代理商/渠道代号绑定，费用与业绩自动归属"""
+        cid = self.get_current_conversation_id(conversation_id)
+        clean_code = agent_code.strip()
+        if not clean_code:
+            return False, "❌ 代理商代号不能为空", {}
+
+        # 智能别名与常见代理商映射表
+        alias_map = {
+            "庄总": ("zhuang_qz", "泉州庄总"),
+            "泉州庄总": ("zhuang_qz", "泉州庄总"),
+            "zhuang": ("zhuang_qz", "泉州庄总"),
+            "zhuang_qz": ("zhuang_qz", "泉州庄总"),
+        }
+        canonical_id, agent_display_name = alias_map.get(clean_code.lower(), (clean_code, clean_code))
+
+        registry = self._load_registry()
+        sess = registry.setdefault("sessions", {}).setdefault(cid, {
+            "conversation_id": cid,
+            "status": "UNAUTHORIZED",
+            "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+        sess["agent_id"] = canonical_id
+        sess["agent_name"] = agent_display_name
+        sess["agent_bound_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self._save_registry(registry)
+
+        # 同步至云端网关
+        client = CloudAuthClient()
+        if client.is_cloud_enabled():
+            try:
+                client.bind_session_agent(cid=cid, agent_id=canonical_id, mid=get_machine_id())
+            except Exception:
+                pass
+
+        # 针对不同代理商的定制化响应
+        if canonical_id == "zhuang_qz":
+            msg = (
+                f"🤝 **代理商渠道绑定成功**\n\n"
+                f"🏢 **当前归属代理商**: `{agent_display_name} ({canonical_id})`\n"
+                f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
+                f"`{cid}`\n\n"
+                f"📋 **商业授权开通与激活 3 步指引 (线下结算)**：\n"
+                f"1️⃣ **复制窗口 ID**：请复制上方代码块中的「当前窗口专属 ID」；\n"
+                f"2️⃣ **联系庄总开通**：将该 ID 发送给庄总或客服人员，线下完成授权开通并获取专属店铺授权码；\n"
+                f"3️⃣ **输入指令激活**：收到庄总发来的授权码后，在本聊天框直接发送以下指令即可立即激活：\n"
+                f"   `激活授权 <庄总提供的授权码>`\n\n"
+                f"🛡️ **1 店 1 码 1:1 独立隔离**：当前窗口已永久锁定归属【泉州庄总】，换设备/换电脑不受影响，彻底杜绝商品串店。\n"
+                f"📞 客服与授权咨询电话: 15959543210"
+            )
+        else:
+            msg = (
+                f"🤝 **代理商渠道绑定成功**\n\n"
+                f"🏢 **当前归属代理商/渠道**: `{agent_display_name} ({canonical_id})`\n"
+                f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
+                f"`{cid}`\n\n"
+                f"📋 **商业授权开通与激活指引**：\n"
+                f"1️⃣ **复制窗口 ID**：请复制上方代码块中的「当前窗口专属 ID」；\n"
+                f"2️⃣ **联系代理商开通**：将该 ID 发送给您的专属代理商/客服【{agent_display_name}】，完成开通并获取专属店铺授权码；\n"
+                f"3️⃣ **输入指令激活**：收到代理商发来的授权码后，在本聊天框直接发送以下指令即可立即激活：\n"
+                f"   `激活授权 <代理商提供的授权码>`\n\n"
+                f"💰 **自动结算归属**：本窗口后续所有开通费用与数据，均已全额自动结算至代理商【{agent_display_name}】名下。\n"
+                f"🛡️ **1 店 1 码 1:1 独立隔离**：每个会话窗口独立绑定一家店铺，换设备/换电脑不受影响。"
+            )
+
+        return True, msg, sess
+
     def get_active_session_credentials(self, conversation_id: Optional[str] = None) -> Dict[str, Any]:
         """
         获取当前会话可用于上架的有效店铺凭据
@@ -664,6 +743,37 @@ class SessionManager:
             _, msg, _ = self.issue_free_trial(cid)
             return msg
 
+        # 0.05 代理商 / 渠道绑定与查询
+        agent_match = re.search(r'^(?:代理商|代理|渠道码|渠道|绑定代理商|绑定代理|绑定渠道|agent|channel)[:：\s]+([^\s\n]+)', text, re.IGNORECASE)
+        if agent_match:
+            code = agent_match.group(1).strip()
+            ok, msg, _ = self.bind_agent(code, cid)
+            return msg
+
+        if text.lower() in ["代理商", "渠道", "渠道码", "当前代理", "查看代理", "我的代理", "agent", "channel"]:
+            registry = self._load_registry()
+            sess = registry.get("sessions", {}).get(cid, {})
+            current_agent = sess.get("agent_id")
+            current_name = sess.get("agent_name", current_agent)
+            if current_agent:
+                return (
+                    f"🤝 **当前窗口已绑定代理商**:\n\n"
+                    f"🏢 **代理商名称**: `{current_name}` (`{current_agent}`)\n"
+                    f"🆔 **当前窗口 ID**: `{cid}`\n"
+                    f"📅 **绑定时间**: `{sess.get('agent_bound_at', '未知')}`\n\n"
+                    f"💰 本窗口产生的所有店铺授权与后续费用，均已自动锁定结算至该代理商名下。\n"
+                    f"💡 如需更换代理商，可直接发送：`代理商 <新代理代号>`。"
+                )
+            else:
+                return (
+                    f"🏢 **代理商渠道绑定指引**:\n\n"
+                    f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
+                    f"`{cid}`\n\n"
+                    f"当前窗口尚未绑定任何专属代理商。\n"
+                    f"👉 请输入指令：`代理商 <代理代号>`（例如：`代理商 zhuang_qz` 或 `代理商 庄总`）进行绑定。\n"
+                    f"绑定后本窗口所有开通与结算均自动归属该代理商。"
+                )
+
         # 0.1 获取授权码 / 商业收银台 / 会话ID / wb上架激活码
         trigger_keywords = [
             "wb上架激活码", "wb激活码", "wb上架授权码", "wb授权码", "wb上架", "激活码", "获取激活码", "购买激活码", "申请激活码",
@@ -675,16 +785,37 @@ class SessionManager:
             ("激活码" in text or "授权码" in text or "收银台" in text or "购买" in text) 
             and not text.startswith("LIC-") and not text.startswith("激活授权") and not text.startswith("激活")
         ):
+            registry = self._load_registry()
+            sess = registry.get("sessions", {}).get(cid, {})
+            agent_id = sess.get("agent_id")
+            agent_name = sess.get("agent_name", agent_id)
+
+            if agent_id == "zhuang_qz":
+                agent_header = f"🏢 **归属代理商**: `{agent_name} ({agent_id})`\n"
+                step2_text = f"2️⃣ **联系庄总开通**：将该 ID 发送给庄总或客服人员，线下完成授权开通并获取专属店铺授权码；"
+            elif agent_id:
+                agent_header = f"🏢 **归属代理商**: `{agent_name} ({agent_id})`\n"
+                step2_text = f"2️⃣ **联系代理商开通**：将该 ID 发送给您的专属代理商/客服【{agent_name}】，线下完成授权开通并获取专属店铺授权码；"
+            else:
+                agent_header = ""
+                step2_text = f"2️⃣ **联系代理商开通**：将该 ID 发送给您的专属代理商/客服人员，线下完成授权开通并获取专属店铺授权码；"
+
+            tip_agent_bind = ""
+            if not agent_id:
+                tip_agent_bind = f"💡 **代理商专属通道**：若您有专属代理商代号，可发送「`代理商 <代号>`」（例如：`代理商 zhuang_qz`）进行窗口绑定。\n"
+
             return (
                 f"🛒 **Wildberries 极速智能上架助手 · 商业授权专属开通**\n\n"
+                f"{agent_header}"
                 f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
                 f"`{cid}`\n\n"
                 f"📋 **商业授权开通与激活 3 步指引 (线下结算)**：\n"
                 f"1️⃣ **复制窗口 ID**：请复制上方代码块中的「当前窗口专属 ID」；\n"
-                f"2️⃣ **联系代理商开通**：将该 ID 发送给您的专属代理商/客服人员，线下完成授权开通并获取专属店铺授权码；\n"
+                f"{step2_text}\n"
                 f"3️⃣ **输入指令激活**：收到代理商发来的授权码后，在本聊天框直接发送以下指令即可立即激活：\n"
                 f"   `激活授权 <代理商提供的授权码>`\n\n"
                 f"🛡️ **1 店 1 码 1:1 独立隔离**：每个会话窗口独立绑定一家店铺，换设备/换电脑不受影响，彻底杜绝商品串店与库存错乱隐患。\n"
+                f"{tip_agent_bind}"
                 f"📞 官方客服与授权咨询电话: 15959543210\n"
             )
 
@@ -733,10 +864,12 @@ class SessionManager:
         if text in ["店铺状态", "授权状态", "查看店铺", "状态", "status"]:
             registry = self._load_registry()
             sess = registry.get("sessions", {}).get(cid)
+            agent_str = f"• **归属代理商**: `{sess.get('agent_name', '直属')}` (`{sess.get('agent_id', 'direct')}`)\n" if sess and sess.get("agent_id") else ""
             if not sess or sess.get("status") != "AUTHORIZED":
                 return (
                     f"🔒 **当前会话窗口状态**: `未授权 (UNAUTHORIZED)`\n"
-                    f"🆔 **窗口 ID**: `{cid}`\n\n"
+                    f"🆔 **窗口 ID**: `{cid}`\n"
+                    f"{agent_str}\n"
                     f"👉 请输入 `激活授权 <License_Key>` 进行激活。"
                 )
             store = sess.get("bound_store")
@@ -744,6 +877,7 @@ class SessionManager:
                 return (
                     f"✅ **当前会话窗口状态**: `已获商业授权`\n"
                     f"🔑 **授权码**: `{sess.get('license_key')}` ({sess.get('license_name')})\n"
+                    f"{agent_str}"
                     f"🏢 **店铺绑定**: `尚未绑定店铺`\n\n"
                     f"👉 请输入 `绑定店铺 店铺简称：... API令牌：... 仓库ID：...` 进行绑定。"
                 )
@@ -759,6 +893,7 @@ class SessionManager:
             return (
                 f"🏢 **当前会话窗口专属店铺档案**:\n\n"
                 f"• **窗口 ID**: `{cid}`\n"
+                f"{agent_str}"
                 f"• **授权码**: `{sess.get('license_key')}` ({sess.get('license_name')})\n"
                 f"• **店铺简称**: `{store.get('store_name')}`\n"
                 f"• **履约仓库**: `{store.get('warehouse_name')}` (ID: `{store.get('wb_warehouse_id')}`)\n"
@@ -945,6 +1080,15 @@ def main():
     # 12. cloud-list
     p_clist = subparsers.add_parser("cloud-list", help="管理员获取云端所有授权与用量记录")
 
+    # 13. agent-bind
+    p_abind = subparsers.add_parser("agent-bind", help="绑定当前会话的代理商/渠道归属")
+    p_abind.add_argument("--agent", required=True, help="代理商代号 (如 zhuang_qz)")
+    p_abind.add_argument("--conversation-id", default=None, help="会话窗口 ID")
+
+    # 14. agent-info
+    p_ainfo = subparsers.add_parser("agent-info", help="查看当前会话绑定的代理商信息")
+    p_ainfo.add_argument("--conversation-id", default=None, help="会话窗口 ID")
+
     args = parser.parse_args()
     mgr = SessionManager()
 
@@ -960,6 +1104,12 @@ def main():
         print(json.dumps(res, ensure_ascii=False, indent=2))
     elif args.action == "activate":
         ok, msg, _ = mgr.activate_license(args.license, args.conversation_id)
+        print(msg)
+    elif args.action == "agent-bind":
+        ok, msg, _ = mgr.bind_agent(args.agent, args.conversation_id)
+        print(msg)
+    elif args.action == "agent-info":
+        msg = mgr.parse_command("当前代理", args.conversation_id)
         print(msg)
     elif args.action == "bind":
         ok, msg, _ = mgr.bind_store(args.store, args.token, args.warehouse, args.multiplier, args.discount, args.stock, args.currency, args.conversation_id)

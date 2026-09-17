@@ -119,6 +119,25 @@ class CloudAuthClient:
         except Exception:
             return False
 
+    def bind_session_agent(self, cid: str, agent_id: str, mid: Optional[str] = None) -> Tuple[bool, Dict[str, Any]]:
+        """向云端网关上报会话与代理商/渠道的归属绑定"""
+        if not self.is_cloud_enabled():
+            return True, {"local_only": True}
+
+        url = f"{self.base_url}/api/session/bind-agent"
+        payload = {
+            "cid": cid,
+            "agent_id": agent_id.strip(),
+            "mid": mid or ""
+        }
+        try:
+            r = self.session.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
+            if r.status_code == 200:
+                return True, r.json()
+            return False, {"status": r.status_code, "text": r.text}
+        except Exception as e:
+            return False, {"error": str(e)}
+
     def admin_ban(self, license_key: str, reason: str = "违规封禁") -> Tuple[bool, str]:
         """【管理员】远程在线封禁"""
         if not self.is_cloud_enabled():
