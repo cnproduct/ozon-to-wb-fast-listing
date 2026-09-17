@@ -8,7 +8,7 @@ import { Buffer } from 'node:buffer';
  */
 
 // Embedded default credentials
-const DEFAULT_ALIPAY_APP_ID = "2021007100687379";
+const DEFAULT_ALIPAY_APP_ID = "2021007100605449";
 const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = `MIIEugIAMA0GCSqGSIb3DQEBAQUABIIEpTCCBKECAAKCAQEAjSPTqDh+BumFzULXlAZKtnaxuG1+tIXX/JLtga4nzenBwcujEYAO7X525XgpNpsbB0lqsHmn8IzlbrEScFzewolpKF+xpcMXvrIW+Wf4f2W/mTkTuIBh1Dk0x7EP/Hw6VkX2E9qTtLjg9hxhf6eO9yCvNiYcVcsmQmgqbqG6dSmvKytVSnviVClMcV+yuk+e6dgZIsHf+KI2VWXZXgro2j6/uzI+uqlCSg+6zEnj+fgkYqXeyDxcugR+gn6Fl1hjvciIGVRkbFQf9C+vUndKkd96Sung7dBCiuly0ab9hV/mEiem2RB8VOouq5yvyS4XLecusOFfUisL3zN1OG3gLwIDAQABAoIBAGsF0rZJeA8HvqUB3XRqPPcVE/g0VxLONxRX2W8vPxGeAoVQQ+u+PhOKhN/F+QJmJN2mpxcAeP8n58XC0aeQVH4RMkMiJRP71qKMam1ekIkR/3JRXInYF9aUNliCBAxBqv7GeC1f3gb49eTJaokg5oCwMQwPZAcOT4mlcR+I1VmHTPfgycxWjT1tcDr0p7Xhnw1gA9A04soXyt3qflNRItMVMIc7dlhQnh3gBYsXF7Ze6CW2plqKkV7kb56XwLuxqGLEPlF8RKnmnzShfW8MEjxO7G9xDDAg/dduVy3Ay4lgq3JKtNdY0uQYZoVNh8e3KhT3wFYpyQwMaGalQFl+w0kCgYEAwFvDVfC3nlkVj3PpulzRmfsmLrkCYc+BNWQ+5W3JlkoMnNzd+K7Pdm3Kf6l/+jaCluCcZvhUaf4/+yjSdtcSkkpk5HsA/YjBFLd2FOUWIOLw33iedpAJpe78qhMl9J56fCai6IKw3pyCQi06nUhlx/djMs7j9oGJt8WOxek0RK0CgYEAu9X/BK0z1QTrAKbpjz4TwYvxHMRg6aZ/Ac8Wzpy854lBvetDtCN1vj9x5ujXnJ5ZrP2B4dfIcUk/ULOKuzvfvLV74EsXWdrgl8bsf7wnCwKCB4+csQBxABn8B3uc6axReI4t2T41u9n3SjcOZGI4JyznY63jQ87Yb6ZTSDMrd8sCgYB3y+5QJHVGgbaCu66xaMMEwbva10/beG7AwKjHG+Oy3HUUcB0xljUQTXoSnY5dVvtnWYUuP7PauwQ/uAGzD2i6gOhqvwwz2apd64/3nWB1pMBcfHM75aKMm9TxWrGFsfkYPruwUEw0p4YcDqz1bTQuICzAZMbmK3CIadnr+bualQKBgAkKKXW+KCpuTCkB32enYygDZh0uTkOwYZhisQRMgsLZ1jIfqmh29Gmtf/vO5OGCtWof4SpPSjQ5hDSMD3cnUIMycL3An2URpZFoX2VeVrqu6jcW8EGMdeO9XGW3yztrsZgNr6Mu3UMnIEGQGL84At/Px2sCqVdQExZ8eLGW1Na1AoGAYPJpodlLgcGD5srCgqiDm6WgmEJdj4UdxDNhixyatN3h+YOG1lJlLth2WHYwwP/A+5H7w1UgpmHQNt2U6PEB8Te6RG0Dhs1vOrPoqWfjcZUlC5HS0GaMGQUVE1qZyzIHWnmx2L3E1U7naJJsvwwvZ8zEqfOOG_SgQXBt2gCawVo=`;
 
 const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdOBuGCeyxVO+NCZuEiIVk+har+YaYrW7GzWS3AEPinZ5sb/2oqymr3Coa8JmcmW5sah59Fro3d8SJCkFroRniPOZn/HohxP+8hz9Zh0L5vIWUYPz+fDF675wxzg5TappT0gOgADio+8LtrbPaB5T7i0VgN2qfytDJkFgLvweMHJaLz/WoXNVhVAcOqwj611TX3KlckFebOQQbwoSW4juaPf4qYBRMPSGZxzMo3sNtwKUmd0YHk0wtsbIRacCvfCC0lIo9cjZ2XPLQj4tGRob/X9XUK6EjHpCUpPrRMm+jBlz5B9XoND6SEJy2xpVVnij1fe8ux6ZTkfTygH/Er1UwIDAQAB`;
@@ -251,7 +251,7 @@ function parseRsaPubKeyBigInt(pubKeyB64) {
  */
 function signAlipayParams(params, privKeyB64) {
   const keys = Object.keys(params)
-    .filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== undefined && params[k] !== null && params[k] !== '')
+    .filter(k => k !== 'sign' && params[k] !== undefined && params[k] !== null && params[k] !== '')
     .sort();
   const prestr = keys.map(k => `${k}=${params[k]}`).join('&');
 
