@@ -2519,14 +2519,15 @@ export default {
     async function resetAgentPwd(agentId, agentName) {
       var newPwd = prompt("请输入为代理商【" + agentName + "】设置的新密码 (至少 6 位):");
       if (!newPwd) return;
+      var newUsername = prompt("如需同时修改或补全登录用户名，请输入 (留空保持不变):", "");
       var res = await fetch("/admin/api/agent/reset-password?token=" + encodeURIComponent(adminToken), {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken },
-        body: JSON.stringify({ agent_id: agentId, new_password: newPwd })
+        body: JSON.stringify({ agent_id: agentId, new_username: newUsername ? newUsername.trim() : undefined, new_password: newPwd })
       });
       var data = await res.json();
       if (data.ok) {
-        alert("✅ 密码重置成功！最新密码: " + data.new_password);
+        alert("✅ 凭据更新成功！最新用户名: " + data.username + "，密码: " + data.new_password);
         loadDashboard();
       } else {
         alert("重置失败: " + data.error);
@@ -2680,7 +2681,7 @@ export default {
       const auth = await verifyAdminAuth(request, env, url);
       if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
       try {
-        const { agent_id, new_password } = await request.json();
+        const { agent_id, new_username, new_password } = await request.json();
         if (!agent_id || !new_password) {
           return new Response(JSON.stringify({ ok: false, error: "缺少 agent_id 或新密码" }), { status: 400, headers: corsHeaders });
         }
@@ -2689,11 +2690,22 @@ export default {
         if (!raw) return new Response(JSON.stringify({ ok: false, error: "未找到该代理商" }), { status: 404, headers: corsHeaders });
 
         const agent = JSON.parse(raw);
+        if (new_username && new_username.trim()) {
+          const oldUser = agent.username;
+          if (oldUser && oldUser.toLowerCase() !== new_username.trim().toLowerCase()) {
+            await env.WB_LICENSES.delete(`AGENT_USER:${oldUser.toLowerCase()}`);
+          }
+          agent.username = new_username.trim();
+          await env.WB_LICENSES.put(`AGENT_USER:${agent.username.toLowerCase()}`, agent.agent_id);
+        } else if (!agent.username) {
+          agent.username = `agent_${agent.agent_id.substring(4).toLowerCase()}`;
+          await env.WB_LICENSES.put(`AGENT_USER:${agent.username.toLowerCase()}`, agent.agent_id);
+        }
         agent.password = new_password.trim();
         agent.password_updated_at = new Date().toISOString();
         await env.WB_LICENSES.put(`AGENT:${agent_id}`, JSON.stringify(agent));
 
-        return new Response(JSON.stringify({ ok: true, agent_id, new_password: agent.password }), {
+        return new Response(JSON.stringify({ ok: true, agent_id, username: agent.username, new_password: agent.password }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } catch (e) {
