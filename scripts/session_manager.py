@@ -366,7 +366,6 @@ class SessionManager:
         registry = self._load_registry()
         session_entry = registry.get("sessions", {}).get(cid)
         if not session_entry or session_entry.get("status") != "AUTHORIZED":
-            cashier_url = f"https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={cid}"
             unauth_msg = (
                 f"\n"
                 f"================================================================================\n"
@@ -375,17 +374,16 @@ class SessionManager:
                 f"🆔 当前会话窗口 ID : {cid}\n"
                 f"🔒 授权状态         : 未授权 (UNAUTHORIZED)\n\n"
                 f"🚀 欢迎使用 Wildberries 极速智能搬家上架助手！\n\n"
-                f"👉 **只需 1 步极简开通（前 2 天 100% 免费试用）**：\n"
-                f"   在当前对话框直接回复「免费试用」，系统秒级为本窗口开通 48 小时全功能试用！\n"
-                f"   或直接点击在线收银台（🎁 前2天免费试用 / 🏆 单店月度商业授权 ¥600/月，自支付起30天有效）：\n"
-                f"   🔗 {cashier_url}\n\n"
-                f"⚡ **全自动智能流转闭环**：\n"
-                f"   1️⃣ 回复「免费试用」立即 0 元激活，或扫码支付 600 元开通月度商业授权；\n"
-                f"   2️⃣ 激活后系统秒级自动解锁当前窗口并提示绑定店铺；\n"
-                f"   3️⃣ 提示输入 `绑定店铺...` 完成锁定；\n"
-                f"   4️⃣ 发送 Ozon SKU 全自动全要素极速搬家上架！\n\n"
-                f"💡 提示：多店铺卖家可在新窗口输入第 2 个授权码绑定第 2 家店铺，多窗多店并发独立运行！\n"
-                f"📞 官方客服与授权咨询请联系管理员电话: 15959543210\n"
+                f"👉 **开通与激活 3 步指引 (线下直接结算)**：\n"
+                f"   1️⃣ 复制上方代码块中的专属「会话窗口 ID」；\n"
+                f"   2️⃣ 发送给您的官方专属代理商/客服人员，线下完成授权开通并获取专属店铺授权码；\n"
+                f"   3️⃣ 收到授权码后，在当前对话框直接输入：`激活授权 <您的授权码>` 即可秒级激活！\n\n"
+                f"⚡ **激活后全自动流程**：\n"
+                f"   1️⃣ 激活后系统秒级自动解锁当前窗口并提示绑定店铺；\n"
+                f"   2️⃣ 提示输入 `绑定店铺...` 完成 1:1 专属互斥锁定；\n"
+                f"   3️⃣ 发送 Ozon SKU 全自动全要素极速搬家上架！\n\n"
+                f"🛡️ 1 店 1 码 1:1 独立隔离：多店铺卖家可在新窗口输入第 2 个授权码绑定第 2 家店铺，多窗多店并发独立运行！\n"
+                f"📞 官方客服与授权咨询电话: 15959543210\n"
                 f"================================================================================\n"
             )
             return False, unauth_msg, {}
@@ -677,17 +675,17 @@ class SessionManager:
             ("激活码" in text or "授权码" in text or "收银台" in text or "购买" in text) 
             and not text.startswith("LIC-") and not text.startswith("激活授权") and not text.startswith("激活")
         ):
-            cashier_url_trial = f"https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={cid}&plan=free_trial_2days"
-            cashier_url_monthly = f"https://wb-auth-gateway.cnproduct.workers.dev/pay?cid={cid}&plan=single_store"
-            qr_url_monthly = f"https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https%3A%2F%2Fwb-auth-gateway.cnproduct.workers.dev%2Fpay%3Fcid%3D{cid}%26plan%3Dsingle_store"
             return (
-                f"🛒 **Wildberries 极速智能上架助手 · 商业授权与免费试用**\n\n"
+                f"🛒 **Wildberries 极速智能上架助手 · 商业授权专属开通**\n\n"
                 f"🆔 **当前窗口专属 ID (Conversation ID)**:\n"
                 f"`{cid}`\n\n"
-                f"| 📋 方案与收费 | 🔗 电脑端在线开通 / 支付 | 📱 手机扫码支付 (约 3cm × 3cm) | ⚡ 全自动 4 步流转 |\n"
-                f"| :--- | :--- | :---: | :--- |\n"
-                f"| 🎁 **前2天免费试用版**<br>💰 **¥0 免费** / 店铺 / 2天<br>⏳ 48小时全功能免费体验<br>🛡️ 1 店 1 码 1:1 独立隔离 | **直接回复「`免费试用`」秒级开通**<br>或 [👉 打开收银台 0元开通]({cashier_url_trial}) | <div style=\"width:110px;max-width:110px;margin:0 auto;\"><img src=\"{qr_url_monthly}\" width=\"110\" height=\"110\" style=\"width:110px;height:110px;display:block;\" alt=\"支付宝扫码支付\" /></div> | 1️⃣ 发送「`免费试用`」立即 0 元激活<br>2️⃣ 或扫码/点击链接支付 600 元开通月卡<br>3️⃣ 提示输入 `绑定店铺...` 完成锁定<br>4️⃣ 发送 Ozon SKU 全自动搬家上架 |\n"
-                f"| 🏆 **单店月度商业授权**<br>💰 **¥600** / 店铺 / 月<br>📅 自支付日起 30 天有效<br>🛡️ 赠 1 次安全换店配额 | [👉 打开月度收银台 (¥600)]({cashier_url_monthly})<br>*(正式上架推荐)* | *(右图为月度 600 元扫码码)* | 试用满意随时开通或续费月度授权 |\n"
+                f"📋 **商业授权开通与激活 3 步指引 (线下结算)**：\n"
+                f"1️⃣ **复制窗口 ID**：请复制上方代码块中的「当前窗口专属 ID」；\n"
+                f"2️⃣ **联系代理商开通**：将该 ID 发送给您的专属代理商/客服人员，线下完成授权开通并获取专属店铺授权码；\n"
+                f"3️⃣ **输入指令激活**：收到代理商发来的授权码后，在本聊天框直接发送以下指令即可立即激活：\n"
+                f"   `激活授权 <代理商提供的授权码>`\n\n"
+                f"🛡️ **1 店 1 码 1:1 独立隔离**：每个会话窗口独立绑定一家店铺，换设备/换电脑不受影响，彻底杜绝商品串店与库存错乱隐患。\n"
+                f"📞 官方客服与授权咨询电话: 15959543210\n"
             )
 
         # 0.1 支付状态核验与自动激活
