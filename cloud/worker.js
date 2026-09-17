@@ -1106,6 +1106,37 @@ export default {
             } catch (e) {}
           }
 
+          const isAgentRecharge = extra.type === "AGENT_RECHARGE" || (orderInfo && orderInfo.type === "AGENT_RECHARGE");
+
+          if (isAgentRecharge) {
+            const agentId = extra.agent_id || (orderInfo && orderInfo.agent_id);
+            if (agentId && env.WB_LICENSES) {
+              const agentRaw = await env.WB_LICENSES.get(`AGENT:${agentId}`);
+              if (agentRaw) {
+                const ag = JSON.parse(agentRaw);
+                const addAmount = Number(totalAmount) || Number(extra.amount) || Number(orderInfo && orderInfo.amount) || 0;
+                ag.balance = Number((Number(ag.balance || 0) + addAmount).toFixed(2));
+                ag.last_recharged_at = new Date().toISOString();
+                await env.WB_LICENSES.put(`AGENT:${agentId}`, JSON.stringify(ag));
+
+                // Update order status in KV
+                const updatedOrder = {
+                  ...(orderInfo || {}),
+                  order_id: outTradeNo,
+                  type: "AGENT_RECHARGE",
+                  agent_id: agentId,
+                  agent_name: ag.name,
+                  status: "PAID",
+                  trade_no: tradeNo,
+                  amount: totalAmount,
+                  paid_at: new Date().toISOString()
+                };
+                await env.WB_LICENSES.put(`ORD:${outTradeNo}`, JSON.stringify(updatedOrder), { expirationTtl: 86400 * 30 });
+              }
+            }
+            return new Response("success", { status: 200, headers: { "Content-Type": "text/plain" } });
+          }
+
           const mid = extra.mid || (orderInfo && orderInfo.machine_id) || "MID-UNKNOWN";
           const customerName = extra.name || (orderInfo && orderInfo.customer_name) || "支付宝客户";
           const storeName = extra.store || (orderInfo && orderInfo.store_name) || "Wildberries店铺";
@@ -1395,8 +1426,15 @@ export default {
     .agent-tag { background: rgba(99,102,241,0.2); color: #818cf8; padding: 6px 14px; border-radius: 9999px; font-size: 13px; font-weight: 600; border: 1px solid rgba(99,102,241,0.3); }
     .btn-sm { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #334155; color: #fff; transition: 0.15s; }
     .btn-sm:hover { background: #475569; }
+    .btn-recharge { background: #059669; color: #fff; border: none; font-weight: 700; cursor: pointer; }
+    .btn-recharge:hover { background: #047857; }
     .btn-logout { background: rgba(239,68,68,0.2); color: #f87171; border-color: rgba(239,68,68,0.4); }
     .btn-logout:hover { background: rgba(239,68,68,0.3); }
+
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .preset-btn { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 10px; text-align: center; cursor: pointer; transition: 0.15s; }
+    .preset-btn:hover { border-color: #6366f1; background: #1e293b; }
+    .preset-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 0 1px #10b981; }
 
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
     @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
@@ -1465,6 +1503,7 @@ export default {
         </div>
         <div class="agent-header-right">
           <div class="agent-tag" id="agent-tag-name">🏢 代理商加载中...</div>
+          <button class="btn-sm btn-recharge" onclick="openRechargeModal()">💳 扫码充值</button>
           <button class="btn-sm" onclick="openChangePwdModal()">🔑 修改密码</button>
           <button class="btn-sm btn-logout" onclick="doLogout()">🚪 退出登录</button>
         </div>
@@ -1472,8 +1511,13 @@ export default {
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">💰 账户预存可用余额</div>
-          <div class="stat-num" id="stat-balance" style="color: #34d399;">¥0.00</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="stat-label">💰 账户预存可用余额</div>
+              <div class="stat-num" id="stat-balance" style="color: #34d399;">¥0.00</div>
+            </div>
+            <button class="btn-sm btn-recharge" onclick="openRechargeModal()" style="margin-top:2px;">💳 充值</button>
+          </div>
           <div class="stat-desc">每发一家店铺按当前阶梯出厂价扣除</div>
         </div>
         <div class="stat-card">
@@ -1587,10 +1631,52 @@ export default {
     </div>
   </div>
 
+  <div id="recharge-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="color:#fff;margin:0;">💳 代理商预存额度充值</h3>
+        <span style="color:#94a3b8;cursor:pointer;font-size:20px;line-height:1;" onclick="closeRechargeModal()">✕</span>
+      </div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:16px;">
+        选择预存档位或输入自定义金额，扫码付款后<strong>资金直达总管理员支付宝，预存余额秒级自动到账</strong>。
+      </div>
+      
+      <div class="preset-grid">
+        <div class="preset-btn active" data-amt="2400" onclick="selectPreset(this, 2400)">
+          <div style="font-weight:700;font-size:16px;color:#fff;">¥2,400</div>
+          <div style="font-size:11px;color:#94a3b8;">可发 10 店 (¥240/店)</div>
+        </div>
+        <div class="preset-btn" data-amt="4800" onclick="selectPreset(this, 4800)">
+          <div style="font-weight:700;font-size:16px;color:#fff;">¥4,800</div>
+          <div style="font-size:11px;color:#94a3b8;">可发 20 店 (推荐)</div>
+        </div>
+        <div class="preset-btn" data-amt="12000" onclick="selectPreset(this, 12000)">
+          <div style="font-weight:700;font-size:16px;color:#fff;">¥12,000</div>
+          <div style="font-size:11px;color:#94a3b8;">可发 50 店 (畅销)</div>
+        </div>
+        <div class="preset-btn" data-amt="18000" onclick="selectPreset(this, 18000)">
+          <div style="font-weight:700;font-size:16px;color:#34d399;">¥18,000</div>
+          <div style="font-size:11px;color:#34d399;">冲 100 店特惠档</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>自定义充值金额 (元)</label>
+        <input type="number" id="custom-amt-input" class="input-box" value="2400" min="1" oninput="onCustomAmtChange()" />
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:20px;">
+        <button id="btn-do-recharge" class="btn-primary" style="flex:1;background:#059669;" onclick="doRecharge()">前往支付宝安全支付 / 扫码</button>
+        <button class="btn-sm" style="flex:0.35;" onclick="closeRechargeModal()">取消</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     var currentToken = "${queryToken}" || localStorage.getItem("agent_token") || "";
     var currentAgent = null;
     var generatedKey = "";
+    var selectedRechargeAmt = 2400;
 
     function copyText(str) {
       if (!str) return;
@@ -1608,7 +1694,14 @@ export default {
     async function init() {
       if (currentToken) {
         var ok = await loadDashboard();
-        if (ok) return;
+        if (ok) {
+          var urlParams = new URLSearchParams(window.location.search);
+          var rechId = urlParams.get('recharge_order_id');
+          if (rechId) {
+            pollRechargeStatus(rechId, 0);
+          }
+          return;
+        }
       }
       showLogin();
     }
@@ -1796,6 +1889,83 @@ export default {
       }
     }
 
+    function openRechargeModal() {
+      document.getElementById('recharge-modal').style.display = 'flex';
+      selectPreset(document.querySelector('.preset-btn[data-amt="2400"]'), 2400);
+    }
+    function closeRechargeModal() {
+      document.getElementById('recharge-modal').style.display = 'none';
+    }
+    function selectPreset(el, amt) {
+      selectedRechargeAmt = amt;
+      document.querySelectorAll('.preset-btn').forEach(function(b) { b.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      document.getElementById('custom-amt-input').value = amt;
+    }
+    function onCustomAmtChange() {
+      var val = parseFloat(document.getElementById('custom-amt-input').value) || 0;
+      selectedRechargeAmt = val;
+      document.querySelectorAll('.preset-btn').forEach(function(b) {
+        if (parseFloat(b.dataset.amt) === val) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+
+    async function doRecharge() {
+      var amt = parseFloat(document.getElementById('custom-amt-input').value) || selectedRechargeAmt;
+      if (isNaN(amt) || amt <= 0) {
+        alert('请输入有效的充值金额！');
+        return;
+      }
+      var btn = document.getElementById('btn-do-recharge');
+      btn.disabled = true;
+      btn.innerText = '正在生成支付宝收银台...';
+
+      try {
+        var res = await fetch('/api/agent/create-recharge-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: currentToken, amount: amt })
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          alert('创建充值订单失败: ' + (data.error || '未知错误'));
+          btn.disabled = false;
+          btn.innerText = '前往支付宝安全支付 / 扫码';
+          return;
+        }
+
+        window.open(data.pay_url, '_blank');
+        btn.innerText = '正在等待支付宝支付完成...';
+        pollRechargeStatus(data.order_id, amt);
+      } catch (e) {
+        alert('请求异常: ' + e.message);
+        btn.disabled = false;
+        btn.innerText = '前往支付宝安全支付 / 扫码';
+      }
+    }
+
+    async function pollRechargeStatus(orderId, amt) {
+      try {
+        var res = await fetch('/api/agent/recharge-status?order_id=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(currentToken));
+        var data = await res.json();
+        if (data.ok && data.status === 'PAID') {
+          alert('🎉 支付宝充值到账成功！\\n充值金额：¥' + (amt ? amt.toFixed(2) : (data.amount || '')) + '\\n当前最新账户余额：¥' + (data.new_balance !== null ? Number(data.new_balance).toFixed(2) : ''));
+          closeRechargeModal();
+          var btn = document.getElementById('btn-do-recharge');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = '前往支付宝安全支付 / 扫码';
+          }
+          loadDashboard();
+        } else {
+          setTimeout(function() { pollRechargeStatus(orderId, amt); }, 2500);
+        }
+      } catch (e) {
+        setTimeout(function() { pollRechargeStatus(orderId, amt); }, 3500);
+      }
+    }
+
     function doLogout() {
       localStorage.removeItem("agent_token");
       currentToken = "";
@@ -1888,6 +2058,121 @@ export default {
       } catch (err) {
         return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: corsHeaders });
       }
+    }
+
+    // 5.6 Agent Recharge Order API: POST /api/agent/create-recharge-order
+    if (path === "/api/agent/create-recharge-order" && method === "POST") {
+      try {
+        const { token, amount } = await request.json();
+        if (!token) return new Response(JSON.stringify({ ok: false, error: "缺少代理商凭证 Token" }), { status: 401, headers: corsHeaders });
+        
+        const numAmount = parseFloat(amount);
+        if (isNaN(numAmount) || numAmount <= 0) {
+          return new Response(JSON.stringify({ ok: false, error: "充值金额必须大于 0 元" }), { status: 400, headers: corsHeaders });
+        }
+
+        const found = await findAgentByToken(token);
+        if (!found) {
+          return new Response(JSON.stringify({ ok: false, error: "无效的代理商凭证或登录已过期" }), { status: 403, headers: corsHeaders });
+        }
+        const agent = found.data;
+
+        const orderId = `ORD_AGTRECH_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        const amountStr = numAmount.toFixed(2);
+        const returnUrl = `${url.origin}/agent?recharge_order_id=${orderId}`;
+        const notifyUrl = `${url.origin}/api/pay/alipay-callback`;
+
+        const passbackObj = {
+          type: "AGENT_RECHARGE",
+          agent_id: agent.agent_id,
+          amount: amountStr
+        };
+
+        const bizContent = {
+          out_trade_no: orderId,
+          total_amount: amountStr,
+          subject: `Wildberries代理商额度充值-${agent.name}`,
+          product_code: "FAST_INSTANT_TRADE_PAY",
+          body: JSON.stringify(passbackObj),
+          passback_params: encodeURIComponent(JSON.stringify(passbackObj))
+        };
+
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const nowFormat = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+        const params = {
+          app_id: alipayAppId,
+          method: "alipay.trade.page.pay",
+          format: "JSON",
+          return_url: returnUrl,
+          notify_url: notifyUrl,
+          charset: "utf-8",
+          sign_type: "RSA2",
+          timestamp: nowFormat,
+          version: "1.0",
+          biz_content: JSON.stringify(bizContent)
+        };
+
+        const sign = signAlipayParams(params, alipayPrivKey);
+        params.sign = sign;
+
+        const queryStr = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
+        const payUrl = `https://openapi.alipay.com/gateway.do?${queryStr}`;
+
+        // Save Pending Order into KV
+        if (env.WB_LICENSES) {
+          const orderRecord = {
+            order_id: orderId,
+            type: "AGENT_RECHARGE",
+            status: "PENDING",
+            agent_id: agent.agent_id,
+            agent_name: agent.name,
+            amount: amountStr,
+            plan_name: `代理商充值 (¥${amountStr})`,
+            created_at: nowFormat
+          };
+          await env.WB_LICENSES.put(`ORD:${orderId}`, JSON.stringify(orderRecord), { expirationTtl: 86400 * 7 });
+        }
+
+        return new Response(JSON.stringify({
+          ok: true,
+          order_id: orderId,
+          amount: amountStr,
+          pay_url: payUrl
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // 5.7 Agent Recharge Status Query API: GET /api/agent/recharge-status
+    if (path === "/api/agent/recharge-status" && method === "GET") {
+      const orderId = url.searchParams.get("order_id");
+      const token = url.searchParams.get("token");
+      if (!orderId || !env.WB_LICENSES) {
+        return new Response(JSON.stringify({ ok: false, error: "Missing order_id" }), { status: 400, headers: corsHeaders });
+      }
+
+      const ordJson = await env.WB_LICENSES.get(`ORD:${orderId}`);
+      if (!ordJson) {
+        return new Response(JSON.stringify({ ok: false, status: "NOT_FOUND" }), { status: 404, headers: corsHeaders });
+      }
+
+      const ord = JSON.parse(ordJson);
+      let newBalance = null;
+      if (token) {
+        const found = await findAgentByToken(token);
+        if (found) newBalance = found.data.balance;
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        status: ord.status,
+        amount: ord.amount,
+        new_balance: newBalance,
+        paid_at: ord.paid_at || ""
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // ==========================================
