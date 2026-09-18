@@ -8,10 +8,10 @@ import { Buffer } from 'node:buffer';
  */
 
 // Embedded default credentials
-const DEFAULT_ALIPAY_APP_ID = "2021007100605449";
-const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = `MIIEugIAMA0GCSqGSIb3DQEBAQUABIIEpTCCBKECAAKCAQEAjSPTqDh+BumFzULXlAZKtnaxuG1+tIXX/JLtga4nzenBwcujEYAO7X525XgpNpsbB0lqsHmn8IzlbrEScFzewolpKF+xpcMXvrIW+Wf4f2W/mTkTuIBh1Dk0x7EP/Hw6VkX2E9qTtLjg9hxhf6eO9yCvNiYcVcsmQmgqbqG6dSmvKytVSnviVClMcV+yuk+e6dgZIsHf+KI2VWXZXgro2j6/uzI+uqlCSg+6zEnj+fgkYqXeyDxcugR+gn6Fl1hjvciIGVRkbFQf9C+vUndKkd96Sung7dBCiuly0ab9hV/mEiem2RB8VOouq5yvyS4XLecusOFfUisL3zN1OG3gLwIDAQABAoIBAGsF0rZJeA8HvqUB3XRqPPcVE/g0VxLONxRX2W8vPxGeAoVQQ+u+PhOKhN/F+QJmJN2mpxcAeP8n58XC0aeQVH4RMkMiJRP71qKMam1ekIkR/3JRXInYF9aUNliCBAxBqv7GeC1f3gb49eTJaokg5oCwMQwPZAcOT4mlcR+I1VmHTPfgycxWjT1tcDr0p7Xhnw1gA9A04soXyt3qflNRItMVMIc7dlhQnh3gBYsXF7Ze6CW2plqKkV7kb56XwLuxqGLEPlF8RKnmnzShfW8MEjxO7G9xDDAg/dduVy3Ay4lgq3JKtNdY0uQYZoVNh8e3KhT3wFYpyQwMaGalQFl+w0kCgYEAwFvDVfC3nlkVj3PpulzRmfsmLrkCYc+BNWQ+5W3JlkoMnNzd+K7Pdm3Kf6l/+jaCluCcZvhUaf4/+yjSdtcSkkpk5HsA/YjBFLd2FOUWIOLw33iedpAJpe78qhMl9J56fCai6IKw3pyCQi06nUhlx/djMs7j9oGJt8WOxek0RK0CgYEAu9X/BK0z1QTrAKbpjz4TwYvxHMRg6aZ/Ac8Wzpy854lBvetDtCN1vj9x5ujXnJ5ZrP2B4dfIcUk/ULOKuzvfvLV74EsXWdrgl8bsf7wnCwKCB4+csQBxABn8B3uc6axReI4t2T41u9n3SjcOZGI4JyznY63jQ87Yb6ZTSDMrd8sCgYB3y+5QJHVGgbaCu66xaMMEwbva10/beG7AwKjHG+Oy3HUUcB0xljUQTXoSnY5dVvtnWYUuP7PauwQ/uAGzD2i6gOhqvwwz2apd64/3nWB1pMBcfHM75aKMm9TxWrGFsfkYPruwUEw0p4YcDqz1bTQuICzAZMbmK3CIadnr+bualQKBgAkKKXW+KCpuTCkB32enYygDZh0uTkOwYZhisQRMgsLZ1jIfqmh29Gmtf/vO5OGCtWof4SpPSjQ5hDSMD3cnUIMycL3An2URpZFoX2VeVrqu6jcW8EGMdeO9XGW3yztrsZgNr6Mu3UMnIEGQGL84At/Px2sCqVdQExZ8eLGW1Na1AoGAYPJpodlLgcGD5srCgqiDm6WgmEJdj4UdxDNhixyatN3h+YOG1lJlLth2WHYwwP/A+5H7w1UgpmHQNt2U6PEB8Te6RG0Dhs1vOrPoqWfjcZUlC5HS0GaMGQUVE1qZyzIHWnmx2L3E1U7naJJsvwwvZ8zEqfOOG_SgQXBt2gCawVo=`;
+const DEFAULT_ALIPAY_APP_ID = "2021007100687379";
+const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = `MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5ODrXoFyqJ+n66Ot2/h4YYjhKHZLPzCRwxziLmzeecVR0qyFBg7r0aMmc7tMuc0xYpK3/99o919H4vyUGsskcjle4eDGSXdf+owcWSek8wSdiYDck6SrVkfbl2LVrkkvdoUP8MlWU4PZqhVRPCxkP9lExLrkThbSLW8CxNyBbFS9zenV5qK60n8XSvzGiZ9rjZw+Fv8lrmNweVRGg9fm+RH6hkRKu3NjY10DBoD4p6QKPtV7cRwE0nouKeL2i3hMXF5n7JoKxRcW3vVtiYkasG6PMYWlp571Tb6nxgbueDNKHaK5IfMmGNU/eZTNGcDxQaQ03Hq7ZZ6H64l850KKtAgMBAAECggEAZQqvzwHEi27Kzf5Stc9bS6IJYyVO+d074+pKhp5ecSkSEbNpqPvb+YlQszP2MNjlRVZRNdpYTHR4L2LXKBhQbiuY3yFyqY5YTqlRLG+VtXcJrTkf3Br3Kxs9vZXDIrPkfzuCgwpSda1jwCiMHbLIMVUGZfY/MM839u5O6F5SYFz337941fy3WWl6D0RfjQoZpISMKeDd3ab3c/NloFRQ3Lo+Np7bMYdMjNxHrIKhTD7pyNW5+nTcr/imR8nnMeiPSxwBaSZwAxKEBguS508C/UUWqlrC3PG47IlyWlZqIW35RHEOba6nLS6mLueR4QglPoGJBBR8UWEMksvK8NcyYQKBgQDs8aCb+rahDNQ77ws1R86H9umpy7s6S/mGoe+D+QAsMftu+N9yNfI4hfn5ejYuKn12Xj9cDW0X43cDwHVUAFHU6L/AzkymgDK/d9LY+mRoPjdD4vek29alM8Fg0QTCUHhz5tfUYkcTOia2ycV4bz9r6W5zGhXRZAOoetxz5JiLIwKBgQDIHaqzelK1rm8dj59B8XjL2/Km3odW0w6ZZz0ZkrGvLiV3kKfgKzjjqMifuBMQhXZGFHqhe2W/Hyo8OqGjECIH2Zjj2a0rsL28WZT6c6nunB6L6NSBw7VmCrK0VaRLrYdY0wQVxQGbSgKord+YaK0hsnzA6VNUrkq6LJ2fSNSf7wKBgQCNONLGRN8XDENu2WHvxrWlOhg4uJIGBARcJyZPnVhp/vxiPvlG5DpTUB8Wf63NREv1AeV3oxTzmQJ1fP8xKuObJ4Iqk4sB7gTRM8S6yDqSGwrrblq1qsW7Pyax4sKYYkf4pIzdLBo6rn0mkwocZwoA8md/OPvqCldX0qqUdJoqywKBgBnak1o6vILSdXKZQpcPbm7QDMp4R331KJazGta5+BDM4nRPERFKJEBtZvYTnwrsYzpsnOdN/PgzO46qeIWLqQngl/sf/Vp+rBSwcinlVZgJPX0P6JyXP1FeonXf9qj8U1crdASn/iwk5LEMPa4AIBYRbEK0Ilr3ZZol93tDuoyrAoGBAOHT5RuinoAOEF9b4QbbySA56xKvgzT/i5dGpkVghmVtMDyEYxoDI/ymyt9UQ7inPEPdl9RnhdofQN2wrLKXJ2Z+pfeCMBCPnkTwfERVH1tQ3nJh/LVCbDYAPleSlM7jw7PqswIQ6JJS/FeRI7d98GATKUIw9+MDieh+iln01kJY`;
 
-const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdOBuGCeyxVO+NCZuEiIVk+har+YaYrW7GzWS3AEPinZ5sb/2oqymr3Coa8JmcmW5sah59Fro3d8SJCkFroRniPOZn/HohxP+8hz9Zh0L5vIWUYPz+fDF675wxzg5TappT0gOgADio+8LtrbPaB5T7i0VgN2qfytDJkFgLvweMHJaLz/WoXNVhVAcOqwj611TX3KlckFebOQQbwoSW4juaPf4qYBRMPSGZxzMo3sNtwKUmd0YHk0wtsbIRacCvfCC0lIo9cjZ2XPLQj4tGRob/X9XUK6EjHpCUpPrRMm+jBlz5B9XoND6SEJy2xpVVnij1fe8ux6ZTkfTygH/Er1UwIDAQAB`;
+const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnF7nS7FQQ5Y6rDPuBwtdipiE1FeiCUbPpAp7+ioK9fmQj0CELSQbaPNjfrhC5/ddg+aE3q40Ys6/PGc/SdOm3qfb24Otritk6oD7mu0rmM1VrV4iLbaTCM+12R0GIbDq/6RWn3xrG645nZEg56pmzWeVVNVBQRxElaBQXqv+rWZtQK6gd05GFzUrnQMvKOmxQ3wM1JQzRpbjVyYZdeqZO9z+jjzXEsJNRE+EtmJo6RR31grnxGwAma4Jx7/BtHCUlwXs2L0Oaw9rFYjsravHTrpuBnSPdu0xtLPruv2fLOodI0SVEWYrjes04N6j9ga0rSeo1FJbTj0oIc6M6NUMiQIDAQAB`;
 
 const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
 
@@ -255,6 +255,27 @@ function signAlipayParams(params, privKeyB64) {
     .sort();
   const prestr = keys.map(k => `${k}=${params[k]}`).join('&');
 
+  const cleanB64 = privKeyB64.replace(/-----BEGIN[A-Z\s]+-----/g, '').replace(/-----END[A-Z\s]+-----/g, '').replace(/[\r\n\s]+/g, '');
+  const der = Buffer.from(cleanB64, 'base64');
+
+  let privKey = null;
+  try {
+    privKey = crypto.createPrivateKey({ key: der, format: 'der', type: 'pkcs8' });
+  } catch (e) {
+    try {
+      privKey = crypto.createPrivateKey({ key: der, format: 'der', type: 'pkcs1' });
+    } catch (e2) {
+      privKey = null;
+    }
+  }
+
+  if (privKey) {
+    const signer = crypto.createSign('RSA-SHA256');
+    signer.update(Buffer.from(prestr, 'utf8'));
+    return signer.sign(privKey, 'base64');
+  }
+
+  // Fallback to manual BigInt RSA sign
   const { n, d } = parseRsaKeyBigInt(privKeyB64);
   const hash = crypto.createHash('sha256').update(Buffer.from(prestr, 'utf8')).digest();
   const digestInfo = Buffer.concat([SHA256_DIGEST_INFO_PREFIX, hash]);
@@ -281,27 +302,38 @@ function verifyAlipayNotify(params, pubKeyB64) {
     .sort();
   const prestr = keys.map(k => `${k}=${params[k]}`).join('&');
 
+  const cleanB64 = pubKeyB64.replace(/-----BEGIN[A-Z\s]+-----/g, '').replace(/-----END[A-Z\s]+-----/g, '').replace(/[\r\n\s]+/g, '');
+  const der = Buffer.from(cleanB64, 'base64');
+
   try {
-    const { n, e } = parseRsaPubKeyBigInt(pubKeyB64);
-    const hash = crypto.createHash('sha256').update(Buffer.from(prestr, 'utf8')).digest();
-    const digestInfo = Buffer.concat([SHA256_DIGEST_INFO_PREFIX, hash]);
-    const psLen = 256 - 3 - digestInfo.length;
-    const ps = Buffer.alloc(psLen, 0xff);
-    const expectedEm = Buffer.concat([Buffer.from([0x00, 0x01]), ps, Buffer.from([0x00]), digestInfo]);
-
-    const sBn = BigInt('0x' + Buffer.from(sign, 'base64').toString('hex'));
-    const mBn = modPow(sBn, e, n);
-
-    let mHex = mBn.toString(16);
-    while (mHex.length < 512) mHex = '0' + mHex;
-    const actualEm = Buffer.from(mHex, 'hex');
-
-    return expectedEm.equals(actualEm);
+    const pubKey = crypto.createPublicKey({ key: der, format: 'der', type: 'spki' });
+    const verify = crypto.createVerify('RSA-SHA256');
+    verify.update(Buffer.from(prestr, 'utf8'));
+    return verify.verify(pubKey, Buffer.from(sign, 'base64'));
   } catch (err) {
-    console.error('Alipay verify error:', err);
-    return false;
+    try {
+      const { n, e } = parseRsaPubKeyBigInt(pubKeyB64);
+      const hash = crypto.createHash('sha256').update(Buffer.from(prestr, 'utf8')).digest();
+      const digestInfo = Buffer.concat([SHA256_DIGEST_INFO_PREFIX, hash]);
+      const psLen = 256 - 3 - digestInfo.length;
+      const ps = Buffer.alloc(psLen, 0xff);
+      const expectedEm = Buffer.concat([Buffer.from([0x00, 0x01]), ps, Buffer.from([0x00]), digestInfo]);
+
+      const sBn = BigInt('0x' + Buffer.from(sign, 'base64').toString('hex'));
+      const mBn = modPow(sBn, e, n);
+
+      let mHex = mBn.toString(16);
+      while (mHex.length < 512) mHex = '0' + mHex;
+      const actualEm = Buffer.from(mHex, 'hex');
+
+      return expectedEm.equals(actualEm);
+    } catch (e2) {
+      console.error('Alipay verify error:', e2);
+      return false;
+    }
   }
 }
+
 
 
 function getLicenseKvKey(licenseKey) {
