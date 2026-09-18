@@ -10,6 +10,7 @@
 - `GET /api/admin/summary`：管理员统计 API。
 - `POST /api/admin/tokens`：管理员生成一次性显示的上传令牌；每台用户设备单独签发。
 - `POST /api/admin/tokens/revoke`：管理员撤销指定令牌。
+- `POST /api/admin/lessons/delete`：管理员按内容指纹永久删除误收的候选。
 
 令牌只在 Cloudflare Secrets 和各设备本机私有配置中保存；D1 中只存上传令牌哈希和去标识化经验。D1 与正式授权网关完全分离。
 

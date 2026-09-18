@@ -163,6 +163,13 @@ async function adminApi(request, env, pathname) {
     await env.DB.prepare('UPDATE ingest_tokens SET revoked_at = ? WHERE id = ?').bind(new Date().toISOString(), body.id).run();
     return json({ok: true});
   }
+  if (pathname === '/api/admin/lessons/delete' && request.method === 'POST') {
+    let body;
+    try { body = JSON.parse(await limitedText(request, 1024)); } catch { return json({error: 'invalid_json'}, 400); }
+    if (typeof body?.fingerprint !== 'string' || !/^[0-9a-f]{64}$/.test(body.fingerprint)) return json({error: 'invalid_fingerprint'}, 400);
+    const result = await env.DB.prepare('DELETE FROM lessons WHERE fingerprint = ?').bind(body.fingerprint).run();
+    return json({deleted: result.meta?.changes || 0});
+  }
   return json({error: 'not_found'}, 404);
 }
 
