@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
+import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from cloud_auth import CloudAuthClient
@@ -73,6 +74,18 @@ class TrialTests(unittest.TestCase):
         ok, _, _ = self.manager.issue_free_trial("default-session")
         self.assertFalse(ok)
 
+    def test_existing_paid_session_is_blocked_after_cloud_expiry(self):
+        registry = self.manager._load_registry()
+        registry["sessions"]["paid-conversation"] = {
+            "status": "AUTHORIZED", "license_key": "paid-license"
+        }
+        self.manager._save_registry(registry)
+        self.cloud.is_cloud_enabled.return_value = True
+        self.cloud.verify_cloud_license.return_value = (False, "EXPIRED", {})
+        ok, message, _ = self.manager.verify_session_authorized("paid-conversation")
+        self.assertFalse(ok)
+        self.assertIn("EXPIRED", message)
+
 
 class CloudTrialClientTests(unittest.TestCase):
     def test_claim_and_online_verification_routes(self):
@@ -88,6 +101,20 @@ class CloudTrialClientTests(unittest.TestCase):
         self.assertEqual(client.session.post.call_args.kwargs["json"]["mid"], "existing-cid")
         self.assertTrue(client.verify_trial_license("code", "existing-cid", data["gateway"]))
         self.assertEqual(client.session.get.call_args.kwargs["params"]["mid"], "existing-cid")
+
+    def test_paid_cloud_expiry_and_network_failure_never_authorize(self):
+        client = CloudAuthClient(base_url="https://trial.example.test")
+        client.session.get = Mock(return_value=Mock(
+            status_code=403, json=lambda: {"valid": False, "error": "License has expired"}
+        ))
+        valid, status, _ = client.verify_cloud_license("paid-code", "machine-1")
+        self.assertFalse(valid)
+        self.assertEqual(status, "EXPIRED")
+        self.assertEqual(client.session.get.call_args.kwargs["params"], {"key": "paid-code", "mid": "machine-1"})
+        client.session.get.side_effect = requests.Timeout()
+        valid, status, _ = client.verify_cloud_license("paid-code", "machine-1")
+        self.assertFalse(valid)
+        self.assertEqual(status, "CLOUD_UNAVAILABLE")
 
 
 if __name__ == "__main__":

@@ -302,10 +302,10 @@ class SessionManager:
                     machine_id=lic_info.get("machine_id", get_machine_id()),
                     conversation_id=cid
                 )
-                if not c_ok and c_status == "BANNED":
-                    return False, f"❌ 授权码已被管理员远程在线封禁！\n封禁原因: {c_data.get('reason', '违规使用')}\n如有疑问请联系系统管理员。", {}
+                if not c_ok:
+                    return False, f"❌ 云端授权核验未通过：{c_status}。请检查授权状态或网络连接。", {}
         except Exception:
-            pass
+            return False, "❌ 云端授权核验异常，请稍后重试。", {}
 
         # 记录会话激活
         sessions = registry.setdefault("sessions", {})
@@ -464,24 +464,14 @@ class SessionManager:
                     machine_id=session_entry.get("machine_id", get_machine_id()),
                     conversation_id=cid
                 )
-                if not c_ok and c_status == "BANNED":
-                    session_entry["status"] = "UNAUTHORIZED"
-                    session_entry["ban_reason"] = c_data.get("reason", "管理员云端远程封禁")
-                    self._save_registry(registry)
-                    ban_msg = (
-                        f"\n"
-                        f"================================================================================\n"
-                        f"🚫【云端远程封禁阻断】此授权码已被管理员在线封禁！\n"
-                        f"================================================================================\n"
-                        f"🔑 授权码   : {lic_key}\n"
-                        f"🛑 封禁原因 : {session_entry.get('ban_reason')}\n"
-                        f"⏰ 拦截时间 : {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                        f"⚠️ 当前会话权限已被瞬间锁死。如有疑问，请联系系统管理员处理。\n"
-                        f"================================================================================\n"
-                    )
-                    return False, ban_msg, {}
+                if not c_ok:
+                    if c_status == "BANNED":
+                        session_entry["status"] = "UNAUTHORIZED"
+                        session_entry["ban_reason"] = c_data.get("ban_reason", "管理员云端远程封禁")
+                        self._save_registry(registry)
+                    return False, f"云端授权核验未通过：{c_status}。请检查授权状态或网络连接。", {}
         except Exception:
-            pass
+            return False, "云端授权核验异常，请稍后重试。", {}
 
         return True, "已授权", session_entry
 

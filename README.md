@@ -97,7 +97,7 @@
 - **零服务器成本 Serverless 架构**：依托 Cloudflare 免费版 Workers (每日 100,000 次请求) 与分布式 KV 存储 (`WB_LICENSES`)，无需租用 VPS 服务器；
 - **毫秒级远程在线封禁与解封**：管理员可在 Web 商业控制台或终端一键封禁违规授权码，客户端在下一次交互或上架时毫秒级拦截并即刻锁死；
 - **全网搬家用量实时统计看板**：客户每次成功上架自动向云端上报 SKU 总件数，管理员在 Web 现代暗黑看板 (`/admin`) 上实时掌握全网各商户活跃度与上架量；
-- **高可用双模平滑回退 (Graceful Fallback)**：弱网或离线时自动无缝降级至本地 RSA-2048 硬件验签，兼顾管理控制力与商户使用稳定性；
+- **云端到期核验**：配置云端网关后，授权到期、封禁或网关不可达均会阻止继续上架；本地 RSA 仍校验签名和设备绑定；
 - **极速部署指南与配套代码**：自带 [`cloud/worker.js`](./cloud/worker.js)、[`cloud/wrangler.toml`](./cloud/wrangler.toml) 与 2 分钟极速部署手册 [`cloud/DEPLOY_GUIDE.md`](./cloud/DEPLOY_GUIDE.md)。
 
 ---

@@ -5,14 +5,14 @@
 ==============================================================================
 核心机制：
 1. 【实时在线验真与毫秒级远程封禁】：
-   - 每次会话核验与上架前，向 Cloudflare Workers 网关发起 POST /api/verify；
+   - 每次会话核验与上架前，向 Cloudflare Workers 网关发起 GET /api/verify；
    - 命中 BANNED 封禁状态时，瞬间锁定本地会话并清空授权，杜绝违规使用。
 2. 【商业上架用量自动统计】：
    - 上架任务完成时自动向云端 POST /api/usage/record 上报成功 SKU 数量；
    - 实时聚合至管理员可视化 Web 看板。
-3. 【高可用双模回退 (Offline Graceful Fallback)】：
-   - 若遇到客户断网或云端 API 无法访问，自动平滑降级至本地 RSA-2048 硬件验签；
-   - 兼顾管理员的绝对远程控制权与客户在弱网环境下的运行稳定性。
+3. 【云端授权到期强制核验】：
+   - 已配置云端网关时，过期、封禁或网关不可达均不得回退为有效授权；
+   - 本地 RSA 验签仍用于校验签名与设备绑定。
 ==============================================================================
 """
 
@@ -98,7 +98,7 @@ class CloudAuthClient:
         except (requests.RequestException, ValueError):
             return False
 
-    def verify_cloud_license(self, license_key: str, machine_id: str, 
+    def verify_cloud_license(self, license_key: str, machine_id: str,
                              conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
         """
         向云端 Worker 发起在线验真请求
@@ -108,29 +108,28 @@ class CloudAuthClient:
             return True, "LOCAL_ONLY", {"message": "未配置云端网关，仅使用本地 RSA 保护"}
 
         url = f"{self.base_url}/api/verify"
-        payload = {
-            "license_key": license_key.strip(),
-            "machine_id": machine_id.strip(),
-            "conversation_id": conversation_id or "default"
-        }
-
         try:
-            r = self.session.post(url, json=payload, timeout=DEFAULT_TIMEOUT)
-            if r.status_code == 200:
+            r = self.session.get(
+                url,
+                params={"key": license_key.strip(), "mid": machine_id.strip()},
+                timeout=DEFAULT_TIMEOUT,
+            )
+            try:
                 data = r.json()
-                if data.get("status") == "BANNED":
-                    return False, "BANNED", data
+            except ValueError:
+                data = {}
+            if r.status_code == 200:
                 if data.get("valid") is True:
                     return True, "ACTIVE", data
-                return False, data.get("reason", "INVALID"), data
-            elif r.status_code == 400:
-                data = r.json()
-                return False, data.get("reason", "BAD_REQUEST"), data
-            else:
-                return True, "OFFLINE_FALLBACK", {"message": f"云端响应异常 (HTTP {r.status_code})，回退本地保护"}
-        except requests.exceptions.RequestException as e:
-            # 弱网或断网：平滑回退本地 RSA 验证，确保业务不中断
-            return True, "OFFLINE_FALLBACK", {"message": f"云端网络连接超时，平滑回退本地验证: {e}"}
+                return False, "INVALID", data
+            error = data.get("error", "")
+            if r.status_code == 403 and "expired" in error.lower():
+                return False, "EXPIRED", data
+            if r.status_code == 403 and "banned" in error.lower():
+                return False, "BANNED", data
+            return False, "CLOUD_DENIED", {"http_status": r.status_code}
+        except requests.exceptions.RequestException:
+            return False, "CLOUD_UNAVAILABLE", {}
 
     def report_usage(self, license_key: str, items_count: int) -> bool:
         """上报本次成功搬家的商品总件数至云端看板"""
