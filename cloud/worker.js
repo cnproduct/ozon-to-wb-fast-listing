@@ -1798,7 +1798,7 @@ export default {
 
       <div style="display:flex;gap:8px;margin-top:20px;">
         <button id="btn-do-recharge" class="btn-primary" style="flex:1;background:#059669;" onclick="doRecharge()">前往支付宝安全支付 / 扫码</button>
-        <button class="btn-sm" style="flex:0.35;" onclick="closeRechargeModal()">取消</button>
+        <button id="btn-cancel-recharge" class="btn-sm" style="flex:0.35;" onclick="closeRechargeModal()">取消</button>
       </div>
     </div>
   </div>
@@ -2020,11 +2020,34 @@ export default {
       }
     }
 
+    var rechargePollTimer = null;
+    var rechargePollCount = 0;
+
+    function resetRechargeBtn() {
+      if (rechargePollTimer) {
+        clearTimeout(rechargePollTimer);
+        rechargePollTimer = null;
+      }
+      rechargePollCount = 0;
+      var btn = document.getElementById('btn-do-recharge');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = '前往支付宝安全支付 / 扫码';
+        btn.style.background = '#059669';
+      }
+      var cancelBtn = document.getElementById('btn-cancel-recharge');
+      if (cancelBtn) {
+        cancelBtn.innerText = '取消';
+      }
+    }
+
     function openRechargeModal() {
+      resetRechargeBtn();
       document.getElementById('recharge-modal').style.display = 'flex';
       selectPreset(document.querySelector('.preset-btn[data-amt="2400"]'), 2400);
     }
     function closeRechargeModal() {
+      resetRechargeBtn();
       document.getElementById('recharge-modal').style.display = 'none';
     }
     function selectPreset(el, amt) {
@@ -2051,6 +2074,7 @@ export default {
       var btn = document.getElementById('btn-do-recharge');
       btn.disabled = true;
       btn.innerText = '正在生成支付宝收银台...';
+      btn.style.background = '#64748b';
 
       try {
         var res = await fetch('/api/agent/create-recharge-order', {
@@ -2061,39 +2085,52 @@ export default {
         var data = await res.json();
         if (!data.ok) {
           alert('创建充值订单失败: ' + (data.error || '未知错误'));
-          btn.disabled = false;
-          btn.innerText = '前往支付宝安全支付 / 扫码';
+          resetRechargeBtn();
           return;
         }
 
         window.open(data.pay_url, '_blank');
         btn.innerText = '正在等待支付宝支付完成...';
+        btn.style.background = '#10b981';
+        var cancelBtn = document.getElementById('btn-cancel-recharge');
+        if (cancelBtn) {
+          cancelBtn.innerText = '放弃支付并重置';
+        }
+        rechargePollCount = 0;
         pollRechargeStatus(data.order_id, amt);
       } catch (e) {
         alert('请求异常: ' + e.message);
-        btn.disabled = false;
-        btn.innerText = '前往支付宝安全支付 / 扫码';
+        resetRechargeBtn();
       }
     }
 
     async function pollRechargeStatus(orderId, amt) {
+      if (rechargePollTimer) {
+        clearTimeout(rechargePollTimer);
+        rechargePollTimer = null;
+      }
+      var modal = document.getElementById('recharge-modal');
+      if (modal && modal.style.display === 'none') return;
+
+      rechargePollCount++;
+      if (rechargePollCount > 240) {
+        alert('⏰ 支付等待已超时，如已完成支付请刷新页面查看余额，或可重新发起充值。');
+        resetRechargeBtn();
+        return;
+      }
+
       try {
         var res = await fetch('/api/agent/recharge-status?order_id=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(currentToken));
         var data = await res.json();
         if (data.ok && data.status === 'PAID') {
-          alert('🎉 支付宝充值到账成功！\\n充值金额：¥' + (amt ? amt.toFixed(2) : (data.amount || '')) + '\\n当前最新账户余额：¥' + (data.new_balance !== null ? Number(data.new_balance).toFixed(2) : ''));
+          alert('🎉 支付宝充值到账成功！\n充值金额：¥' + (amt ? amt.toFixed(2) : (data.amount || '')) + '\n当前最新账户余额：¥' + (data.new_balance !== null ? Number(data.new_balance).toFixed(2) : ''));
           closeRechargeModal();
-          var btn = document.getElementById('btn-do-recharge');
-          if (btn) {
-            btn.disabled = false;
-            btn.innerText = '前往支付宝安全支付 / 扫码';
-          }
           loadDashboard();
         } else {
-          setTimeout(function() { pollRechargeStatus(orderId, amt); }, 2500);
+          rechargePollTimer = setTimeout(function() { pollRechargeStatus(orderId, amt); }, 2500);
         }
       } catch (e) {
-        setTimeout(function() { pollRechargeStatus(orderId, amt); }, 3500);
+        rechargePollTimer = setTimeout(function() { pollRechargeStatus(orderId, amt); }, 3500);
       }
     }
 
@@ -2663,22 +2700,27 @@ export default {
     </div>
 
     <div id="tab-orders" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="font-size: 14px; color: #64748b;">直营与代理商充值流水账单（支持删除与一键清理未支付废单）</div>
+        <button class="btn-create" style="background: #ef4444;" onclick="doCleanupPendingOrders()">🧹 一键清理所有未支付废单</button>
+      </div>
       <table>
         <thead>
           <tr>
             <th>商户订单号</th>
-            <th>授权套餐</th>
-            <th>店铺简称</th>
+            <th>授权套餐 / 充值类型</th>
+            <th>店铺 / 代理商</th>
             <th>实付金额</th>
-            <th>客户名称</th>
-            <th>绑定机器码</th>
+            <th>客户 / 代理名称</th>
+            <th>绑定标识</th>
             <th>支付宝流水号</th>
-            <th>支付时间</th>
+            <th>创建 / 支付时间</th>
             <th>状态</th>
+            <th>管理操作</th>
           </tr>
         </thead>
         <tbody id="order-table-body">
-          <tr><td colspan="9" style="text-align:center;padding:20px;color:#64748b;">正在加载直营订单...</td></tr>
+          <tr><td colspan="10" style="text-align:center;padding:20px;color:#64748b;">正在加载订单流水...</td></tr>
         </tbody>
       </table>
     </div>
@@ -2881,23 +2923,70 @@ export default {
     function renderOrdersTable(orders) {
       var tbody = document.getElementById('order-table-body');
       if (!orders || !orders.length) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#64748b;">暂无直营订单流水</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:#64748b;">暂无订单流水</td></tr>';
         return;
       }
       tbody.innerHTML = orders.map(function(ord) {
         var isPaid = ord.status === "PAID";
+        var storeOrAgent = ord.type === 'AGENT_RECHARGE' ? ('🏢 ' + (ord.agent_name || ord.agent_id || '代理充值')) : (ord.store_name || '-');
+        var customer = ord.customer_name || ord.agent_name || '-';
+        var bindId = ord.machine_id || ord.agent_id || '-';
+        var delBtn = !isPaid 
+          ? '<button class="action-btn btn-ban" style="background:#ef4444;color:#fff;" onclick="doDeleteOrder(\'' + ord.order_id + '\')">🗑️ 删除废单</button>'
+          : '<span style="color:#64748b;font-size:12px;">已完成归档</span>';
+
         return '<tr>' +
           '<td><code>' + ord.order_id + '</code></td>' +
           '<td><strong>' + (ord.plan_name || "-") + '</strong></td>' +
-          '<td><strong style="color: #6366f1;">' + (ord.store_name || "-") + '</strong></td>' +
+          '<td><strong style="color: #6366f1;">' + storeOrAgent + '</strong></td>' +
           '<td style="color: #059669; font-weight: 700;">¥' + (ord.amount || "0.00") + '</td>' +
-          '<td>' + (ord.customer_name || "-") + '</td>' +
-          '<td><code>' + (ord.machine_id || "-") + '</code></td>' +
+          '<td>' + customer + '</td>' +
+          '<td><code>' + bindId + '</code></td>' +
           '<td><small>' + (ord.trade_no || "-") + '</small></td>' +
           '<td>' + (ord.paid_at || ord.created_at || "-") + '</td>' +
           '<td><span class="badge ' + (isPaid ? "badge-paid" : "badge-pending") + '">' + (isPaid ? "已支付" : "待支付") + '</span></td>' +
+          '<td>' + delBtn + '</td>' +
           '</tr>';
       }).join('');
+    }
+
+    async function doDeleteOrder(orderId) {
+      if (!confirm('确定彻底删除该笔未支付订单（' + orderId + '）吗？')) return;
+      try {
+        var res = await fetch('/admin/api/order/delete?token=' + encodeURIComponent(adminToken), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: orderId })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          alert('✅ 订单已删除！');
+          loadDashboard();
+        } else {
+          alert('删除失败: ' + (data.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('请求异常: ' + e.message);
+      }
+    }
+
+    async function doCleanupPendingOrders() {
+      if (!confirm('⚠️ 确定一键清理所有未完成支付的废弃订单吗？已成功支付的订单将安全保留。')) return;
+      try {
+        var res = await fetch('/admin/api/order/cleanup-pending?token=' + encodeURIComponent(adminToken), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await res.json();
+        if (data.ok) {
+          alert('✅ ' + data.message);
+          loadDashboard();
+        } else {
+          alert('清理失败: ' + (data.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('请求异常: ' + e.message);
+      }
     }
 
     async function openCreateAgentModal() {
@@ -3235,6 +3324,49 @@ export default {
       return new Response(JSON.stringify({ ok: true, license_key, expires_at: rec.expires_at }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
+    }
+
+    // 6.12 Admin API: Delete Order: POST /admin/api/order/delete
+    if (path === "/admin/api/order/delete" && method === "POST") {
+      const auth = await verifyAdminAuth(request, env, url);
+      if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      try {
+        const { order_id } = await request.json();
+        if (!order_id) return new Response(JSON.stringify({ ok: false, error: "缺少 order_id" }), { status: 400, headers: corsHeaders });
+        if (env.WB_LICENSES) {
+          await env.WB_LICENSES.delete(`ORD:${order_id}`);
+        }
+        return new Response(JSON.stringify({ ok: true, message: "订单已成功删除" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // 6.13 Admin API: Cleanup All Pending Orders: POST /admin/api/order/cleanup-pending
+    if (path === "/admin/api/order/cleanup-pending" && method === "POST") {
+      const auth = await verifyAdminAuth(request, env, url);
+      if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      try {
+        let count = 0;
+        if (env.WB_LICENSES) {
+          const listRes = await env.WB_LICENSES.list({ prefix: "ORD:" });
+          for (const k of listRes.keys) {
+            const val = await env.WB_LICENSES.get(k.name);
+            if (val) {
+              try {
+                const parsed = JSON.parse(val);
+                if (parsed.status === "PENDING") {
+                  await env.WB_LICENSES.delete(k.name);
+                  count++;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        return new Response(JSON.stringify({ ok: true, count, message: `已成功清理 ${count} 笔未支付废单！` }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (err) {
+        return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: corsHeaders });
+      }
     }
     return new Response("Not Found", { status: 404, headers: corsHeaders });
   }
