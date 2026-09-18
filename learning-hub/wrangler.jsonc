@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "wb-skill-learning-hub",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-18",
+  "workers_dev": true,
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wb-skill-learning-hub",
+      "database_id": "0af8ae73-c3e9-4b55-adf4-ec20170ee195"
+    }
+  ]
+}
