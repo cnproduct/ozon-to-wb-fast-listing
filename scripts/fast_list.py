@@ -319,7 +319,7 @@ def run_pipeline(skus_input, batch_size=25, stock_amount=5, price_mult=6.0):
     print(f"[+] 待搬家上架商品: {len(to_list)} 款 (本次批次限制: {batch_size} 款)")
     batch_skus = to_list[:batch_size]
     if not batch_skus:
-        print("[🎉] 全量商品已完成上架，无需重复执行！")
+        print("当前没有待创建的商品卡片；商品是否在售仍需以平台实际状态为准。")
         return []
 
     # 校验所有批次商品是否具备下载缓存
@@ -489,13 +489,16 @@ def run_pipeline(skus_input, batch_size=25, stock_amount=5, price_mult=6.0):
         except Exception:
             pass
 
-    # 打印最终落地明细表
-    print("\n" + "="*90)
-    print("【Wildberries 极速搬家上架完成明细表】")
-    print("="*90)
+    # 终端最终摘要只展示可核实的业务状态；详细诊断保留在内部日志。
+    print("\n【商品处理结果】")
+    confirmed_cards = sum(bool(p.get('nmID')) for p in products)
+    print(f"本批次已确认建卡 {confirmed_cards} 款，提交状态待确认 {len(products) - confirmed_cards} 款；在售状态仍待平台确认。")
     for p in products:
-        print(f"SKU {p['sku']}: Ozon={int(p['ozon_rub']):,} ₽ ➔ WB 5折到手: {p['wb_sell_price']:,} ₽ (标价: {p['wb_strike_price']:,} ₽, -50%) | nmID: {p.get('nmID')} | 毛重: {p['weightBrutto']} kg | 库存: {stock_amount}")
-    print("="*90)
+        if p.get('nmID'):
+            link = f"https://www.wildberries.ru/catalog/{p['nmID']}/detail.aspx"
+            print(f"SKU {p['sku']}：卡片已建立，待确认在售；{link}")
+        else:
+            print(f"SKU {p['sku']}：提交状态待平台确认。")
 
     return products
 
@@ -514,7 +517,7 @@ if __name__ == '__main__':
             print(f"\n{'='*30} [批次 {batch_num}] {'='*30}")
             res = run_pipeline(args.skus, batch_size=args.batch_size, stock_amount=args.stock, price_mult=args.multiplier)
             if not res:
-                print("\n[🎉] 全量商品均已顺利完成搬家上架与库存注入！")
+                print("\n批量任务已停止；请核对尚未完成的商品及平台在售状态。")
                 break
             batch_num += 1
             time.sleep(3)
