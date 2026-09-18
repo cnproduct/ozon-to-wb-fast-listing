@@ -2660,6 +2660,10 @@ export default {
     </div>
 
     <div id="tab-agents">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="font-size: 14px; color: #64748b;">代理商体系管理（支持自主收款、阶梯出厂价结算及额度管控）</div>
+        <button class="btn-create" style="background: #f59e0b;" onclick="doResetAllAgentBalances()">🧹 一键将所有代理商余额归零</button>
+      </div>
       <table>
         <thead>
           <tr>
@@ -2886,6 +2890,7 @@ export default {
           '<td><span class="badge ' + (isFrozen ? 'badge-banned' : 'badge-active') + '">' + (isFrozen ? '已冻结' : '正常合作') + '</span></td>' +
           '<td>' +
             '<button class="action-btn btn-renew" data-id="' + ag.agent_id + '" data-name="' + encodeURIComponent(ag.name) + '" onclick="rechargeAgent(this.dataset.id, decodeURIComponent(this.dataset.name))">💳 充值</button> ' +
+            '<button class="action-btn" style="background:#f59e0b;color:#fff;" data-id="' + ag.agent_id + '" data-name="' + encodeURIComponent(ag.name) + '" onclick="zeroAgentBalance(this.dataset.id, decodeURIComponent(this.dataset.name))">0️⃣ 清零</button> ' +
             '<button class="action-btn btn-pwd" data-id="' + ag.agent_id + '" data-name="' + encodeURIComponent(ag.name) + '" onclick="resetAgentPwd(this.dataset.id, decodeURIComponent(this.dataset.name))">🔑 改密</button> ' +
             '<button class="action-btn ' + (isFrozen ? 'btn-unban' : 'btn-ban') + '" data-id="' + ag.agent_id + '" data-status="' + (isFrozen ? 'ACTIVE' : 'FROZEN') + '" onclick="toggleAgentStatus(this.dataset.id, this.dataset.status)">' + (isFrozen ? '解冻' : '冻结') + '</button>' +
           '</td>' +
@@ -2998,7 +3003,7 @@ export default {
       if (!name) return;
       var username = prompt("请输入代理商登录用户名 (留空自动生成):", "");
       var password = prompt("请输入代理商初始登录密码 (留空自动生成):", "");
-      var balance = prompt("请输入初始充值预存金额 (元，例如 2400):", "2400");
+      var balance = prompt("请输入初始充值预存金额 (元，默认 0):", "0");
       if (balance === null) return;
 
       var res = await fetch("/admin/api/agent/create?token=" + encodeURIComponent(adminToken), {
@@ -3057,6 +3062,45 @@ export default {
         loadDashboard();
       } else {
         alert("充值失败: " + data.error);
+      }
+    }
+
+    async function zeroAgentBalance(agentId, agentName) {
+      if (!confirm("确定将代理商【" + agentName + "】的预存余额彻底清零吗？")) return;
+      try {
+        var res = await fetch("/admin/api/agent/recharge?token=" + encodeURIComponent(adminToken), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken },
+          body: JSON.stringify({ agent_id: agentId, set_balance: 0 })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          alert("✅ 代理商【" + agentName + "】预存余额已成功清零！");
+          loadDashboard();
+        } else {
+          alert("清零失败: " + data.error);
+        }
+      } catch (e) {
+        alert("请求异常: " + e.message);
+      }
+    }
+
+    async function doResetAllAgentBalances() {
+      if (!confirm("⚠️ 警告：确定将所有合作代理商的预存余额全部清零吗？此操作将立即生效。")) return;
+      try {
+        var res = await fetch("/admin/api/agent/reset-all-balances?token=" + encodeURIComponent(adminToken), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken }
+        });
+        var data = await res.json();
+        if (data.ok) {
+          alert("✅ " + data.message);
+          loadDashboard();
+        } else {
+          alert("操作失败: " + (data.error || "未知错误"));
+        }
+      } catch (e) {
+        alert("请求异常: " + e.message);
       }
     }
 
@@ -3227,20 +3271,53 @@ export default {
       const auth = await verifyAdminAuth(request, env, url);
       if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
       try {
-        const { agent_id, amount } = await request.json();
-        if (!agent_id || amount === undefined) {
-          return new Response(JSON.stringify({ ok: false, error: "缺少 agent_id 或充值金额" }), { status: 400, headers: corsHeaders });
+        const { agent_id, amount, set_balance } = await request.json();
+        if (!agent_id || (amount === undefined && set_balance === undefined)) {
+          return new Response(JSON.stringify({ ok: false, error: "缺少 agent_id 或金额参数" }), { status: 400, headers: corsHeaders });
         }
 
         const raw = await env.WB_LICENSES.get(`AGENT:${agent_id}`);
         if (!raw) return new Response(JSON.stringify({ ok: false, error: "未找到该代理商" }), { status: 404, headers: corsHeaders });
 
         const agent = JSON.parse(raw);
-        agent.balance = Number((Number(agent.balance || 0) + Number(amount)).toFixed(2));
+        if (set_balance !== undefined) {
+          agent.balance = Number(Number(set_balance).toFixed(2));
+        } else {
+          agent.balance = Number((Number(agent.balance || 0) + Number(amount)).toFixed(2));
+        }
         agent.last_recharged_at = new Date().toISOString();
         await env.WB_LICENSES.put(`AGENT:${agent_id}`, JSON.stringify(agent));
 
         return new Response(JSON.stringify({ ok: true, agent_id, new_balance: agent.balance }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // 6.7.1 Admin API: Reset All Agent Balances to Zero: POST /admin/api/agent/reset-all-balances
+    if (path === "/admin/api/agent/reset-all-balances" && method === "POST") {
+      const auth = await verifyAdminAuth(request, env, url);
+      if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      try {
+        let count = 0;
+        if (env.WB_LICENSES) {
+          const listRes = await env.WB_LICENSES.list({ prefix: "AGENT:AGT_" });
+          for (const k of listRes.keys) {
+            const raw = await env.WB_LICENSES.get(k.name);
+            if (raw) {
+              try {
+                const ag = JSON.parse(raw);
+                ag.balance = 0;
+                ag.last_reset_at = new Date().toISOString();
+                await env.WB_LICENSES.put(k.name, JSON.stringify(ag));
+                count++;
+              } catch (e) {}
+            }
+          }
+        }
+        return new Response(JSON.stringify({ ok: true, count, message: `已成功将所有 ${count} 位代理商账户预存余额全部清零！` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } catch (e) {
