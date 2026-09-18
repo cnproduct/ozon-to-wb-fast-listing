@@ -30,10 +30,11 @@ assert.equal(verified.status, 200);
 assert.equal((await verified.json()).valid, true);
 
 const second = await requestTrial();
-assert.equal(second.status, 409);
+assert.equal(second.status, 200);
 const repeated = await second.json();
 assert.equal(repeated.already_claimed, true);
 assert.equal(repeated.expires_at, issued.expires_at);
+assert.equal(repeated.license_key, issued.license_key);
 assert.equal(values.size, 2);
 
 console.log('Worker 48-hour trial and repeat claim checks passed');

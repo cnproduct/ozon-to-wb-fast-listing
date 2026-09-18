@@ -1042,6 +1042,21 @@ export default {
           const existingClaim = await env.WB_LICENSES.get(claimKey);
           if (existingClaim) {
             const existing = JSON.parse(existingClaim);
+            // A client can lose the first response after the claim was saved.
+            // Return the same grant so retries never mint a second 48-hour window.
+            const issuedRecord = existing.license_key_hash
+              ? await env.WB_LICENSES.get(existing.license_key_hash)
+              : null;
+            if (issuedRecord) {
+              const issued = JSON.parse(issuedRecord);
+              if (issued.key && issued.type === "RSA-FREE-TRIAL") {
+                return new Response(JSON.stringify({
+                  ok: true, free: true, already_claimed: true,
+                  license_key: issued.key, expires_at: existing.expires_at,
+                  store_name: issued.store_name, plan_name: plan.name
+                }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+              }
+            }
             return new Response(JSON.stringify({
               ok: false, already_claimed: true, expires_at: existing.expires_at,
               error: "此会话已领取 2 天免费试用；重复申请不会重置有效期"
