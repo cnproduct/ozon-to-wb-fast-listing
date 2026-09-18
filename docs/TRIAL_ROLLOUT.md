@@ -24,6 +24,7 @@
 - Cloudflare 账号中 `wb-auth-gateway` 的生产部署版本为 `6933fdd3`，已绑定 `WB_LICENSES`；当前线上代码与本仓库草稿不同。
 - KV 中发现两条正式授权记录，原到期时间均为 `2026-10-17 23:59:59`，有机器 ID，但均没有真实 WB 店铺 ID 字段。需要逐条确认对应的店铺 ID，之后才能安全重新签发。
 - 线上 Worker 代码仍嵌入签名私钥及支付私钥，配置页仅能看到 `ADMIN_SECRET` 和 `ALIPAY_APP_ID` 变量，未见 `RSA_SIGNING_KEY` Secret。先备份和核对旧码，再轮换私钥及管理口令；不要把线上代码原样复制到 PR、日志或本文件。
+- `ADMIN_SECRET` 当前作为普通变量显示；新版本应改为 Secret。线上代码中的支付宝默认配置与仓库草稿不同，须核对实际商户配置并安全迁移 `ALIPAY_PRIVATE_KEY` 和 `ALIPAY_PUBLIC_KEY`，通过支付回调回归测试后再发布，以免影响现有付费流程。
 - 此次仅进行了只读检查，尚未签发新码、替换旧码或部署 Worker。
 
 本地验证命令：`python -m unittest discover -s tests -p 'test_*.py' -q` 与 `node tests/test_trial_worker.mjs`。
