@@ -9,11 +9,11 @@ import { Buffer } from 'node:buffer';
 
 // Embedded default credentials
 const DEFAULT_ALIPAY_APP_ID = "2021007100605449";
-const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = `MIIEugIAMA0GCSqGSIb3DQEBAQUABIIEpTCCBKECAAKCAQEAjSPTqDh+BumFzULXlAZKtnaxuG1+tIXX/JLtga4nzenBwcujEYAO7X525XgpNpsbB0lqsHmn8IzlbrEScFzewolpKF+xpcMXvrIW+Wf4f2W/mTkTuIBh1Dk0x7EP/Hw6VkX2E9qTtLjg9hxhf6eO9yCvNiYcVcsmQmgqbqG6dSmvKytVSnviVClMcV+yuk+e6dgZIsHf+KI2VWXZXgro2j6/uzI+uqlCSg+6zEnj+fgkYqXeyDxcugR+gn6Fl1hjvciIGVRkbFQf9C+vUndKkd96Sung7dBCiuly0ab9hV/mEiem2RB8VOouq5yvyS4XLecusOFfUisL3zN1OG3gLwIDAQABAoIBAGsF0rZJeA8HvqUB3XRqPPcVE/g0VxLONxRX2W8vPxGeAoVQQ+u+PhOKhN/F+QJmJN2mpxcAeP8n58XC0aeQVH4RMkMiJRP71qKMam1ekIkR/3JRXInYF9aUNliCBAxBqv7GeC1f3gb49eTJaokg5oCwMQwPZAcOT4mlcR+I1VmHTPfgycxWjT1tcDr0p7Xhnw1gA9A04soXyt3qflNRItMVMIc7dlhQnh3gBYsXF7Ze6CW2plqKkV7kb56XwLuxqGLEPlF8RKnmnzShfW8MEjxO7G9xDDAg/dduVy3Ay4lgq3JKtNdY0uQYZoVNh8e3KhT3wFYpyQwMaGalQFl+w0kCgYEAwFvDVfC3nlkVj3PpulzRmfsmLrkCYc+BNWQ+5W3JlkoMnNzd+K7Pdm3Kf6l/+jaCluCcZvhUaf4/+yjSdtcSkkpk5HsA/YjBFLd2FOUWIOLw33iedpAJpe78qhMl9J56fCai6IKw3pyCQi06nUhlx/djMs7j9oGJt8WOxek0RK0CgYEAu9X/BK0z1QTrAKbpjz4TwYvxHMRg6aZ/Ac8Wzpy854lBvetDtCN1vj9x5ujXnJ5ZrP2B4dfIcUk/ULOKuzvfvLV74EsXWdrgl8bsf7wnCwKCB4+csQBxABn8B3uc6axReI4t2T41u9n3SjcOZGI4JyznY63jQ87Yb6ZTSDMrd8sCgYB3y+5QJHVGgbaCu66xaMMEwbva10/beG7AwKjHG+Oy3HUUcB0xljUQTXoSnY5dVvtnWYUuP7PauwQ/uAGzD2i6gOhqvwwz2apd64/3nWB1pMBcfHM75aKMm9TxWrGFsfkYPruwUEw0p4YcDqz1bTQuICzAZMbmK3CIadnr+bualQKBgAkKKXW+KCpuTCkB32enYygDZh0uTkOwYZhisQRMgsLZ1jIfqmh29Gmtf/vO5OGCtWof4SpPSjQ5hDSMD3cnUIMycL3An2URpZFoX2VeVrqu6jcW8EGMdeO9XGW3yztrsZgNr6Mu3UMnIEGQGL84At/Px2sCqVdQExZ8eLGW1Na1AoGAYPJpodlLgcGD5srCgqiDm6WgmEJdj4UdxDNhixyatN3h+YOG1lJlLth2WHYwwP/A+5H7w1UgpmHQNt2U6PEB8Te6RG0Dhs1vOrPoqWfjcZUlC5HS0GaMGQUVE1qZyzIHWnmx2L3E1U7naJJsvwwvZ8zEqfOOG_SgQXBt2gCawVo=`;
+const DEFAULT_ALIPAY_PRIVATE_KEY_B64 = "";
 
 const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdOBuGCeyxVO+NCZuEiIVk+har+YaYrW7GzWS3AEPinZ5sb/2oqymr3Coa8JmcmW5sah59Fro3d8SJCkFroRniPOZn/HohxP+8hz9Zh0L5vIWUYPz+fDF675wxzg5TappT0gOgADio+8LtrbPaB5T7i0VgN2qfytDJkFgLvweMHJaLz/WoXNVhVAcOqwj611TX3KlckFebOQQbwoSW4juaPf4qYBRMPSGZxzMo3sNtwKUmd0YHk0wtsbIRacCvfCC0lIo9cjZ2XPLQj4tGRob/X9XUK6EjHpCUpPrRMm+jBlz5B9XoND6SEJy2xpVVnij1fe8ux6ZTkfTygH/Er1UwIDAQAB`;
 
-const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
+const DEFAULT_RSA_SIGNING_KEY_B64 = "";
 
 // Pricing Model: 2-Day Free Trial (¥0) & Single Store Monthly License (¥600 / month, 30 days)
 const PLANS = {
@@ -68,14 +68,15 @@ function canonicalJson(obj) {
 /**
  * Node.js Crypto RSA-PSS SHA-256 license key generation
  */
-function signLicenseKey(mid, customerName, storeName, days = 3650, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64) {
+function signLicenseKey(mid, customerName, storeName, days = 3650, maxSessions = 1, privKeyB64 = DEFAULT_RSA_SIGNING_KEY_B64, exactExpiry = false) {
+  if (!privKeyB64) throw new Error('RSA_SIGNING_KEY is not configured');
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   const iatStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
   
   const expDate = new Date(now.getTime() + (days > 0 ? days : 3650) * 24 * 60 * 60 * 1000);
   const expStr = days > 0
-    ? `${expDate.getFullYear()}-${pad(expDate.getMonth() + 1)}-${pad(expDate.getDate())} 23:59:59`
+    ? `${expDate.getFullYear()}-${pad(expDate.getMonth() + 1)}-${pad(expDate.getDate())} ${exactExpiry ? `${pad(expDate.getHours())}:${pad(expDate.getMinutes())}:${pad(expDate.getSeconds())}` : '23:59:59'}`
     : '2099-12-31 23:59:59';
 
   const payload = {
@@ -330,7 +331,7 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    const adminSecret = env.ADMIN_SECRET || "WB-ADMIN-SECRET-2026";
+    const adminSecret = env.ADMIN_SECRET || "";
     const alipayAppId = env.ALIPAY_APP_ID || DEFAULT_ALIPAY_APP_ID;
     const alipayPrivKey = env.ALIPAY_PRIVATE_KEY || DEFAULT_ALIPAY_PRIVATE_KEY_B64;
     const alipayPubKey = env.ALIPAY_PUBLIC_KEY || DEFAULT_ALIPAY_PUBLIC_KEY_B64;
@@ -411,7 +412,7 @@ export default {
         }
       }
 
-      if (record.machine_id && mid && record.machine_id !== mid && record.machine_id !== "*") {
+      if (record.machine_id && mid && record.machine_id.toUpperCase() !== mid.trim().toUpperCase() && record.machine_id !== "*") {
         return new Response(JSON.stringify({
           valid: false,
           error: "Hardware mismatch: License is bound to another machine",
@@ -1026,10 +1027,84 @@ export default {
 
         // Special handling for Free Trial (¥0.00)
         if (plan.id === "free_trial_2days" || plan.price === "0.00") {
+          if (!rsaSignKeyB64) {
+            return new Response(JSON.stringify({ ok: false, error: "试用签名密钥未配置" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
           const targetId = mid.trim().toUpperCase();
+          if (!env.WB_LICENSES) {
+            return new Response(JSON.stringify({ ok: false, error: "试用授权存储未配置" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          const sourceIp = request.headers.get('CF-Connecting-IP')?.trim().toLowerCase();
+          if (!sourceIp || sourceIp.length > 45 || !/^[0-9a-f:.]+$/.test(sourceIp)) {
+            return new Response(JSON.stringify({ ok: false, error: "无法识别来源 IP，暂不能申请免费试用" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          if (!env.TRIAL_IP_LIMITER) {
+            return new Response(JSON.stringify({ ok: false, error: "试用窗口配额服务未配置" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          const conversationHash = crypto.createHash('sha256').update(targetId).digest('hex');
+          const claimKey = `TRIAL_20260918_CID:${conversationHash}`;
+          const existingClaim = await env.WB_LICENSES.get(claimKey);
+          if (existingClaim) {
+            const existing = JSON.parse(existingClaim);
+            // A client can lose the first response after the claim was saved.
+            // Return the same grant so retries never mint a second 48-hour window.
+            const issuedRecord = existing.license_key_hash
+              ? await env.WB_LICENSES.get(existing.license_key_hash)
+              : null;
+            if (issuedRecord) {
+              const issued = JSON.parse(issuedRecord);
+              if (issued.key && issued.type === "RSA-FREE-TRIAL") {
+                return new Response(JSON.stringify({
+                  ok: true, free: true, already_claimed: true,
+                  license_key: issued.key, expires_at: existing.expires_at,
+                  store_name: issued.store_name, plan_name: plan.name
+                }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+              }
+            }
+            return new Response(JSON.stringify({
+              ok: false, already_claimed: true, expires_at: existing.expires_at,
+              error: "此会话已领取 2 天免费试用；重复申请不会重置有效期"
+            }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          const ipHash = crypto.createHash('sha256').update(sourceIp).digest('hex');
+          const limiter = env.TRIAL_IP_LIMITER.getByName(`trial-20260918:${ipHash}`);
+          let reservation;
+          try {
+            reservation = await limiter.reserve(conversationHash);
+          } catch (error) {
+            return new Response(JSON.stringify({ ok: false, error: "试用窗口配额暂不可用，请稍后重试" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          if (reservation.status === 'limit') {
+            return new Response(JSON.stringify({
+              ok: false, code: 'IP_TRIAL_LIMIT',
+              error: '避免线路拥堵，您只允许3个试用窗口。如需使用更多窗口，请跟代理商申请付费授权窗口'
+            }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          if (reservation.status === 'issued') {
+            return new Response(JSON.stringify({
+              ok: true, free: true, already_claimed: true,
+              license_key: reservation.license_key, expires_at: reservation.expires_at,
+              store_name: reservation.store_name, plan_name: plan.name
+            }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          if (reservation.status !== 'reserved') {
+            return new Response(JSON.stringify({ ok: false, error: '试用授权正在签发，请稍后重试' }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
           const customerName = (name || "免费试用卖家").trim();
           const storeName = (store_name || "试用WB店铺").trim();
-          const { license_key, payload } = signLicenseKey(targetId, customerName, storeName, 2, 1, rsaSignKeyB64);
+          const { license_key, payload } = signLicenseKey(targetId, customerName, storeName, 2, 1, rsaSignKeyB64, true);
 
           if (env.WB_LICENSES) {
             const licKvKey = getLicenseKvKey(license_key);
@@ -1049,7 +1124,9 @@ export default {
               activated_sessions: []
             };
             await env.WB_LICENSES.put(licKvKey, JSON.stringify(licRecord));
+            await env.WB_LICENSES.put(claimKey, JSON.stringify({ license_key_hash: licKvKey, expires_at: payload.exp }));
           }
+          await limiter.complete(conversationHash, reservation.token, license_key, payload.exp, storeName);
 
           return new Response(JSON.stringify({
             ok: true,
@@ -1061,6 +1138,12 @@ export default {
             message: "🎉 2天全功能免费试用开通成功！"
           }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        if (!rsaSignKeyB64 || !alipayPrivKey) {
+          return new Response(JSON.stringify({ ok: false, error: "商业授权签名或支付密钥未配置" }), {
+            status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
 
@@ -2280,7 +2363,7 @@ export default {
 
     async function getAdminCredentials(env) {
       let username = env.ADMIN_USERNAME || "admin";
-      let password = env.ADMIN_PASSWORD || env.ADMIN_SECRET || "WB-ADMIN-SECRET-2026";
+      let password = env.ADMIN_PASSWORD || env.ADMIN_SECRET || "";
       if (env.WB_LICENSES) {
         const raw = await env.WB_LICENSES.get("ADMIN_CONFIG");
         if (raw) {
@@ -2295,7 +2378,7 @@ export default {
     }
 
     async function verifyAdminAuth(request, env, url) {
-      const adminSecret = env.ADMIN_SECRET || "WB-ADMIN-SECRET-2026";
+      const adminSecret = env.ADMIN_SECRET || "";
       
       const keyParam = url.searchParams.get("key");
       const headerSecret = request.headers.get("X-Admin-Secret");

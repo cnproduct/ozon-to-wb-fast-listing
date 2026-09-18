@@ -30,6 +30,7 @@ import time
 import math
 import logging
 import threading
+import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
 try:
@@ -280,7 +281,7 @@ def execute_single_listing_task(
 
         # 3. 严格真实性校验：读取不到真实标题或相册，安全阻断，绝不盲目跨品类兜底
         if not product_data or not product_data.get("photos"):
-            send_feishu_reply(chat_id, f"⚠️ {prefix}SKU [{sku}] 未能从 Ozon 提取到真实标题或高清相册（可能触发了防爬验证或商品已下架）。\n💡 建议：可直接将包含该 SKU 的 Excel 货盘表发送给机器人一键导入！", open_id=open_id)
+            send_feishu_reply(chat_id, f"⚠️ {prefix}SKU {sku} 未完成：商品资料不完整。请提供有效商品链接或商品资料后重试。", open_id=open_id)
             return False
 
         # 4. 人民币统一核算法则 (Rule 3)
@@ -357,26 +358,20 @@ def execute_single_listing_task(
         except Exception:
             pass
 
-        # 9. 组装全要素交付飞书高亮卡片 (Rule 11)
+        # 客户卡片只展示可核实的处理结果；价格、库存和买家端状态尚未完成实时核验。
         card_lines = [
-            f"**目标店铺**: `{target_store_name}` ({target_wh_name} `ID:{target_wh_id}`)",
+            f"**目标店铺**: {target_store_name}",
             f"**商品标题**: {product_data['title']}",
-            f"**商家货号**: `{res['vendorCode']}`",
-            f"**WB 官方 nmID**: [{res['nmID']}](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)",
-            f"**官方条形码**: `{res['barcode']}`",
-            f"---",
-            f"💰 **核算价格**: **¥{sell_price_cny} 元** (划线标价 ¥{strike_price_cny} 元，立享 {discount}% 官方大促折，折合约 **{sell_price_rub} ₽**)",
-            f"📦 **现货库存**: **{stock} 件** ({target_wh_name} 现货秒级注入生效)",
-            f"📐 **包装规格**: {product_data.get('length_cm', 10)}×{product_data.get('width_cm', 10)}×{product_data.get('height_cm', 10)} cm | 毛重 {round(product_data.get('weight_g', 500)/1000.0, 2)} kg",
-            f"🛡️ **合规状态**: 白牌安全脱敏 · 描述剥离竞对痕迹 · 参数 100% 丰富注入",
-            f"---",
-            f"✅ [点击直接在 WB 官网查看商品前台详情](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)"
+            f"**商品 SKU**: {sku}",
+            "**当前状态**: 商品卡片已创建，平台在售状态待确认",
+            f"[查看 WB 商品页面](https://www.wildberries.ru/catalog/{res['nmID']}/detail.aspx)"
         ]
-        send_feishu_card(chat_id, f"🎉 {prefix}商品上架成功 (SKU: {sku})", card_lines, color="green", open_id=open_id)
+        send_feishu_card(chat_id, f"✅ {prefix}商品已提交 (SKU: {sku})", card_lines, color="blue", open_id=open_id)
         return True
 
     except Exception as e:
-        send_feishu_reply(chat_id, f"❌ {prefix}上架失败 (SKU: {sku}):\n{str(e)}", open_id=open_id)
+        print(f"[内部诊断] SKU {sku} 处理失败：{type(e).__name__}")
+        send_feishu_reply(chat_id, f"❌ {prefix}SKU {sku} 处理未完成，请联系运营人员核查。", open_id=open_id)
         return False
 
 def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 6.0, discount: int = 50, stock: int = 5, open_id: Optional[str] = None):
@@ -401,7 +396,7 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 6.0,
         f"**实售定价**: **{multiplier} 倍实售** (划线标价 {multiplier*2} 倍，立享 {discount}% 官方大促折)",
         f"**现货库存**: **{stock} 件** (现货秒级注入)",
         "---",
-        "🚀 **流水线已启动，机器人正在按顺序逐一抓取、合规建卡、挂图与激活现货...**"
+        "任务已开始，处理完成后发送商品结果。"
     ]
     send_feishu_card(chat_id, "📋 批量上架流水线启动", start_card, color="blue", open_id=open_id)
 
@@ -426,19 +421,18 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 6.0,
                 failed_count += 1
         except Exception as e:
             failed_count += 1
-            send_feishu_reply(chat_id, f"❌ [{i}/{total}] SKU {sku} 运行异常: {e}", open_id=open_id)
+            print(f"[内部诊断] SKU {sku} 批量处理异常：{type(e).__name__}")
+            send_feishu_reply(chat_id, f"❌ [{i}/{total}] SKU {sku} 处理未完成，请联系运营人员核查。", open_id=open_id)
             
         if i < total:
             time.sleep(2.0)
 
     # 最终汇总卡片
     summary_lines = [
-        f"**目标店铺**: `{target_store_name}` (仓号: `{target_wh_id}`)",
+        f"**目标店铺**: {target_store_name}",
         f"**处理结果**: 共 **{total}** 款商品",
-        f"✅ **成功入库**: **{success_count}** 款",
-        f"❌ **上架失败**: **{failed_count}** 款",
-        "---",
-        "💡 所有成功上架的商品均已实时配置售价、50%促销大促折与现货库存，买家端立即可搜！"
+        f"✅ **已创建卡片，待平台确认在售**: **{success_count}** 款",
+        f"❌ **未完成**: **{failed_count}** 款"
     ]
     summary_color = "green" if failed_count == 0 else "orange"
     send_feishu_card(chat_id, "🏁 批量上架任务处理完毕", summary_lines, color=summary_color, open_id=open_id)
@@ -485,9 +479,10 @@ def handle_excel_file_task(chat_id: str, file_path: str, open_id: Optional[str] 
                 failed += 1
             time.sleep(2.0)
 
-        send_feishu_reply(chat_id, f"🏁 恭喜！当前表格中的全部商品已批量处理完毕 (成功: {success}, 失败: {failed})！", open_id=open_id)
+        send_feishu_reply(chat_id, f"🏁 表格商品处理完毕：已创建卡片、待平台确认在售 {success} 款；未完成 {failed} 款。", open_id=open_id)
     except Exception as e:
-        send_feishu_reply(chat_id, f"❌ 处理 Excel 表格失败: {e}", open_id=open_id)
+        print(f"[内部诊断] 表格处理失败：{type(e).__name__}")
+        send_feishu_reply(chat_id, "❌ 表格处理未完成，请检查文件内容后重试。", open_id=open_id)
 
 def get_sensitive_brands_path() -> str:
     p1 = os.path.join(WORKSPACE_DIR, 'references', 'sensitive_brands.txt')
@@ -498,6 +493,33 @@ def get_sensitive_brands_path() -> str:
 def handle_text_commands(chat_id: str, raw_text: str, open_id: Optional[str] = None) -> bool:
     """处理避坑词库、机器码、收银台、授权激活、店铺绑定等指令"""
     text_lower = raw_text.lower().strip()
+
+    if raw_text.strip() == "申请试用":
+        try:
+            from session_manager import SessionManager
+            manager = SessionManager()
+            ok, message, session = manager.issue_free_trial(chat_id)
+            if ok and session.get("license_name") == "2天免费试用":
+                bindings = store_manager.load_bindings()
+                store_cfg = bindings.get(chat_id, {})
+                paid_expiry = store_cfg.get("license_expires", "")
+                paid_active = store_cfg.get("license_key") and store_cfg.get("license_name") != "2天免费试用"
+                if paid_active and paid_expiry:
+                    try:
+                        paid_active = datetime.datetime.now() < datetime.datetime.strptime(paid_expiry, "%Y-%m-%d %H:%M:%S")
+                    except ValueError:
+                        paid_active = False
+                if not paid_active:
+                    store_cfg["license_key"] = session["license_key"]
+                    store_cfg["license_name"] = "2天免费试用"
+                    store_cfg["license_expires"] = manager._load_registry()["trial_claims_20260918"][chat_id]["expires_at"]
+                    bindings[chat_id] = store_cfg
+                    if not store_manager.save_bindings(bindings):
+                        raise RuntimeError("无法保存飞书会话授权")
+            send_feishu_reply(chat_id, message, open_id=open_id)
+        except Exception as exc:
+            send_feishu_reply(chat_id, f"试用申请未完成：{exc}", open_id=open_id)
+        return True
 
     # 1. 商业授权 - 获取机器码
     if text_lower in ["获取机器码", "机器码", "mid", "查看机器码", "获取mid"]:

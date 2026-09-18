@@ -58,6 +58,7 @@ dead_skus.json
 batch_1_pilot_table.md
 feat_price.json
 test_*.py
+!tests/test_*.py
 test_*.json
 inspect_*.py
 scripts/test_*.py

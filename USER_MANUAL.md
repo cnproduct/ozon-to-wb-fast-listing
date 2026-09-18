@@ -1,3 +1,9 @@
+## 最新试用规则
+
+新老用户输入「申请试用」后，使用真实会话 ID 执行 `python scripts/session_manager.py trial --conversation-id <会话ID>`；首次签发 48 小时授权。再次输入不会重置时长；正式授权保留。旧版安装必须升级技能和脚本。 试用需要连接云端网关。
+
+同一公网 IP 最多领取 3 个不同窗口的免费试用。超过后会提示：「避免线路拥堵，您只允许3个试用窗口。如需使用更多窗口，请跟代理商申请付费授权窗口」。同一窗口重复申请会返回原授权，不增加名额。
+
 # Wildberries (WB) 全自动极速智能上架技能包 —— 使用说明书与新手操作手册
 
 > **版本**：v3.0.0 旗舰防错与大促实战版  
@@ -104,7 +110,7 @@
 - **方式 D：Cloudflare Workers 云端鉴权与 Web 可视化用量看板 (Stage 2 商业化扩展)**
   - **2 分钟极速部署**：参考 [`cloud/DEPLOY_GUIDE.md`](./cloud/DEPLOY_GUIDE.md)，将 [`cloud/worker.js`](./cloud/worker.js) 粘贴至免费 Cloudflare Worker 并绑定 KV (`WB_LICENSES`)。
   - **客户端配置**：在 `config.json` 中配置 `"cloud_auth_url": "https://wb-auth-gateway.<your-name>.workers.dev"`。
-  - **访问 Web 商业看板**：在浏览器打开 `https://<worker-url>/admin?key=WB-ADMIN-SECRET-2026` 即可实时查看各商户设备状态、累计上架用量统计。
+  - **访问 Web 商业看板**：在浏览器打开 `https://<worker-url>/admin?key=<管理员自行设置的密钥>` 即可实时查看各商户设备状态、累计上架用量统计。
   - **远程控制指令 (对话框或 CLI)**：
     - 对话框查看看板：`云端看板`
     - 远程封禁：`封禁授权 LIC-RSA-... 违规多开` 或 CLI `python scripts/session_manager.py cloud-ban --license LIC-RSA-... --reason "违规多开"`
@@ -167,7 +173,7 @@ AI 接收到指令后，会严格遵循技能规范，**暂停并首先向你提
 你回复：  
 > “按原价5倍，库存200执行”
 
-AI 将在 1~2 分钟内全自动完成数据提取、建卡、多图直传、价格大促配置与现货注入，并向你呈报包含 nmID、条形码、实售价、划线价的完整交付清单！
+处理完成后，AI 只向你报告商品 SKU、处理状态和可用的 WB 商品链接；如果平台在售状态尚未核实，会明确标注“待确认”。
 
 ---
 

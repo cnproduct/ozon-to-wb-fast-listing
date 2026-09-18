@@ -153,78 +153,21 @@ class WBListingStudio:
         if not subject_id or int(subject_id) <= 0:
             raise ListingValidationError(f"[ERROR] [数据阻断] SKU [{sku}] 未能匹配到有效的 WB 官方类目 ID (subjectID)，上架终止！")
 
-        # 4. 尺寸与重量高拟真物理包装计算 (严格遵循商品实际物理形态，杜绝全店千篇一律模板数值)
-        has_real_dims = p.get('length_cm') and float(p.get('length_cm', 0)) > 0
-        has_real_weight = p.get('weight_g') and int(p.get('weight_g', 0)) > 0
-        
-        if not (has_real_dims and has_real_weight):
-            tl = (title + " " + p.get('description', '')).lower()
-            
-            # A. 电动工具与五金器具 (箱装/盒装)
-            if any(w in tl for w in ['дрель', 'шуруповерт', 'перфоратор', 'гайковерт', 'аккумулятор']):
-                if 'в кейсе' in tl or 'кейс' in tl:
-                    dims, wt = (32, 28, 10), 2200
-                else:
-                    dims, wt = (24, 20, 8), 1400
-            else:
-                # B. 解析商品容量 (ml) 或净重 (g)
-                m_vol = re.search(r'(\d+)\s*(?:мл|ml)\b', tl)
-                vol_ml = int(m_vol.group(1)) if m_vol else None
-                m_wt = re.search(r'(\d+)\s*(?:г|гр|g)\b', tl)
-                wt_g = int(m_wt.group(1)) if m_wt else None
-                
-                if vol_ml:
-                    if vol_ml <= 5:       # 3-5ml 极细药膏点涂管/眼部小滴管
-                        dims, wt = (12, 3, 2), 40
-                    elif vol_ml <= 15:    # 10-15ml 眼霜/浓缩精华
-                        dims, wt = (13, 4, 3), 60
-                    elif vol_ml <= 30:    # 30ml 标准精华滴管瓶
-                        dims, wt = (11, 4, 4), 100
-                    elif vol_ml <= 50:    # 50ml 面霜圆罐或乳液瓶
-                        if any(k in tl for k in ['крем', 'cream', 'маска', 'бальзам']):
-                            dims, wt = (8, 8, 6), 160
-                        else:
-                            dims, wt = (13, 5, 4), 130
-                    elif vol_ml <= 100:   # 100ml 软管/便携瓶
-                        dims, wt = (16, 5, 4), 150
-                    elif vol_ml <= 150:   # 150ml 洁面乳/喷雾
-                        dims, wt = (17, 5, 5), 210
-                    elif vol_ml <= 250:   # 200-250ml 身体乳/润肤乳
-                        dims, wt = (19, 6, 6), 320
-                    elif vol_ml <= 500:   # 300-500ml 大容量洗发水/沐浴露
-                        dims, wt = (22, 8, 7), 560
-                    else:
-                        dims, wt = (25, 10, 9), int(vol_ml * 1.15)
-                elif wt_g:
-                    if wt_g <= 30:
-                        dims, wt = (12, 3, 2), wt_g + 15
-                    elif wt_g <= 60:
-                        dims, wt = (8, 8, 6), wt_g + 50
-                    elif wt_g <= 120:
-                        dims, wt = (14, 5, 4), wt_g + 40
-                    elif wt_g <= 300:
-                        dims, wt = (18, 6, 5), wt_g + 60
-                    else:
-                        dims, wt = (24, 16, 10), int(wt_g * 1.2)
-                elif any(k in tl for k in ['сыворотк', 'serum', 'эссенци']):
-                    dims, wt = (11, 4, 4), 100
-                elif any(k in tl for k in ['крем', 'cream']):
-                    dims, wt = (8, 8, 6), 160
-                elif any(k in tl for k in ['маск', 'mask']):
-                    dims, wt = (15, 11, 2), 70
-                elif any(k in tl for k in ['чистк', 'пенк', 'гель для умывания']):
-                    dims, wt = (17, 5, 5), 180
-                elif any(k in tl for k in ['футболка', 'одежда', 'рубашка', 'платье']):
-                    dims, wt = (30, 20, 3), 250
-                elif any(k in tl for k in ['чехол', 'кабель', 'аксессуар']):
-                    dims, wt = (15, 10, 3), 120
-                else:
-                    dims, wt = (14, 7, 5), 120
-
-            if not has_real_dims:
-                p['length_cm'], p['width_cm'], p['height_cm'] = dims
-            if not has_real_weight:
-                p['weight_g'] = wt
+        # 4. 包装尺寸和毛重必须来自商品数据，缺失时停止上架。
+        for field in ('length_cm', 'width_cm', 'height_cm', 'weight_g'):
+            value = p.get(field)
+            try:
+                amount = float(value) if not isinstance(value, bool) else 0
+            except (TypeError, ValueError, OverflowError):
+                amount = 0
+            if not math.isfinite(amount) or amount <= 0:
+                raise ListingValidationError(
+                    f"[ERROR] [数据阻断] SKU [{sku}] 缺少有效包装数据 {field}，上架终止！"
+                )
+        if int(float(p["weight_g"])) <= 0:
+            raise ListingValidationError(
+                f"[ERROR] [数据阻断] SKU [{sku}] 包装毛重不足 1 克，上架终止！"
+            )
 
     def match_best_subject(self, title: str, category_path: str = "", product_type: str = "", auto_learn: bool = True) -> Optional[int]:
         """
