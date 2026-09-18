@@ -1038,7 +1038,19 @@ export default {
               status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
             });
           }
-          const claimKey = `TRIAL_20260918_CID:${crypto.createHash('sha256').update(targetId).digest('hex')}`;
+          const sourceIp = request.headers.get('CF-Connecting-IP')?.trim().toLowerCase();
+          if (!sourceIp || sourceIp.length > 45 || !/^[0-9a-f:.]+$/.test(sourceIp)) {
+            return new Response(JSON.stringify({ ok: false, error: "无法识别来源 IP，暂不能申请免费试用" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          if (!env.TRIAL_IP_LIMITER) {
+            return new Response(JSON.stringify({ ok: false, error: "试用窗口配额服务未配置" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          const conversationHash = crypto.createHash('sha256').update(targetId).digest('hex');
+          const claimKey = `TRIAL_20260918_CID:${conversationHash}`;
           const existingClaim = await env.WB_LICENSES.get(claimKey);
           if (existingClaim) {
             const existing = JSON.parse(existingClaim);
@@ -1061,6 +1073,34 @@ export default {
               ok: false, already_claimed: true, expires_at: existing.expires_at,
               error: "此会话已领取 2 天免费试用；重复申请不会重置有效期"
             }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          const ipHash = crypto.createHash('sha256').update(sourceIp).digest('hex');
+          const limiter = env.TRIAL_IP_LIMITER.getByName(`trial-20260918:${ipHash}`);
+          let reservation;
+          try {
+            reservation = await limiter.reserve(conversationHash);
+          } catch (error) {
+            return new Response(JSON.stringify({ ok: false, error: "试用窗口配额暂不可用，请稍后重试" }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+          if (reservation.status === 'limit') {
+            return new Response(JSON.stringify({
+              ok: false, code: 'IP_TRIAL_LIMIT',
+              error: '避免线路拥堵，您只允许3个试用窗口。如需使用更多窗口，请跟代理商申请付费授权窗口'
+            }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          if (reservation.status === 'issued') {
+            return new Response(JSON.stringify({
+              ok: true, free: true, already_claimed: true,
+              license_key: reservation.license_key, expires_at: reservation.expires_at,
+              store_name: reservation.store_name, plan_name: plan.name
+            }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          if (reservation.status !== 'reserved') {
+            return new Response(JSON.stringify({ ok: false, error: '试用授权正在签发，请稍后重试' }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
           }
           const customerName = (name || "免费试用卖家").trim();
           const storeName = (store_name || "试用WB店铺").trim();
@@ -1086,6 +1126,7 @@ export default {
             await env.WB_LICENSES.put(licKvKey, JSON.stringify(licRecord));
             await env.WB_LICENSES.put(claimKey, JSON.stringify({ license_key_hash: licKvKey, expires_at: payload.exp }));
           }
+          await limiter.complete(conversationHash, reservation.token, license_key, payload.exp, storeName);
 
           return new Response(JSON.stringify({
             ok: true,

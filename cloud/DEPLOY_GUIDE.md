@@ -1,50 +1,29 @@
-# Cloudflare Workers 云端鉴权网关与用量看板 2分钟部署指南 (永久免费)
+# Cloudflare Workers 云端鉴权网关部署指南
 
-> **前置条件**：注册一个 [Cloudflare 免费账号](https://dash.cloudflare.com/)（无需绑定信用卡，终身免费，每天可承受 100,000 次请求）。
-
----
-
-## 极速部署方式一：网页端直接复制粘贴 (推荐，无需安装任何命令行工具)
-
-### 步骤 1：创建 Worker 服务
-1. 打开并登录 [Cloudflare 控制台](https://dash.cloudflare.com/)；
-2. 在左侧菜单点击 **Compute (Workers & Pages)** ➔ 点击右上角 **Create application** (创建应用程序)；
-3. 选择 **Workers** ➔ 点击 **Create Worker**；
-4. 命名为 `wb-auth-gateway`（或任意名称）➔ 点击 **Deploy** (部署)；
-5. 部署完成后，点击 **Edit code** (编辑代码)。
-
-### 步骤 2：粘贴核心代码
-1. 将本项目中 [`cloud/worker.js`](./worker.js) 的全部内容复制；
-2. 粘贴替换网页编辑器中的全部默认代码；
-3. 点击右上角 **Deploy** (保存并部署)。
-
-### 步骤 3：创建并绑定 KV 数据库 (用于持久化授权)
-1. 返回 Cloudflare 左侧菜单，展开 **Storage & Databases** ➔ 点击 **KV**；
-2. 点击 **Create namespace** (创建命名空间)，名称输入：`WB_LICENSES` ➔ 点击 **Add**；
-3. 返回进入刚创建的 `wb-auth-gateway` Worker ➔ 点击 **Settings** (设置) 选项卡 ➔ 点击 **Variables** (变量)；
-4. 滚动到 **KV Namespace Bindings** 区域 ➔ 点击 **Add binding**：
-   - **Variable name (变量名)** 必须填写：`WB_LICENSES`
-   - **KV namespace (选择命名空间)** 下拉选择刚刚创建的 `WB_LICENSES`
-5. 在 **Secret** 类型变量中设置 `RSA_SIGNING_KEY`（新的签名私钥）、`ADMIN_SECRET`（新的管理口令）；使用支付宝时还需设置 `ALIPAY_PRIVATE_KEY`。不要把这些值写进源码、普通变量或仓库。旧版仓库曾包含密钥，部署前必须轮换，并规划已有授权码的迁移。
-6. 点击 **Deploy** 保存生效！
+> **前置条件**：使用可管理该 Worker、KV 与 Durable Objects 的 Cloudflare 账号。免费试用的单 IP 三窗口配额需要 SQLite Durable Object 绑定。
 
 ---
 
-## 极速部署方式二：使用 Wrangler CLI 命令行部署
+## 部署方式：使用 Wrangler CLI
 
-若您本地装有 Node.js，可在 `cloud/` 目录下直接终端一键发布：
+本版本由 `entry.js`、`worker.js`、`trial_ip_limiter.js` 和 Wrangler 的 Durable Object 迁移配置组成。网页编辑器只粘贴 `worker.js` 无法创建配额对象，会让试用签发停止。先核对线上独有的支付和授权逻辑，配置新的 Secret 并完成旧码迁移，再由 Wrangler 部署；不要直接覆盖生产 Worker。
+
+### 既有 Worker 发布步骤
+
+1. 备份当前 Worker 部署版本和 `WB_LICENSES` 授权记录，核对真实店铺 ID、到期时间和支付配置。
+2. 在 Cloudflare Secret 中安全设置 `RSA_SIGNING_KEY`、`ADMIN_SECRET`；使用支付宝时设置 `ALIPAY_PRIVATE_KEY` 和核对 `ALIPAY_PUBLIC_KEY`、`ALIPAY_APP_ID`。不要把私钥写进源码或普通变量。
+3. 在 `cloud/` 执行 `wrangler deploy --dry-run`，确认出现 `TRIAL_IP_LIMITER` Durable Object 和 `WB_LICENSES` KV 绑定；隔离环境先验证 3 窗口及并发限制。
+4. 执行 `wrangler deploy`；验证首领、重复领、第 4 窗口拒绝、旧正式授权、支付回调和真实用户路径。
+
+## Wrangler 命令
+
+在 `cloud/` 目录执行。已有生产 KV 的 ID 已写入 `wrangler.toml`；新账号须先建立自己的 KV 并替换该 ID。
 
 ```bash
-# 1. 安装 Wrangler
 npm install -g wrangler
-
-# 2. 登录 Cloudflare 账号
 wrangler login
-
-# 3. 创建 KV 命名空间
-wrangler kv:namespace create WB_LICENSES
-
-# 4. 将生成的 id 填入 wrangler.toml，分别运行 wrangler secret put RSA_SIGNING_KEY、wrangler secret put ADMIN_SECRET；使用支付宝时还需 wrangler secret put ALIPAY_PRIVATE_KEY。然后发布
+wrangler deploy --dry-run
+# 完成旧码迁移、Secret 设置和隔离环境验证后：
 wrangler deploy
 ```
 
@@ -68,4 +47,4 @@ wrangler deploy
   "cloud_auth_url": "https://wb-auth-gateway.<your-username>.workers.dev"
 }
 ```
-客户端每次启动或上架时，会自动连线云端校验；一旦被管理员在 Web 控制台封禁，客户端下一秒立即闪退锁死！
+新版客户端在授权和上架前核验云端状态；授权到期、封禁或网关不可达时停止上架并显示原因。旧安装包需升级后才会采用该逻辑。
