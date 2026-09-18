@@ -1615,12 +1615,12 @@ export default {
       <div class="login-sub">Wildberries 搬家上架 · 独立发卡控制台</div>
       
       <div class="form-group">
-        <label>👤 登录用户名 (Username)</label>
-        <input type="text" id="login-username" class="input-box" placeholder="请输入代理商账号" />
+        <label>👤 登录账号 (Username)</label>
+        <input type="text" id="login-username" class="input-box" placeholder="请输入代理商账号" onkeydown="if(event.key==='Enter') doLogin()" />
       </div>
       <div class="form-group">
         <label>🔑 登录密码 (Password)</label>
-        <input type="password" id="login-password" class="input-box" placeholder="请输入密码" />
+        <input type="password" id="login-password" class="input-box" placeholder="请输入密码" onkeydown="if(event.key==='Enter') doLogin()" />
       </div>
       <button class="btn-primary" onclick="doLogin()">立即登录控制台</button>
       <div id="login-error" style="color: #f87171; font-size: 12px; margin-top: 12px; text-align: center; display: none;"></div>
@@ -2123,7 +2123,7 @@ export default {
         var res = await fetch('/api/agent/recharge-status?order_id=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(currentToken));
         var data = await res.json();
         if (data.ok && data.status === 'PAID') {
-          alert('🎉 支付宝充值到账成功！\n充值金额：¥' + (amt ? amt.toFixed(2) : (data.amount || '')) + '\n当前最新账户余额：¥' + (data.new_balance !== null ? Number(data.new_balance).toFixed(2) : ''));
+          alert('🎉 支付宝充值到账成功！\\n充值金额：¥' + (amt ? amt.toFixed(2) : (data.amount || '')) + '\\n当前最新账户余额：¥' + (data.new_balance !== null ? Number(data.new_balance).toFixed(2) : ''));
           closeRechargeModal();
           loadDashboard();
         } else {
@@ -2608,11 +2608,11 @@ export default {
       
       <div class="form-group">
         <label>👑 管理员账号 (Username)</label>
-        <input type="text" id="adm-user-input" class="input-box" placeholder="请输入管理员用户名 (默认 admin)" />
+        <input type="text" id="adm-user-input" class="input-box" placeholder="请输入管理员用户名 (默认 admin)" onkeydown="if(event.key==='Enter') doAdminLogin()" />
       </div>
       <div class="form-group">
         <label>🔑 登录密码 (Password)</label>
-        <input type="password" id="adm-pass-input" class="input-box" placeholder="请输入管理员密码" />
+        <input type="password" id="adm-pass-input" class="input-box" placeholder="请输入管理员密码" onkeydown="if(event.key==='Enter') doAdminLogin()" />
       </div>
       <button class="btn-login" onclick="doAdminLogin()">安全登录总控制台</button>
       <div id="adm-login-err" class="login-err"></div>
@@ -2654,9 +2654,9 @@ export default {
     </div>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('agents')">🤝 代理商体系 (<span id="tab-cnt-agents">0</span>)</button>
-      <button class="tab-btn" onclick="switchTab('licenses')">🔑 店铺授权列表 (<span id="tab-cnt-licenses">0</span>)</button>
-      <button class="tab-btn" onclick="switchTab('orders')">💳 直营支付订单 (<span id="tab-cnt-orders">0</span>)</button>
+      <button class="tab-btn active" onclick="switchTab('agents', this)">🤝 代理商体系 (<span id="tab-cnt-agents">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('licenses', this)">🔑 店铺授权列表 (<span id="tab-cnt-licenses">0</span>)</button>
+      <button class="tab-btn" onclick="switchTab('orders', this)">💳 直营支付订单 (<span id="tab-cnt-orders">0</span>)</button>
     </div>
 
     <div id="tab-agents">
@@ -2764,12 +2764,16 @@ export default {
       }
     }
 
-    function switchTab(tab) {
+    function switchTab(tab, btn) {
       document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
       document.getElementById('tab-agents').style.display = tab === 'agents' ? 'block' : 'none';
       document.getElementById('tab-licenses').style.display = tab === 'licenses' ? 'block' : 'none';
       document.getElementById('tab-orders').style.display = tab === 'orders' ? 'block' : 'none';
-      event.target.classList.add('active');
+      if (btn) {
+        btn.classList.add('active');
+      } else if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+      }
     }
 
     async function init() {
@@ -2932,7 +2936,7 @@ export default {
         var customer = ord.customer_name || ord.agent_name || '-';
         var bindId = ord.machine_id || ord.agent_id || '-';
         var delBtn = !isPaid 
-          ? '<button class="action-btn btn-ban" style="background:#ef4444;color:#fff;" onclick="doDeleteOrder(\'' + ord.order_id + '\')">🗑️ 删除废单</button>'
+          ? '<button class="action-btn btn-ban" style="background:#ef4444;color:#fff;" data-order-id="' + ord.order_id + '" onclick="doDeleteOrder(this.dataset.orderId)">🗑️ 删除废单</button>'
           : '<span style="color:#64748b;font-size:12px;">已完成归档</span>';
 
         return '<tr>' +
