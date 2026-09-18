@@ -3049,16 +3049,23 @@ export default {
     }
 
     async function rechargeAgent(agentId, agentName) {
-      var amount = prompt("请输入为代理商【" + agentName + "】充值的金额 (元):", "2400");
+      var amount = prompt("请输入为代理商【" + agentName + "】添加的预存金额 (元，如现金收款/微信转账):", "2400");
       if (!amount) return;
+      var num = parseFloat(amount);
+      if (isNaN(num)) {
+        alert("请输入有效的数字金额！");
+        return;
+      }
+      var note = prompt("可输入入账备注（例如：现金支付/微信收款，留空默认现金/线下结算）:", "现金支付");
+      if (note === null) return;
       var res = await fetch("/admin/api/agent/recharge?token=" + encodeURIComponent(adminToken), {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Token": adminToken },
-        body: JSON.stringify({ agent_id: agentId, amount: parseFloat(amount) })
+        body: JSON.stringify({ agent_id: agentId, amount: num, note: note || "现金/线下结算" })
       });
       var data = await res.json();
       if (data.ok) {
-        alert("✅ 充值成功！当前最新余额: ¥" + data.new_balance);
+        alert("✅ 充值入账成功！\\n代理商：" + agentName + "\\n本次入账：¥" + num.toFixed(2) + "\\n当前最新余额：¥" + data.new_balance);
         loadDashboard();
       } else {
         alert("充值失败: " + data.error);
@@ -3271,7 +3278,7 @@ export default {
       const auth = await verifyAdminAuth(request, env, url);
       if (!auth.isAuth) return new Response("Unauthorized", { status: 401, headers: corsHeaders });
       try {
-        const { agent_id, amount, set_balance } = await request.json();
+        const { agent_id, amount, set_balance, note } = await request.json();
         if (!agent_id || (amount === undefined && set_balance === undefined)) {
           return new Response(JSON.stringify({ ok: false, error: "缺少 agent_id 或金额参数" }), { status: 400, headers: corsHeaders });
         }
@@ -3287,6 +3294,25 @@ export default {
         }
         agent.last_recharged_at = new Date().toISOString();
         await env.WB_LICENSES.put(`AGENT:${agent_id}`, JSON.stringify(agent));
+
+        // Record offline cash/transfer recharge in ledger orders
+        if (amount && Number(amount) > 0 && env.WB_LICENSES) {
+          const orderId = `MANUAL-${Date.now().toString().slice(-8)}`;
+          const manualOrder = {
+            order_id: orderId,
+            type: "AGENT_RECHARGE",
+            plan_name: "现金/线下充值 (管理员入账)",
+            amount: Number(amount).toFixed(2),
+            agent_id: agent_id,
+            agent_name: agent.name,
+            customer_name: "超管线下确认",
+            trade_no: note || "现金/微信/线下结算",
+            status: "PAID",
+            paid_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+          };
+          await env.WB_LICENSES.put(`ORD:${orderId}`, JSON.stringify(manualOrder));
+        }
 
         return new Response(JSON.stringify({ ok: true, agent_id, new_balance: agent.balance }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
