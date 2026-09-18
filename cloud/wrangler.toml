@@ -2,6 +2,7 @@ name = "wb-auth-gateway"
 main = "entry.js"
 compatibility_date = "2024-04-03"
 compatibility_flags = ["nodejs_compat"]
+keep_vars = true
 
 # 绑定 Cloudflare KV 命名空间用于持久化商业授权档案
 [[kv_namespaces]]
@@ -16,6 +17,4 @@ class_name = "TrialIpLimiter"
 tag = "trial-ip-limit-v1"
 new_sqlite_classes = ["TrialIpLimiter"]
 
-# 环境变量
-[vars]
-ALIPAY_APP_ID = "2021007100605449"
+# 现网 ALIPAY_APP_ID 与 ADMIN_SECRET 在 Cloudflare 中配置，部署时保留。
