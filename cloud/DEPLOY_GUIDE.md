@@ -25,9 +25,7 @@
 4. 滚动到 **KV Namespace Bindings** 区域 ➔ 点击 **Add binding**：
    - **Variable name (变量名)** 必须填写：`WB_LICENSES`
    - **KV namespace (选择命名空间)** 下拉选择刚刚创建的 `WB_LICENSES`
-5. （可选）在 **Environment Variables** (环境变量) 中添加：
-   - **Variable name**: `ADMIN_SECRET`
-   - **Value**: 您的自定义管理密码（默认是 `WB-ADMIN-SECRET-2026`）
+5. 在 **Secret** 类型变量中设置 `RSA_SIGNING_KEY`（新的签名私钥）、`ADMIN_SECRET`（新的管理口令）；使用支付宝时还需设置 `ALIPAY_PRIVATE_KEY`。不要把这些值写进源码、普通变量或仓库。旧版仓库曾包含密钥，部署前必须轮换，并规划已有授权码的迁移。
 6. 点击 **Deploy** 保存生效！
 
 ---
@@ -46,7 +44,7 @@ wrangler login
 # 3. 创建 KV 命名空间
 wrangler kv:namespace create WB_LICENSES
 
-# 4. 将生成的 id 填入 wrangler.toml，然后发布
+# 4. 将生成的 id 填入 wrangler.toml，分别运行 wrangler secret put RSA_SIGNING_KEY、wrangler secret put ADMIN_SECRET；使用支付宝时还需 wrangler secret put ALIPAY_PRIVATE_KEY。然后发布
 wrangler deploy
 ```
 
@@ -59,7 +57,7 @@ wrangler deploy
 
 ### 1. 访问可视化 Web 商业看板
 在任何电脑或手机浏览器打开：
-`https://wb-auth-gateway.<your-username>.workers.dev/admin?key=WB-ADMIN-SECRET-2026`
+`https://wb-auth-gateway.<your-username>.workers.dev/admin`
 - 即可实时查看全网客户激活状态、机器码、累计搬家上架件数；
 - 随时点击 **【封禁】**、**【解封】**、**【+30天】**、**【+1年】** 实行远程控制！
 

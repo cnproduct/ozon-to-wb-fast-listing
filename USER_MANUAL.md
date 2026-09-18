@@ -1,3 +1,7 @@
+## 最新试用规则
+
+新老用户输入「申请试用」后，使用真实会话 ID 执行 `python scripts/session_manager.py trial --conversation-id <会话ID>`；首次签发 48 小时授权。再次输入不会重置时长；正式授权保留。旧版安装必须升级技能和脚本。 试用需要连接云端网关。
+
 # Wildberries (WB) 全自动极速智能上架技能包 —— 使用说明书与新手操作手册
 
 > **版本**：v3.0.0 旗舰防错与大促实战版  
@@ -104,7 +108,7 @@
 - **方式 D：Cloudflare Workers 云端鉴权与 Web 可视化用量看板 (Stage 2 商业化扩展)**
   - **2 分钟极速部署**：参考 [`cloud/DEPLOY_GUIDE.md`](./cloud/DEPLOY_GUIDE.md)，将 [`cloud/worker.js`](./cloud/worker.js) 粘贴至免费 Cloudflare Worker 并绑定 KV (`WB_LICENSES`)。
   - **客户端配置**：在 `config.json` 中配置 `"cloud_auth_url": "https://wb-auth-gateway.<your-name>.workers.dev"`。
-  - **访问 Web 商业看板**：在浏览器打开 `https://<worker-url>/admin?key=WB-ADMIN-SECRET-2026` 即可实时查看各商户设备状态、累计上架用量统计。
+  - **访问 Web 商业看板**：在浏览器打开 `https://<worker-url>/admin?key=<管理员自行设置的密钥>` 即可实时查看各商户设备状态、累计上架用量统计。
   - **远程控制指令 (对话框或 CLI)**：
     - 对话框查看看板：`云端看板`
     - 远程封禁：`封禁授权 LIC-RSA-... 违规多开` 或 CLI `python scripts/session_manager.py cloud-ban --license LIC-RSA-... --reason "违规多开"`

@@ -29,7 +29,8 @@ except Exception:
     pass
 
 DEFAULT_TIMEOUT = 3.5
-DEFAULT_ADMIN_SECRET = "WB-ADMIN-SECRET-2026"
+DEFAULT_ADMIN_SECRET = ""
+DEFAULT_TRIAL_GATEWAY = "https://wb-auth-gateway.cnproduct.workers.dev"
 
 def get_cloud_config() -> Tuple[str, str]:
     """获取云端网关配置 URL 与管理 Secret"""
@@ -68,6 +69,34 @@ class CloudAuthClient:
     def is_cloud_enabled(self) -> bool:
         """检查是否配置了有效的云端网关"""
         return bool(self.base_url and self.base_url.startswith("http"))
+
+    def request_trial(self, conversation_id: str, agent_id: str = "") -> Tuple[bool, Dict[str, Any]]:
+        """由云端唯一签发试用码；客户端不持有签名私钥。"""
+        gateway = self.base_url or DEFAULT_TRIAL_GATEWAY
+        try:
+            response = self.session.post(
+                f"{gateway}/api/pay/create-order",
+                json={"mid": conversation_id, "plan_id": "free_trial_2days", "agent_id": agent_id},
+                timeout=DEFAULT_TIMEOUT,
+            )
+            data = response.json()
+            if response.status_code == 200 and data.get("free") and data.get("license_key") and data.get("expires_at"):
+                return True, {**data, "gateway": gateway}
+            return False, {"error": data.get("error", "云端试用签发失败"), "already_claimed": data.get("already_claimed", False)}
+        except (requests.RequestException, ValueError) as exc:
+            return False, {"error": f"无法连接试用网关：{exc.__class__.__name__}"}
+
+    def verify_trial_license(self, license_key: str, conversation_id: str, gateway: str) -> bool:
+        """试用必须在线有效，网关不可达时不允许离线绕过时效。"""
+        try:
+            response = self.session.get(
+                f"{gateway}/api/verify",
+                params={"key": license_key, "mid": conversation_id},
+                timeout=DEFAULT_TIMEOUT,
+            )
+            return response.status_code == 200 and response.json().get("valid") is True
+        except (requests.RequestException, ValueError):
+            return False
 
     def verify_cloud_license(self, license_key: str, machine_id: str, 
                              conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:

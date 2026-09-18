@@ -13,5 +13,5 @@
     "MyCustomProtectedBrand2"
   ],
   "cloud_auth_url": "https://wb-auth-gateway.<your-name>.workers.dev",
-  "admin_secret": "WB-ADMIN-SECRET-2026"
+  "admin_secret": ""
 }

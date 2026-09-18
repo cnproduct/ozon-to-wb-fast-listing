@@ -30,6 +30,7 @@ import time
 import math
 import logging
 import threading
+import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
 try:
@@ -498,6 +499,33 @@ def get_sensitive_brands_path() -> str:
 def handle_text_commands(chat_id: str, raw_text: str, open_id: Optional[str] = None) -> bool:
     """处理避坑词库、机器码、收银台、授权激活、店铺绑定等指令"""
     text_lower = raw_text.lower().strip()
+
+    if raw_text.strip() == "申请试用":
+        try:
+            from session_manager import SessionManager
+            manager = SessionManager()
+            ok, message, session = manager.issue_free_trial(chat_id)
+            if ok and session.get("license_name") == "2天免费试用":
+                bindings = store_manager.load_bindings()
+                store_cfg = bindings.get(chat_id, {})
+                paid_expiry = store_cfg.get("license_expires", "")
+                paid_active = store_cfg.get("license_key") and store_cfg.get("license_name") != "2天免费试用"
+                if paid_active and paid_expiry:
+                    try:
+                        paid_active = datetime.datetime.now() < datetime.datetime.strptime(paid_expiry, "%Y-%m-%d %H:%M:%S")
+                    except ValueError:
+                        paid_active = False
+                if not paid_active:
+                    store_cfg["license_key"] = session["license_key"]
+                    store_cfg["license_name"] = "2天免费试用"
+                    store_cfg["license_expires"] = manager._load_registry()["trial_claims_20260918"][chat_id]["expires_at"]
+                    bindings[chat_id] = store_cfg
+                    if not store_manager.save_bindings(bindings):
+                        raise RuntimeError("无法保存飞书会话授权")
+            send_feishu_reply(chat_id, message, open_id=open_id)
+        except Exception as exc:
+            send_feishu_reply(chat_id, f"试用申请未完成：{exc}", open_id=open_id)
+        return True
 
     # 1. 商业授权 - 获取机器码
     if text_lower in ["获取机器码", "机器码", "mid", "查看机器码", "获取mid"]:

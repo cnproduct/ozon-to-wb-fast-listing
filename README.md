@@ -8,6 +8,10 @@
 
 ---
 
+## 2 天免费试用
+
+安装或更新本技能后，新用户和已有用户都可以在对话中输入「申请试用」。命令行可执行 `python scripts/session_manager.py trial --conversation-id <真实会话ID>`。首次领取从签发时起 48 小时有效；重复申请不延长试用，已有正式授权不被替换。旧安装需要拉取新版技能和脚本；这不会自动更新已分发的离线压缩包。 试用必须连接云端网关签发并核验。
+
 ## 🌟 项目简介 (Overview)
 
 **Ozon to Wildberries Fast Listing** 是专为俄罗斯跨境电商卖家与代运营团队打造的企业级全自动上架流水线与 AI Agent Skill。

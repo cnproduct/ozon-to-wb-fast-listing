@@ -331,33 +331,70 @@ class SessionManager:
         return True, succ_msg, session_entry
 
     def issue_free_trial(self, conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
-        """为当前会话窗口免费签发 2 天全功能测试授权 (时效 48 小时)"""
+        """新旧会话均可领取一次 48 小时试用；重复申请返回原授权。"""
         cid = self.get_current_conversation_id(conversation_id)
+        if cid == "default-session":
+            return False, "无法识别当前用户的真实会话 ID，请提供 --conversation-id 后再申请试用。", {}
         registry = self._load_registry()
-        
-        crypto = LicenseCrypto()
-        lic_key = crypto.sign_license(machine_id="*", customer_name="免费试用卖家", days=2, max_sessions=1)
-        expires_at = (datetime.datetime.now() + datetime.timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
+        sessions = registry.setdefault("sessions", {})
+        session_entry = sessions.setdefault(cid, {})
+        # 新规则独立计次：旧版已试用的用户也能领取本轮 48 小时授权。
+        claims = registry.setdefault("trial_claims_20260918", {})
+        claim = claims.get(cid)
+        if claim:
+            expiry = claim.get("expires_at", "")
+            try:
+                active = datetime.datetime.now() < datetime.datetime.strptime(expiry, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                active = False
+            if active:
+                active = CloudAuthClient().verify_trial_license(claim.get("license_key", ""), cid, claim.get("gateway", ""))
+            state = "仍然有效" if active else "已经到期或在线核验失败"
+            return active, f"您的 2 天免费试用{state}，到期时间：{expiry}。重复申请不会重置 48 小时。", session_entry
+
+        cloud_client = CloudAuthClient()
+        issued, result = cloud_client.request_trial(cid, session_entry.get("agent_id", ""))
+        if not issued:
+            return False, f"试用授权未开通：{result.get('error', '云端签发失败')}。", session_entry
+        lic_key = result["license_key"]
+        expires_at = result["expires_at"]
+        gateway = result["gateway"]
         lic_data = {
             "name": "免费试用卖家",
-            "machine_id": "*",
+            "machine_id": cid,
             "max_sessions": 1,
             "expires_at": expires_at,
-            "type": "RSA-FREE-TRIAL",
+            "type": "CLOUD-FREE-TRIAL",
             "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "activated_sessions": [cid]
         }
         registry.setdefault("licenses", {})[lic_key] = lic_data
         
-        sessions = registry.setdefault("sessions", {})
-        session_entry = sessions.setdefault(cid, {})
-        session_entry["status"] = "AUTHORIZED"
-        session_entry["license_key"] = lic_key
-        session_entry["license_name"] = "2天免费试用"
-        session_entry["machine_id"] = "*"
-        session_entry["activated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        claims[cid] = {"license_key": lic_key, "expires_at": expires_at, "gateway": gateway}
+        current_key = session_entry.get("license_key", "")
+        current_info = registry.get("licenses", {}).get(current_key, {})
+        current_expiry = current_info.get("expires_at", "")
+        if current_key.startswith("LIC-RSA-") and not current_expiry:
+            try:
+                current_expiry = LicenseCrypto().verify_license(current_key).get("exp", "")
+            except LicenseCryptError:
+                pass
+        try:
+            current_valid = datetime.datetime.now() < datetime.datetime.strptime(current_expiry, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            current_valid = bool(current_key and session_entry.get("status") == "AUTHORIZED" and not current_key.startswith("LIC-RSA-"))
+        current_is_trial = current_info.get("type") in ("RSA-FREE-TRIAL", "CLOUD-FREE-TRIAL") or session_entry.get("license_name") == "2天免费试用"
+        if not current_valid or current_is_trial:
+            session_entry["status"] = "AUTHORIZED"
+            session_entry["license_key"] = lic_key
+            session_entry["license_name"] = "2天免费试用"
+            session_entry["machine_id"] = cid
+            session_entry["license_source"] = "CLOUD_TRIAL"
+            session_entry["trial_gateway"] = gateway
+            session_entry["activated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sessions[cid] = session_entry
-        self._save_registry(registry)
+        if not self._save_registry(registry):
+            return False, "试用授权未能保存，请检查本地会话注册表写入权限。", {}
         
         succ_msg = (
             f"🎉 **已成功开通 2 天全功能免费试用！**\n\n"
@@ -365,7 +402,7 @@ class SessionManager:
             f"🔑 **试用授权码**: `{lic_key}`\n"
             f"⏳ **试用到期时间**: `{expires_at}`\n"
             f"🆔 **当前激活窗口**: `{cid}`\n\n"
-            f"👉 **下一步**：当前窗口已完全解锁！请绑定您的 Wildberries 目标店铺：\n"
+            f"👉 **下一步**：请绑定您的 Wildberries 目标店铺（已有正式授权仍保持原授权）：\n"
             f"`绑定店铺 店铺简称：我的店铺 API令牌：eyJ... 仓库ID：2200658 售价倍数：6.0`\n\n"
             f"💡 提示：免费试用期内享受 100% 完整极速搬家上架功能；2 天试用到期后可随时支付 ¥600/月 升级为正式月度授权。"
         )
@@ -398,6 +435,13 @@ class SessionManager:
                 f"================================================================================\n"
             )
             return False, unauth_msg, {}
+
+        if session_entry.get("license_source") == "CLOUD_TRIAL":
+            claim = registry.get("trial_claims_20260918", {}).get(cid, {})
+            gateway = claim.get("gateway") or session_entry.get("trial_gateway", "")
+            if not gateway or not CloudAuthClient().verify_trial_license(session_entry.get("license_key", ""), cid, gateway):
+                return False, "试用授权在线核验失败或已经到期，请检查网关连接与授权状态。", {}
+            return True, "试用授权有效", session_entry
 
         # 硬件指纹防伪复验：如果会话绑定的是 RSA 授权码，强制再次比对本机实际硬件指纹
         lic_key = session_entry.get("license_key", "")
@@ -1026,6 +1070,10 @@ def main():
     # 2.1 machine-id
     p_mid = subparsers.add_parser("machine-id", help="查看当前设备的硬件机器码")
 
+    # 2.2 trial
+    p_trial = subparsers.add_parser("trial", help="新旧用户领取一次 48 小时免费试用")
+    p_trial.add_argument("--conversation-id", required=True, help="当前真实会话 ID")
+
     # 3. activate
     p_act = subparsers.add_parser("activate", help="在当前会话激活授权")
     p_act.add_argument("--license", required=True, help="商业授权码")
@@ -1098,6 +1146,13 @@ def main():
     elif args.action == "machine-id":
         msg = mgr.parse_command("获取机器码")
         print(msg)
+    elif args.action == "trial":
+        if args.conversation_id.strip() == "default-session":
+            parser.error("请提供当前用户的真实会话 ID")
+        ok, msg, _ = mgr.issue_free_trial(args.conversation_id)
+        print(msg)
+        if not ok:
+            sys.exit(1)
     elif args.action == "generate-license":
         res = mgr.generate_license(args.name, args.max_sessions, args.days, getattr(args, 'mid', None))
         print(f"✅ 成功生成商业授权码: {res['license_key']}")
