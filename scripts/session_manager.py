@@ -737,9 +737,13 @@ class SessionManager:
         # 0. 免费试用快捷激活指令
         free_trial_keywords = [
             "免费试用", "试用", "领取试用", "免费测试", "免费", "2天免费", "两天免费", "2天免费试用", "两天免费试用",
-            "开启试用", "申请试用", "0元试用", "0元", "领取代金", "试用激活码", "体验", "测试", "测试版"
+            "开启试用", "申请试用", "0元试用", "0元", "领取代金", "试用激活码", "体验", "测试", "测试版",
+            "获取试用码", "试用授权", "申请2天试用", "试用码", "2天试用", "两天试用", "试用卡", "申请试用授权",
+            "trial", "free_trial", "test"
         ]
-        if text.strip() in free_trial_keywords or text.lower() in [k.lower() for k in free_trial_keywords]:
+        if text.strip() in free_trial_keywords or text.lower() in [k.lower() for k in free_trial_keywords] or (
+            ("试用" in text or "体验" in text) and not text.startswith("LIC-") and not text.startswith("激活")
+        ):
             _, msg, _ = self.issue_free_trial(cid)
             return msg
 
@@ -1023,6 +1027,12 @@ def main():
     p_gen.add_argument("--max-sessions", type=int, default=1, help="允许激活的会话窗口数 (-1 表示无限)")
     p_gen.add_argument("--days", type=int, default=365, help="有效天数")
 
+    # 2.0 generate-trial (快速生成 2 天试用授权码)
+    p_trial = subparsers.add_parser("generate-trial", help="快速生成 2 天全功能免费试用授权码 (48小时有效)")
+    p_trial.add_argument("--name", default="试用客户", help="试用客户名称")
+    p_trial.add_argument("--mid", default="*", help="绑定的机器码 (默认 '*' 通配任意设备)")
+    p_trial.add_argument("--conversation-id", default=None, help="可选，直接激活指定会话窗口 ID")
+
     # 2.1 machine-id
     p_mid = subparsers.add_parser("machine-id", help="查看当前设备的硬件机器码")
 
@@ -1101,6 +1111,14 @@ def main():
     elif args.action == "generate-license":
         res = mgr.generate_license(args.name, args.max_sessions, args.days, getattr(args, 'mid', None))
         print(f"✅ 成功生成商业授权码: {res['license_key']}")
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+    elif args.action == "generate-trial":
+        res = mgr.generate_license(name=args.name, max_sessions=1, days=2, machine_id=getattr(args, 'mid', '*'))
+        if getattr(args, 'conversation_id', None):
+            mgr.activate_license(res['license_key'], args.conversation_id)
+        print(f"🎉 成功生成 2 天全功能免费试用授权码 (48小时有效):")
+        print(f"🔑 授权码: {res['license_key']}")
+        print(f"⏳ 有效期至: {res['expires_at']}")
         print(json.dumps(res, ensure_ascii=False, indent=2))
     elif args.action == "activate":
         ok, msg, _ = mgr.activate_license(args.license, args.conversation_id)
