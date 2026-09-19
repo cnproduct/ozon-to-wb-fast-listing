@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -94,7 +95,7 @@ def validate_installed() -> None:
     ]
     existing = [str(path) for path in scripts if path.exists()]
     if existing:
-        subprocess.run(["python3", "-m", "py_compile", *existing], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+        subprocess.run([sys.executable, "-m", "py_compile", *existing], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
 
 
 def install_if_needed(install: bool) -> bool:

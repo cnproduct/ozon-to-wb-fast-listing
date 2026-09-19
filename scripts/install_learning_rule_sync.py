@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
@@ -38,7 +39,7 @@ def atomic_json(path: Path, value: object, mode: int | None = None) -> None:
 
 
 def main() -> None:
-    if not HUB_CONFIG.exists() or HUB_CONFIG.stat().st_mode & 0o077:
+    if not HUB_CONFIG.exists() or (os.name != "nt" and HUB_CONFIG.stat().st_mode & 0o077):
         raise SystemExit("请先由运营超级管理员安装权限为 0600 的 hub-config.json")
     source = Path(__file__).with_name("sync_learning_rules.py")
     update_source = Path(__file__).with_name("update_skill_from_git.py")
@@ -47,28 +48,30 @@ def main() -> None:
     SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
     target = SIDECAR_DIR / "sync_learning_rules.py"
     shutil.copyfile(source, target)
-    os.chmod(target, 0o700)
+    if os.name != "nt":
+        os.chmod(target, 0o700)
     atomic_json(
         SIDECAR_CONFIG,
         {
             "display_name": "WB Skill 规则自动更新",
             "description": "每 15 分钟验证并安装管理员发布的签名规则版本",
             "builtin": "schedule",
-            "args": ["*/15 * * * *", "python3", str(target)],
+            "args": ["*/15 * * * *", sys.executable, str(target)],
             "restart_policy": "always",
         },
     )
     UPDATE_SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
     update_target = UPDATE_SIDECAR_DIR / "update_skill_from_git.py"
     shutil.copyfile(update_source, update_target)
-    os.chmod(update_target, 0o700)
+    if os.name != "nt":
+        os.chmod(update_target, 0o700)
     atomic_json(
         UPDATE_SIDECAR_CONFIG,
         {
             "display_name": "WB Skill 每日静默更新",
             "description": "每天 06:00 从已验证的官方主分支安全快进全局 WB Skill",
             "builtin": "schedule",
-            "args": ["0 6 * * *", "python3", str(update_target)],
+            "args": ["0 6 * * *", sys.executable, str(update_target)],
             "restart_policy": "always",
         },
     )
@@ -84,7 +87,7 @@ def main() -> None:
     sidecars["wb-skill-rules-sync"] = {"enabled": True}
     sidecars["wb-skill-auto-update"] = {"enabled": True}
     atomic_json(ANTIGRAVITY_CONFIG, config)
-    subprocess.run(["python3", str(update_target), "--install"], check=True)
+    subprocess.run([sys.executable, str(update_target), "--install"], check=True)
     print("WB Skill 自动更新已安装：规则每 15 分钟同步，完整 Skill 每天 06:00 静默更新。")
 
 

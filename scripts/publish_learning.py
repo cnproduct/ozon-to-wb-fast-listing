@@ -1,6 +1,7 @@
 """Upload only de-identified WB Skill learning candidates to the learning hub."""
 
 import json
+import os
 from pathlib import Path
 import re
 from urllib.error import HTTPError, URLError
@@ -62,7 +63,7 @@ def main():
     config_path = ROOT / "hub-config.json"
     if not config_path.exists():
         raise SystemExit("集中接收配置尚未安装")
-    if config_path.stat().st_mode & 0o077:
+    if os.name != "nt" and config_path.stat().st_mode & 0o077:
         raise SystemExit("集中接收配置文件权限必须为 0600")
     config = json.loads(config_path.read_text(encoding="utf-8"))
     endpoint = config.get("endpoint", "")

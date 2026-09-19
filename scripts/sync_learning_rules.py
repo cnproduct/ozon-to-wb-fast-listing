@@ -47,7 +47,7 @@ def atomic_write(path: Path, text: str, mode: int = 0o600) -> None:
 
 
 def load_config() -> tuple[str, str]:
-    if not CONFIG.exists() or CONFIG.stat().st_mode & 0o077:
+    if not CONFIG.exists() or (os.name != "nt" and CONFIG.stat().st_mode & 0o077):
         raise SystemExit("集中规则配置不存在或权限不是 0600")
     try:
         value = json.loads(CONFIG.read_text(encoding="utf-8"))
