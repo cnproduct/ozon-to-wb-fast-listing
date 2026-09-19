@@ -29,6 +29,11 @@ def git(*arguments: str, check: bool = True) -> subprocess.CompletedProcess[str]
     return subprocess.run(
         ["git", "-C", str(TARGET), *arguments],
         text=True,
+        # Git returns UTF-8 repository content even on Windows hosts whose
+        # default subprocess encoding is GBK. Replacing malformed diagnostics
+        # keeps stderr from hiding the real Git failure.
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=check,
@@ -73,6 +78,8 @@ def verify_commit(commit: str) -> None:
 
 def validate_skill_at(commit: str) -> None:
     manifest = git("show", f"{commit}:SKILL.md").stdout
+    if not manifest:
+        raise RuntimeError("远端 Skill 清单无法读取")
     if not manifest.startswith("---\n") and not manifest.startswith("---\r\n"):
         raise RuntimeError("远端 Skill 清单无效")
     if "name: ozon-to-wb-fast-listing" not in manifest or "description:" not in manifest:
