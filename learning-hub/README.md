@@ -21,3 +21,5 @@
 用 Wrangler 在 `learning-hub/` 目录创建 D1 并将 ID 填入 `wrangler.jsonc`，运行 `wrangler d1 migrations apply DB --remote`，部署 Worker，然后以 `wrangler secret put ADMIN_TOKEN` 写入管理员密钥。部署后通过管理员 API 为每台设备生成上传令牌，把接收地址和该令牌存入该设备 `~/.codex/wb-skill-learning/hub-config.json`（权限 0600）。`python scripts/publish_learning.py` 只读取 `candidates.jsonl` 中经过本地筛选的五个字段并批量上传；服务器按内容去重，重复执行安全。
 
 管理员在仪表盘中“采纳”只表示进入待发布队列。“发布”会生成供已配置客户端拉取的签名规则版本，但不会自动执行真实业务操作、合并代码或修改正在运行的旧对话。客户端用 `scripts/sync_learning_rules.py` 验证签名和版本后，只更新 `~/.gemini/GEMINI.md` 中的 WB 受管区块，并保留其他全局规则。所有上传方须知晓本地候选将发送至集中服务。
+
+在设备配置好专属令牌后运行 `python scripts/install_learning_rule_sync.py`。安装器同时启用两个全局 Sidecar：每 15 分钟同步签名规则；每天本机时间 06:00 由 `scripts/update_skill_from_git.py` 更新 `~/.gemini/config/skills/ozon-to-wb-fast-listing`。完整 Skill 只接受官方仓库 `main` 的 GitHub 已验证提交和安全快进；发现本地修改、来源变化、历史改写或验证失败时停止更新并写入本机状态，不覆盖现有安装。
