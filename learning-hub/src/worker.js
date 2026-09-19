@@ -1,6 +1,6 @@
 const CATEGORIES = new Set(['故障', '平台变化', '政策变化', '商品', '物流', '用户操作', '其他']);
 const EVIDENCE = new Set(['平台回执', '官方来源', '代码验证', '用户反馈', '待核实']);
-const STATUS = new Set(['candidate', 'approved', 'rejected']);
+const STATUS = new Set(['candidate', 'approved', 'published', 'rejected']);
 const FIELDS = ['category', 'observation', 'outcome', 'suggestion', 'evidence'];
 const SENSITIVE = /(?:api[_ -]?key|token|secret|private[_ -]?key|license[_ -]?key|authorization|bearer|password|conversation[_ -]?id|chat[_ -]?id|store[_ -]?id|shop[_ -]?id|sku|nmid|barcode|订单号|手机号|授权码|密钥|店铺名|客户名|(?:\d{1,3}\.){3}\d{1,3}|[\w.+-]+@[\w.-]+\.[a-z]{2,}|\b\d{5,}\b|https?:\/\/\S+|\/Users\/\S+|[A-Za-z]:\\\S+)/i;
 const LIMIT_BYTES = 16384;
@@ -139,13 +139,17 @@ function validateLesson(value) {
   return item;
 }
 
+async function activeDeviceToken(request, env) {
+  const bearer = request.headers.get('Authorization') || '';
+  if (!/^Bearer [A-Za-z0-9_-]{40,100}$/.test(bearer)) return null;
+  const token = bearer.slice(7);
+  const active = await env.DB.prepare('SELECT id FROM ingest_tokens WHERE token_hash = ? AND revoked_at IS NULL').bind(await sha256(token)).first();
+  return active ? token : null;
+}
+
 async function ingest(request, env) {
   if (request.headers.get('Content-Type')?.split(';')[0] !== 'application/json') return json({error: 'content_type'}, 415);
-  const bearer = request.headers.get('Authorization') || '';
-  if (!/^Bearer [A-Za-z0-9_-]{40,100}$/.test(bearer)) return json({error: 'unauthorized'}, 401);
-  const tokenHash = await sha256(bearer.slice(7));
-  const active = await env.DB.prepare('SELECT id FROM ingest_tokens WHERE token_hash = ? AND revoked_at IS NULL').bind(tokenHash).first();
-  if (!active) return json({error: 'unauthorized'}, 401);
+  if (!await activeDeviceToken(request, env)) return json({error: 'unauthorized'}, 401);
   let body;
   try { body = JSON.parse(await limitedText(request)); } catch { return json({error: 'invalid_json_or_size'}, 400); }
   if (!body || Object.keys(body).length !== 1 || !Array.isArray(body.items) || body.items.length < 1 || body.items.length > 20) return json({error: 'invalid_batch'}, 400);
@@ -162,6 +166,17 @@ async function ingest(request, env) {
   return json({accepted, duplicate: items.length - accepted});
 }
 
+async function latestRules(request, env) {
+  const token = await activeDeviceToken(request, env);
+  if (!token) return json({error: 'unauthorized'}, 401);
+  const release = await env.DB.prepare('SELECT version, rules_json, created_at FROM rule_releases ORDER BY version DESC LIMIT 1').first();
+  if (!release) return new Response(null, {status: 204, headers: headers('application/json; charset=utf-8')});
+  let rules;
+  try { rules = JSON.parse(release.rules_json); } catch { return json({error: 'release_data'}, 500); }
+  const payload = JSON.stringify({version: release.version, created_at: release.created_at, rules});
+  return json({algorithm: 'HMAC-SHA256', payload, signature: await hmacHex(token, payload)});
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 }
@@ -172,6 +187,7 @@ async function dashboard(env, request) {
   const totals = await env.DB.prepare('SELECT review_status, COUNT(*) AS count FROM lessons GROUP BY review_status').all();
   const categories = await env.DB.prepare('SELECT category, COUNT(*) AS count FROM lessons GROUP BY category ORDER BY count DESC').all();
   const daily = await env.DB.prepare('SELECT substr(created_at, 1, 10) AS day, COUNT(*) AS count FROM lessons WHERE created_at >= ? GROUP BY substr(created_at, 1, 10) ORDER BY day DESC').bind(new Date(Date.now() - 7 * 86400000).toISOString()).all();
+  const latestRelease = await env.DB.prepare('SELECT version, item_count, created_at FROM rule_releases ORDER BY version DESC LIMIT 1').first();
   const query = status
     ? env.DB.prepare('SELECT fingerprint, category, observation, outcome, suggestion, evidence, review_status, created_at FROM lessons WHERE review_status = ? ORDER BY created_at DESC LIMIT 100').bind(status)
     : env.DB.prepare('SELECT fingerprint, category, observation, outcome, suggestion, evidence, review_status, created_at FROM lessons ORDER BY created_at DESC LIMIT 100');
@@ -181,8 +197,35 @@ async function dashboard(env, request) {
   const days = (daily.results || []).map(row => `<span class="pill">${escapeHtml(row.day)}：${row.count}</span>`).join(' ');
   const csrf = await hmacHex(env.ADMIN_TOKEN, 'wb-learning-admin-csrf');
   const rows = lessons.map(row => `<tr><td>${escapeHtml(row.created_at.slice(0, 10))}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.observation)}</td><td>${escapeHtml(row.outcome)}</td><td>${escapeHtml(row.suggestion)}</td><td>${escapeHtml(row.evidence)}</td><td>${escapeHtml(row.review_status)}</td><td>${row.review_status === 'candidate' ? `<form method="post" action="/admin/review"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="fingerprint" value="${escapeHtml(row.fingerprint)}"><button name="status" value="approved">采纳</button><button name="status" value="rejected">排除</button></form>` : ''}</td></tr>`).join('');
-  const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WB Skill 内部经验仪表盘</title><style>body{font:15px system-ui,sans-serif;margin:2rem;background:#f6f8fb;color:#192536}h1{margin-bottom:.3rem}.muted{color:#667085}.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:1.5rem 0}.stat,.panel{background:white;padding:1rem;border-radius:10px;box-shadow:0 1px 4px #0001}.stat strong{display:block;font-size:1.7rem}.pill{display:inline-block;background:#e9f1ff;padding:.35rem .7rem;border-radius:20px;margin:.2rem}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;background:white}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #e5e9f0;padding:.7rem;min-width:90px}td:nth-child(3),td:nth-child(4),td:nth-child(5){min-width:220px}button{margin:.15rem;padding:.3rem .5rem}a{color:#2255aa}.logout{float:right}</style><form class="logout" method="post" action="/admin/logout"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">退出</button></form><h1>WB Skill 内部经验仪表盘</h1><p class="muted">仅展示去标识化候选；采纳表示进入规则审阅，不会自动合并或部署。</p><div class="stats"><div class="stat">待核验<strong>${totalMap.candidate || 0}</strong></div><div class="stat">已采纳<strong>${totalMap.approved || 0}</strong></div><div class="stat">已排除<strong>${totalMap.rejected || 0}</strong></div></div><div class="panel"><strong>最近七天新增</strong><p>${days || '暂无记录'}</p><strong>类别</strong><p>${cards || '暂无记录'}</p><p><a href="/admin">全部</a> · <a href="/admin?status=candidate">待核验</a> · <a href="/admin?status=approved">已采纳</a> · <a href="/admin?status=rejected">已排除</a></p></div><h2>最近记录</h2><div class="scroll"><table><thead><tr><th>日期</th><th>类别</th><th>观察</th><th>实际结果</th><th>建议</th><th>证据</th><th>状态</th><th>审核</th></tr></thead><tbody>${rows || '<tr><td colspan="8">暂无记录</td></tr>'}</tbody></table></div></html>`;
+  const publish = totalMap.approved ? `<form method="post" action="/admin/publish"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">发布 ${totalMap.approved} 条已采纳规则</button></form>` : '';
+  const releaseText = latestRelease ? `当前发布版本 ${latestRelease.version}，共 ${latestRelease.item_count} 条规则` : '尚未发布规则版本';
+  const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WB Skill 内部经验仪表盘</title><style>body{font:15px system-ui,sans-serif;margin:2rem;background:#f6f8fb;color:#192536}h1{margin-bottom:.3rem}.muted{color:#667085}.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:1.5rem 0}.stat,.panel{background:white;padding:1rem;border-radius:10px;box-shadow:0 1px 4px #0001}.stat strong{display:block;font-size:1.7rem}.pill{display:inline-block;background:#e9f1ff;padding:.35rem .7rem;border-radius:20px;margin:.2rem}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;background:white}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #e5e9f0;padding:.7rem;min-width:90px}td:nth-child(3),td:nth-child(4),td:nth-child(5){min-width:220px}button{margin:.15rem;padding:.3rem .5rem}a{color:#2255aa}.logout{float:right}</style><form class="logout" method="post" action="/admin/logout"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">退出</button></form><h1>WB Skill 内部经验仪表盘</h1><p class="muted">仅展示去标识化候选；采纳后由管理员单独发布为签名规则版本。</p><div class="stats"><div class="stat">待核验<strong>${totalMap.candidate || 0}</strong></div><div class="stat">待发布<strong>${totalMap.approved || 0}</strong></div><div class="stat">已发布<strong>${totalMap.published || 0}</strong></div><div class="stat">已排除<strong>${totalMap.rejected || 0}</strong></div></div><div class="panel"><strong>${releaseText}</strong>${publish}<p><strong>最近七天新增</strong></p><p>${days || '暂无记录'}</p><strong>类别</strong><p>${cards || '暂无记录'}</p><p><a href="/admin">全部</a> · <a href="/admin?status=candidate">待核验</a> · <a href="/admin?status=approved">待发布</a> · <a href="/admin?status=published">已发布</a> · <a href="/admin?status=rejected">已排除</a></p></div><h2>最近记录</h2><div class="scroll"><table><thead><tr><th>日期</th><th>类别</th><th>观察</th><th>实际结果</th><th>建议</th><th>证据</th><th>状态</th><th>审核</th></tr></thead><tbody>${rows || '<tr><td colspan="8">暂无记录</td></tr>'}</tbody></table></div></html>`;
   return new Response(html, {headers: {...headers('text/html; charset=utf-8'), 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'"}});
+}
+
+async function publishApproved(env) {
+  const approved = (await env.DB.prepare("SELECT fingerprint, category, suggestion FROM lessons WHERE review_status = 'approved' AND published_version IS NULL ORDER BY reviewed_at, created_at").all()).results || [];
+  if (!approved.length) return null;
+  const latest = await env.DB.prepare('SELECT version, rules_json FROM rule_releases ORDER BY version DESC LIMIT 1').first();
+  let existing = [];
+  if (latest) {
+    try { existing = JSON.parse(latest.rules_json); } catch { throw new Error('release_data'); }
+  }
+  const combined = [...existing, ...approved.map(row => ({category: row.category, rule: row.suggestion}))];
+  const seen = new Set();
+  const rules = combined.filter(item => {
+    const key = JSON.stringify([item.category, item.rule]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (rules.length > 50) throw new Error('release_limit');
+  const version = (latest?.version || 0) + 1;
+  const now = new Date().toISOString();
+  const statements = [env.DB.prepare('INSERT INTO rule_releases (version, rules_json, item_count, created_at) VALUES (?, ?, ?, ?)').bind(version, JSON.stringify(rules), rules.length, now)];
+  for (const row of approved) statements.push(env.DB.prepare("UPDATE lessons SET review_status = 'published', published_version = ? WHERE fingerprint = ? AND review_status = 'approved' AND published_version IS NULL").bind(version, row.fingerprint));
+  await env.DB.batch(statements);
+  return version;
 }
 
 async function adminApi(request, env, pathname) {
@@ -226,6 +269,7 @@ export default {
     try {
       if (url.pathname === '/health' && request.method === 'GET') return json({ok: true});
       if (url.pathname === '/api/ingest' && request.method === 'POST') return await ingest(request, env);
+      if (url.pathname === '/api/rules/latest' && request.method === 'GET') return await latestRules(request, env);
       if (url.pathname === '/admin/login' && request.method === 'GET') return loginPage();
       if (url.pathname === '/admin/login' && request.method === 'POST') {
         let form;
@@ -245,6 +289,13 @@ export default {
           return new Response(null, {status: 303, headers: {'Location': url.origin + '/admin/login', 'Set-Cookie': `${ADMIN_COOKIE}=; Path=/admin; Max-Age=0; HttpOnly; Secure; SameSite=Strict`, ...headers('text/plain; charset=utf-8')}});
         }
         if (url.pathname === '/admin' && request.method === 'GET') return await dashboard(env, request);
+        if (url.pathname === '/admin/publish' && request.method === 'POST') {
+          let form;
+          try { form = new URLSearchParams(await limitedText(request, 1024)); } catch { return json({error: 'invalid_form'}, 400); }
+          if (!sameSecret(form.get('csrf'), await hmacHex(env.ADMIN_TOKEN, 'wb-learning-admin-csrf'))) return json({error: 'csrf'}, 403);
+          await publishApproved(env);
+          return Response.redirect(url.origin + '/admin', 303);
+        }
         if (url.pathname === '/admin/review' && request.method === 'POST') {
           let form;
           try { form = new URLSearchParams(await limitedText(request, 1024)); } catch { return json({error: 'invalid_form'}, 400); }
