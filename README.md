@@ -250,7 +250,7 @@ python scripts/feishu_wb_bot.py
 
 ### 模式 C：极速全自动流水线上架 (Fast Listing Production Engine)
 
-只要提供 SKU 列表或包含 SKU 的 `.txt` 文本文件路径，即可一气呵成完成“自动查重 -> 抓取 -> EAN条码 -> 原生weightBrutto建卡 -> 异步超清相册 -> 莫斯科1仓现货库存 -> 50%大促纯卢布折扣 -> 本地归档”十二步全流程：
+提供 SKU 列表或包含 SKU 的 `.txt` 文件后，智能体将为您全自动上架。客户消息只展示商品处理状态；内部操作细节留在运营记录中。
 
 ```bash
 # 方式 1: 直接输入 SKU 列表或 .txt 文档路径

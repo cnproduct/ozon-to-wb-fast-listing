@@ -317,7 +317,7 @@ def execute_single_listing_task(
 
         send_feishu_reply(
             chat_id,
-            f"🚀 {prefix}正在为 SKU [{sku}]《{product_data['title'][:25]}...》上架至【{target_store_name}】\n💰 人民币实售: ¥{sell_price_cny} (划线价 ¥{strike_price_cny}, {discount}%折, 约 {sell_price_rub} ₽) | 现货: {stock} 件",
+            f"🚀 {prefix}正在为您上架 SKU [{sku}] 至【{target_store_name}】。",
             open_id=open_id
         )
 
@@ -377,10 +377,6 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 6.0,
     """批量上架任务工作线程 (支持列表文本与 TXT 文件)"""
     store_cfg = store_manager.get_store_for_chat(chat_id)
     target_store_name = store_cfg.get("store_name", "默认店铺")
-    target_wh_name = store_cfg.get("warehouse_name", "莫斯科1仓")
-    target_wh_id = store_cfg.get("wb_warehouse_id", 2200658)
-    is_custom = store_cfg.get("is_custom_binding", False)
-
     unique_skus = list(dict.fromkeys(skus))
     total = len(unique_skus)
 
@@ -389,15 +385,11 @@ def batch_listing_worker(chat_id: str, skus: List[str], multiplier: float = 6.0,
         return
 
     start_card = [
-        f"**目标店铺**: `{target_store_name}` {'(专属绑定)' if is_custom else '(全局默认)'}",
-        f"**履约仓库**: `{target_wh_name}` (ID: `{target_wh_id}`)",
-        f"**任务总数**: 共识别到 **{total}** 款商品 SKU",
-        f"**实售定价**: **{multiplier} 倍实售** (划线标价 {multiplier*2} 倍，立享 {discount}% 官方大促折)",
-        f"**现货库存**: **{stock} 件** (现货秒级注入)",
-        "---",
-        "任务已开始，处理完成后发送商品结果。"
+        f"**目标店铺**: {target_store_name}",
+        f"**商品数量**: {total} 款",
+        "智能体将为您全自动上架，处理完成后发送商品结果。"
     ]
-    send_feishu_card(chat_id, "📋 批量上架流水线启动", start_card, color="blue", open_id=open_id)
+    send_feishu_card(chat_id, "📋 商品上架已开始", start_card, color="blue", open_id=open_id)
 
     success_count = 0
     failed_count = 0
@@ -442,7 +434,7 @@ def handle_excel_file_task(chat_id: str, file_path: str, open_id: Optional[str] 
         store_cfg = store_manager.get_store_for_chat(chat_id)
         df = pd.read_excel(file_path)
         total = len(df)
-        send_feishu_reply(chat_id, f"📊 成功读取表格，共检测到 {total} 行商品数据，将上架至店铺【{store_cfg.get('store_name')}】，开始批量流水线处理...", open_id=open_id)
+        send_feishu_reply(chat_id, f"📊 已收到表格中的 {total} 款商品，智能体将为您全自动上架至【{store_cfg.get('store_name')}】。", open_id=open_id)
         
         success = 0
         failed = 0
@@ -738,7 +730,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                         def_s = int(store_cfg.get("default_stock", 5))
                         m, d, s, _ = parse_inline_params(raw_text, def_m, def_d, def_s)
                         
-                        send_feishu_reply(chat_id, f"✅ 已收到您的确认！按 **{m} 倍实售**（50%大促折，{s}件库存）立即启动批量上架流水线！", open_id=open_id)
+                        send_feishu_reply(chat_id, "✅ 已收到您的确认，智能体将为您全自动上架。", open_id=open_id)
                         threading.Thread(target=batch_listing_worker, args=(chat_id, skus, m, d, s, open_id)).start()
                         return
 
@@ -778,12 +770,11 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                         f"**SKU 列表**: `{', '.join(unique_skus[:10])}{'...' if len(unique_skus)>10 else ''}`",
                         "---",
                         "📊 **【先问后干】默认推荐上架策略**：",
-                        f"• **实售价格**: **{def_m} 倍实售**（划线标价 {def_m*2} 倍，立享 50% 官方大促折）",
-                        f"• **现货库存**: **{def_s} 件**（莫斯科1仓现货秒级注入）",
-                        f"• **商品规格**: 真实物理外包装推导 · 描述剥离竞对痕迹 · 白牌合规脱敏",
+                        f"• **售价策略**: {def_m} 倍实售",
+                        f"• **库存数量**: {def_s} 件",
                         "---",
                         "👉 **请回复确认或指定自定义策略**：",
-                        "1. 发送「**确认**」或「**直接上架**」：按默认 6 倍实售/5件现货立即执行；",
+                        f"1. 发送「**确认**」或「**直接上架**」：按默认 {def_m} 倍实售、{def_s} 件库存执行；",
                         "2. 或发送「**3倍**」、「**5倍 10库存**」：按您指定的策略立即上架！"
                     ]
                     send_feishu_card(chat_id, f"📋 已识别 {len(unique_skus)} 款待上架商品，请确认策略", ask_lines, color="blue", open_id=open_id)
@@ -852,7 +843,7 @@ def on_p2_message_receive_v1(data: P2ImMessageReceiveV1) -> None:
                         m, d, s, has_explicit = parse_inline_params(file_name, def_m, def_d, def_s)
 
                         if has_explicit:
-                            send_feishu_reply(chat_id, f"📄 从【{file_name}】成功提取出 {len(unique_skus)} 个有效商品 SKU，正在按指定策略启动批量流水线！", open_id=open_id)
+                            send_feishu_reply(chat_id, f"📄 已收到【{file_name}】中的 {len(unique_skus)} 款商品，智能体将为您全自动上架。", open_id=open_id)
                             threading.Thread(target=batch_listing_worker, args=(chat_id, unique_skus, m, d, s, open_id)).start()
                         else:
                             PENDING_CONFIRMATIONS[chat_id] = {
