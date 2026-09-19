@@ -227,7 +227,6 @@ export default {
       if (url.pathname === '/api/ingest' && request.method === 'POST') return await ingest(request, env);
       if (url.pathname === '/admin/login' && request.method === 'GET') return loginPage();
       if (url.pathname === '/admin/login' && request.method === 'POST') {
-        if (!sameOrigin(request)) return json({error: 'origin'}, 403);
         let form;
         try { form = new URLSearchParams(await limitedText(request, 1024)); } catch { return loginPage('invalid'); }
         if (!sameSecret(form.get('password'), env.ADMIN_TOKEN)) return loginPage('invalid');
