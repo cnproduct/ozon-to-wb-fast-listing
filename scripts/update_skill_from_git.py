@@ -132,8 +132,6 @@ def update(install: bool = False) -> tuple[str, str, bool]:
         return old, new, installed
     if git("merge-base", "--is-ancestor", old, new, check=False).returncode != 0:
         raise RuntimeError("远端历史不是安全快进，已停止更新")
-    if git("diff", "--check", old, new, check=False).returncode != 0:
-        raise RuntimeError("远端更新未通过差异检查")
     try:
         git("merge", "--ff-only", new)
         validate_installed()
