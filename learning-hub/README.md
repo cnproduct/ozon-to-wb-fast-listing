@@ -22,4 +22,4 @@
 
 管理员在仪表盘中“采纳”只表示进入待发布队列。“发布”会生成供已配置客户端拉取的签名规则版本，但不会自动执行真实业务操作、合并代码或修改正在运行的旧对话。客户端用 `scripts/sync_learning_rules.py` 验证签名和版本后，只更新 `~/.gemini/GEMINI.md` 中的 WB 受管区块，并保留其他全局规则。所有上传方须知晓本地候选将发送至集中服务。
 
-在设备配置好专属令牌后运行 `python scripts/install_learning_rule_sync.py`。安装器同时启用两个全局 Sidecar：每 15 分钟同步签名规则；每天本机时间 06:00 由 `scripts/update_skill_from_git.py` 更新 `~/.gemini/config/skills/ozon-to-wb-fast-listing`。完整 Skill 只接受官方仓库 `main` 的 GitHub 已验证提交和安全快进；发现本地修改、来源变化、历史改写或验证失败时停止更新并写入本机状态，不覆盖现有安装。
+在设备配置好专属令牌后运行 `python scripts/install_learning_rule_sync.py`。安装器同时启用两个全局 Sidecar：每 15 分钟同步签名规则；每天本机时间 06:00 由 `scripts/update_skill_from_git.py` 更新 `~/.gemini/config/skills/ozon-to-wb-fast-listing`。完整 Skill 只接受官方仓库 `main` 的 GitHub 已验证提交和安全快进；发现本地修改、来源变化、历史改写、Skill 身份不符或更新后编译失败时停止更新并写入本机状态，不覆盖现有安装。既有仓库允许使用 CRLF 换行，避免将正常换行误判为内容错误。
