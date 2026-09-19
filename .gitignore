@@ -4,6 +4,8 @@
 config.json
 .env
 *.env
+.dev.vars*
+.wrangler/
 *.pem
 *.key
 
