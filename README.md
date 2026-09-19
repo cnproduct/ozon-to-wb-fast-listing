@@ -20,6 +20,9 @@
 
 - 📄 **Word 精美排版操作手册**：[docs/Wildberries_新店铺授权与多店铺管理操作手册.docx](docs/Wildberries_新店铺授权与多店铺管理操作手册.docx)
 - 🗜️ **商业防护原生发布包 (v3.0)**：[release/ozon-to-wb-fast-listing-v3.0-protected.zip](release/ozon-to-wb-fast-listing-v3.0-protected.zip)
+- 🪟 **Windows 学习客户端安装器**：[install-wb-learning-client.cmd](install-wb-learning-client.cmd)（完整脚本与说明在 [bootstrap/wb-learning-client-bootstrap](bootstrap/wb-learning-client-bootstrap/README.md)）
+
+下载本仓库 ZIP 并解压后，双击根目录的 `install-wb-learning-client.cmd`，按隐藏输入提示粘贴管理员签发的设备令牌。安装器会补齐缺失的 Git/Python、安装受管 Antigravity WB Skill，并设置规则与 Skill 自动更新。仅下载或复制 Skill 不会自动执行安装；在 Antigravity 中可要求当前 WB Skill 运行 `bootstrap/wb-learning-client-bootstrap/scripts/install-wb-learning-client.ps1`。设备令牌只在本机 PowerShell 输入，不发送到聊天。此步骤需要电脑已装 Antigravity，也不代替店铺商业授权。
 
 ---
 
