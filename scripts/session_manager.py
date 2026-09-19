@@ -331,13 +331,13 @@ class SessionManager:
         return True, succ_msg, session_entry
 
     def issue_free_trial(self, conversation_id: Optional[str] = None) -> Tuple[bool, str, Dict[str, Any]]:
-        """为当前会话窗口免费签发 2 天全功能测试授权 (时效 48 小时)"""
+        """为当前会话窗口免费签发 1 天全功能测试授权 (时效 24 小时)"""
         cid = self.get_current_conversation_id(conversation_id)
         registry = self._load_registry()
         
         crypto = LicenseCrypto()
-        lic_key = crypto.sign_license(machine_id="*", customer_name="免费试用卖家", days=2, max_sessions=1)
-        expires_at = (datetime.datetime.now() + datetime.timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
+        lic_key = crypto.sign_license(machine_id="*", customer_name="免费试用卖家", days=1, max_sessions=1)
+        expires_at = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
         lic_data = {
             "name": "免费试用卖家",
             "machine_id": "*",
@@ -353,21 +353,21 @@ class SessionManager:
         session_entry = sessions.setdefault(cid, {})
         session_entry["status"] = "AUTHORIZED"
         session_entry["license_key"] = lic_key
-        session_entry["license_name"] = "2天免费试用"
+        session_entry["license_name"] = "1天免费试用"
         session_entry["machine_id"] = "*"
         session_entry["activated_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sessions[cid] = session_entry
         self._save_registry(registry)
         
         succ_msg = (
-            f"🎉 **已成功开通 2 天全功能免费试用！**\n\n"
-            f"🎁 **授权类型**: `2天免费试用版 (48小时全功能体验)`\n"
+            f"🎉 **已成功开通 1 天全功能免费试用！**\n\n"
+            f"🎁 **授权类型**: `1天免费试用版 (24小时全功能体验)`\n"
             f"🔑 **试用授权码**: `{lic_key}`\n"
             f"⏳ **试用到期时间**: `{expires_at}`\n"
             f"🆔 **当前激活窗口**: `{cid}`\n\n"
             f"👉 **下一步**：当前窗口已完全解锁！请绑定您的 Wildberries 目标店铺：\n"
             f"`绑定店铺 店铺简称：我的店铺 API令牌：eyJ... 仓库ID：2200658 售价倍数：6.0`\n\n"
-            f"💡 提示：免费试用期内享受 100% 完整极速搬家上架功能；2 天试用到期后可随时支付 ¥600/月 升级为正式月度授权。"
+            f"💡 提示：免费试用期内享受 100% 完整极速搬家上架功能；1 天试用到期后可随时支付 ¥600/月 升级为正式月度授权。"
         )
         return True, succ_msg, session_entry
 
@@ -734,9 +734,10 @@ class SessionManager:
 
         # 0. 免费试用快捷激活指令
         free_trial_keywords = [
-            "免费试用", "试用", "领取试用", "免费测试", "免费", "2天免费", "两天免费", "2天免费试用", "两天免费试用",
+            "免费试用", "试用", "领取试用", "免费测试", "免费", "1天免费", "一天免费", "1天免费试用", "一天免费试用",
+            "2天免费", "两天免费", "2天免费试用", "两天免费试用",
             "开启试用", "申请试用", "0元试用", "0元", "领取代金", "试用激活码", "体验", "测试", "测试版",
-            "获取试用码", "试用授权", "申请2天试用", "试用码", "2天试用", "两天试用", "试用卡", "申请试用授权",
+            "获取试用码", "试用授权", "申请1天试用", "申请2天试用", "试用码", "1天试用", "一天试用", "2天试用", "两天试用", "试用卡", "申请试用授权",
             "trial", "free_trial", "test"
         ]
         if text.strip() in free_trial_keywords or text.lower() in [k.lower() for k in free_trial_keywords] or (
@@ -1024,8 +1025,8 @@ def main():
     p_gen.add_argument("--max-sessions", type=int, default=1, help="允许激活的会话窗口数 (-1 表示无限)")
     p_gen.add_argument("--days", type=int, default=365, help="有效天数")
 
-    # 2.0 generate-trial (快速生成 2 天试用授权码)
-    p_trial = subparsers.add_parser("generate-trial", help="快速生成 2 天全功能免费试用授权码 (48小时有效)")
+    # 2.0 generate-trial (快速生成 1 天试用授权码)
+    p_trial = subparsers.add_parser("generate-trial", help="快速生成 1 天全功能免费试用授权码 (24小时有效)")
     p_trial.add_argument("--name", default="试用客户", help="试用客户名称")
     p_trial.add_argument("--mid", default="*", help="绑定的机器码 (默认 '*' 通配任意设备)")
     p_trial.add_argument("--conversation-id", default=None, help="可选，直接激活指定会话窗口 ID")
@@ -1110,10 +1111,10 @@ def main():
         print(f"✅ 成功生成商业授权码: {res['license_key']}")
         print(json.dumps(res, ensure_ascii=False, indent=2))
     elif args.action == "generate-trial":
-        res = mgr.generate_license(name=args.name, max_sessions=1, days=2, machine_id=getattr(args, 'mid', '*'))
+        res = mgr.generate_license(name=args.name, max_sessions=1, days=1, machine_id=getattr(args, 'mid', '*'))
         if getattr(args, 'conversation_id', None):
             mgr.activate_license(res['license_key'], args.conversation_id)
-        print(f"🎉 成功生成 2 天全功能免费试用授权码 (48小时有效):")
+        print(f"🎉 成功生成 1 天全功能免费试用授权码 (24小时有效):")
         print(f"🔑 授权码: {res['license_key']}")
         print(f"⏳ 有效期至: {res['expires_at']}")
         print(json.dumps(res, ensure_ascii=False, indent=2))

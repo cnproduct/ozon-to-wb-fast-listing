@@ -15,16 +15,25 @@ const DEFAULT_ALIPAY_PUBLIC_KEY_B64 = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCA
 
 const DEFAULT_RSA_SIGNING_KEY_B64 = `MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC68iqR8hjHueryql/SsW895wtWV0QzXZzu6l0Db7kXAcI/dTrfRWjHock5gXoNj4KraCElPSNW0/EISgrxA6MZe3QyaEXv+i0hk+gaoKkSIZwj9KmIRtIqBuxlckro9tGNyCbS4snwlu+XLI6pkCyi1KU+4OZDS9YlscdVCzcUtSwGR7tnsoN+MNwtuvlYakIpA/rS2yxi90Btb5DYMlFcBf7d/UJqOPBa412B2hhxxd8eWR9QcoyjS2y32r1Eo5QW588fnm+s/XP0zNXWvRWcCsZPFwC/I0NlMRcYBibcyZApxdIMyu+7Kow+F0nZtMK5EKZUnxQ6tX8+xFTB/guPAgMBAAECggEAE/6KkbQe9QhBb1V24jCaq+LmJ4SLMCM3AaaMmYLS0k8cg2+lAvQy0gclCm16rFtI/SQp8ghT8JltEhc5NwXN5Tp69wPdVwlJgmnbTTMZt21jfG+nzNd7lYXKtXQ/5s1fJEGKmst+uv3+/2At8fIQPr9s3QjDbTcoiZI2C4vOMadFD9UlZKsXCOyCyW/TLwP5olaEfjYg4KyLqwnqtKEBJ2tsn/InS4qcvBytPzzu4O6tu4UUjPJtcTN+KlWv0vXXPacADBJAc/3oiaL0ekX325S1vlDP+D9RbV3gKh8hiZMl9xSvV5G1ABZlP2IjKYnmIETU4oLE4gh/qh64n5aZwQKBgQD3KBG3yAzHMMVaqiW2QOlQrm1dwjLz6oESdX/Rq252Y/yWzGHH5bZHgyuw6wWALn+AwChT0iPawmTfn4fLTGaaaYqvs5s9XZjUZxG6o/qJWyl8cGJkzDGyQiji6T1/sYwImL64MqmVfj5jMjMTl7yAitk0cdryBrVHglzG3xn2eQKBgQDBopLukadaeD29x0YbWUZ7sZxBolwwbjtjyzk3KysshVWRJLFGG0FYyGAEyFMIPxQpgAeYPSO0nn4SEYMHFJ3NSLkAJMhBCDWQCTI9PcYGYKiOkXnlASP0snhYgsNbhEg2A9sWe5I2FoXMmnMw0MJc+2o+DCvU5Eg6LCygyzQwRwKBgQDBgba1jEQs5EtwG80g75t8lsR75uMbw9vAhwxHLZBz0v7dVjGsX3aicNmRT8DjxgP/2vL4BYwa554w02dvTWb7uGxj+hwuJIzWp8fiuCYcyqolipwOzSyPo2r9lZ2Xz3uS83xHHStXJxtTcOc6jM+CWLOMcyP34DaoQTHAZsaeCQKBgQCjw55m3JLgZd852QZG7Qs6Y+1WaT10zFW4QdEDAqSCA8ZpedHgC/8JWnYytUXcLJUdwCUsMVE4We8f0uWxIFORodas827V6V57kfuGZe9Lx4XnBcxEzOEe+63ilb0pckgsPriVXC89RXElqN6RQ42OXCfvkBWl+OfJI0EfQJzD0wKBgQDFRc5Z538b448hjy/DeWMblOiB1LxZWsHEuvwRB8KXLpErKaBh47tggd/qVaOberh71g3WHkyUgGlSVatvZLamKEXBwu2dfRRKdux2pVXIGX6OueM6X4Q2UtUjsPH5B5C8E1ZmnhuARZFddlfpJbsgRHqKyb5VEIxys0nbyR9aLQ==`;
 
-// Pricing Model: 2-Day Free Trial (¥0) & Single Store Monthly License (¥600 / month, 30 days)
+// Pricing Model: 1-Day Free Trial (¥0) & Single Store Monthly License (¥600 / month, 30 days)
 const PLANS = {
-  free_trial_2days: {
-    id: "free_trial_2days",
-    name: "2天全功能免费试用版",
+  free_trial_1day: {
+    id: "free_trial_1day",
+    name: "1天全功能免费试用版",
     stores: 1,
     price: "0.00",
     original_price: "99.00",
-    days: 2,
-    desc: "48小时全功能免费体验 · 1店1码 1:1 独立隔离 · 莫斯科1仓现货秒级注入 · 试用满意随时升级"
+    days: 1,
+    desc: "24小时全功能免费体验 · 1店1码 1:1 独立隔离 · 莫斯科1仓现货秒级注入 · 试用满意随时升级"
+  },
+  free_trial_2days: {
+    id: "free_trial_1day",
+    name: "1天全功能免费试用版",
+    stores: 1,
+    price: "0.00",
+    original_price: "99.00",
+    days: 1,
+    desc: "24小时全功能免费体验 · 1店1码 1:1 独立隔离 · 莫斯科1仓现货秒级注入 · 试用满意随时升级"
   },
   single_store: {
     id: "single_store",
@@ -788,7 +797,7 @@ export default {
     <div class="brand-header">
       <div class="brand-badge">⚡ Wildberries 官方智能上架助手</div>
       <h1>商业授权与免费试用收银台</h1>
-      <p class="subtitle">单店 1:1 专属锁定 · 48小时免费体验 · ¥600/店铺/月度正式商业授权</p>
+      <p class="subtitle">单店 1:1 专属锁定 · 24小时免费体验 · ¥600/店铺/月度正式商业授权</p>
     </div>
 
     <div class="price-tag-banner">
@@ -825,10 +834,10 @@ export default {
 
       <label>📦 选择店铺授权套餐</label>
       <div class="plans-grid">
-        <div class="plan-card" onclick="selectPlan('free_trial_2days')" id="plan-free_trial_2days">
+        <div class="plan-card" onclick="selectPlan('free_trial_1day')" id="plan-free_trial_1day">
           <div class="plan-badge">0元体验</div>
-          <div class="plan-title">2天免费试用</div>
-          <div class="plan-price">¥0<small>/2天</small></div>
+          <div class="plan-title">1天免费试用</div>
+          <div class="plan-price">¥0<small>/1天</small></div>
           <div class="plan-orig">原价 ¥99</div>
         </div>
         <div class="plan-card active" onclick="selectPlan('single_store')" id="plan-single_store">
@@ -1090,7 +1099,7 @@ export default {
             expires_at: payload.exp,
             store_name: storeName,
             plan_name: plan.name,
-            message: "🎉 2天全功能免费试用开通成功！"
+            message: "🎉 1天全功能免费试用开通成功！"
           }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
