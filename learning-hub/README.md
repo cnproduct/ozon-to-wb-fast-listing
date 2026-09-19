@@ -6,7 +6,7 @@
 
 - `GET /health`：仅返回健康状态。
 - `POST /api/ingest`：使用单机上传令牌的 Bearer 认证，请求体为 `{ "items": [{"category":"故障","observation":"...","outcome":"...","suggestion":"...","evidence":"代码验证"}] }`。每批最多 20 条。
-- `GET /admin`：浏览器 HTTP Basic 认证，用户名 `admin`，密码为部署时设置的 `ADMIN_TOKEN` Secret。
+- `GET /admin`：未登录的浏览器跳转至管理员密码表单；密码为部署时设置的 `ADMIN_TOKEN` Secret。登录成功后使用 12 小时、`HttpOnly`、`Secure`、`SameSite=Strict` 的签名会话 Cookie。管理员 API 仍支持 HTTP Basic 认证，用户名为 `admin`。
 - `GET /api/admin/summary`：管理员统计 API，包含审核状态、类别及最近七天每日新增。
 - `POST /api/admin/tokens`：管理员生成一次性显示的上传令牌；每台用户设备单独签发。
 - `POST /api/admin/tokens/revoke`：管理员撤销指定令牌。
