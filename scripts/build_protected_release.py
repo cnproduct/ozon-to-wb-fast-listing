@@ -49,8 +49,9 @@ CORE_PROTECTED_SCRIPTS = [
 ]
 
 # 公开静态辅助目录与文件 (直接拷贝至 release)
-STATIC_DIRS = ['references', 'templates', 'cloud']
+STATIC_DIRS = ['references', 'templates', 'cloud', 'bootstrap']
 STATIC_FILES = [
+    'install-wb-learning-client.cmd',
     'config.example.json',
     'requirements.txt',
     'LICENSE',
