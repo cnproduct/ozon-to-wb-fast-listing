@@ -276,3 +276,22 @@ python scripts/update_weights_and_promos.py
 ## 📄 开源许可证 (License)
 
 本项目遵循 [MIT License](LICENSE)。欢迎提交 Issue 与 Pull Request！
+
+
+## 🔄 规则自动同步与客户端一键安装 (Learning Client Setup)
+
+本系统内置分布式学习规则同步网关与客户端自动更新服务，确保多店铺与多终端始终保持最新的 Wildberries 官方反封禁规则与类目算法。
+
+### 1. 新电脑一键部署 (Windows)
+1. 下载或克隆本仓库到本地；
+2. 双击根目录的 **`install-wb-learning-client.cmd`**；
+3. 安装器会自动检测并准备 Git / Python 3.10+ 环境（官方包签名校验）；
+4. 终端提示时，粘贴管理员签发的 **43 位设备专属令牌**（输入不会回显字符，贴入后直接回车）；
+5. 看到 `[WB 安装] 安装完成。` 后，重启 Antigravity 即可。
+
+### 2. 内置 Bootstrap Skill
+本仓库已在 `.agents/skills/wb-learning-client-bootstrap` 内置自举引导技能。可在 Antigravity 对话中直接调用 `wb-learning-client-bootstrap` 完成本地客户端环境的自动化检测与规则守护注入。
+
+### 3. 后台守护进程与状态监控
+- **规则自动更新**：每 15 分钟自动校验并同步官方发布的最新规则库；
+- **状态验证**：本地状态记录于 `%USERPROFILE%\.codex\wb-skill-learning\skill-update-status.json`（`status: ok`）。

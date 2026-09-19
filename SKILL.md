@@ -984,3 +984,17 @@ flowchart TD
    4. **买家端展示参数 100% 饱和注入**：`characteristics` 数组 100% 绑定官方合法属性 ID（7~12 项）；
    5. **前台正常在售状态确认**：卡片在买家端 CDN 编译完成，处于正常流通可购就绪态。
 
+
+### 31. WB 学习客户端环境自举与规则自动同步架构规范 (Learning Client Bootstrap & Sidecar Sync SOP)
+
+1. **架构与运作原理**：
+   - **学习枢纽 (Learning Hub)**：基于 Cloudflare Workers (`wb-skill-learning-hub.cnproduct.workers.dev`) 提供设备鉴权、已发布规则签名分发与上架行为学习记录；
+   - **设备专属令牌 (Device Ingest Token)**：严格 43 位英文字母/数字/下划线/减号 (`^[A-Za-z0-9_-]{43}$`)，安全存储于本地当前用户配置 `~/.codex/wb-skill-learning/hub-config.json`（权限严格隔离，严禁暴露在对话框、日志或公开提交中）；
+   - **双 Sidecar 自动化守护进程**：
+     - `wb-skill-rules-sync`：每 15 分钟定时执行 `sync_learning_rules.py -X utf8`，自动验证并应用管理员发布的最新上架与反封禁签名规则；
+     - `wb-skill-auto-update`：每日定时执行 `update_skill_from_git.py -X utf8`，拉取官方仓库最新代码与 Skill 定义，记录状态至 `skill-update-status.json`。
+
+2. **新环境一键自举与无痛部署 (Zero-Friction Bootstrap)**：
+   - **本地一键安装**：新设备直接双击根目录 `install-wb-learning-client.cmd`，自动检测并安装缺失的 Git / Python 3.10+，执行数字签名校验；
+   - **智能严苛模式兼容**：脚本深度适配 `Set-StrictMode -Version Latest`，支持重复执行与本地代码无改动时的快进合并（`ff-only`），绝不触发 Null 异常；
+   - **对话内自举调用**：支持在 Antigravity 中直接使用内置技能 `wb-learning-client-bootstrap`，通过 Windows 原生安全掩码提示输入设备令牌（输入不回显），完成激活后重启 Antigravity 即可。
