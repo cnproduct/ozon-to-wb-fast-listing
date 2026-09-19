@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 
 
@@ -13,6 +14,8 @@ HOME = Path.home()
 HUB_CONFIG = HOME / ".codex/wb-skill-learning/hub-config.json"
 SIDECAR_DIR = HOME / ".gemini/config/sidecars/wb-skill-rules-sync"
 SIDECAR_CONFIG = SIDECAR_DIR / "sidecar.json"
+UPDATE_SIDECAR_DIR = HOME / ".gemini/config/sidecars/wb-skill-auto-update"
+UPDATE_SIDECAR_CONFIG = UPDATE_SIDECAR_DIR / "sidecar.json"
 ANTIGRAVITY_CONFIG = HOME / ".gemini/config/config.json"
 
 
@@ -38,8 +41,9 @@ def main() -> None:
     if not HUB_CONFIG.exists() or HUB_CONFIG.stat().st_mode & 0o077:
         raise SystemExit("请先由运营超级管理员安装权限为 0600 的 hub-config.json")
     source = Path(__file__).with_name("sync_learning_rules.py")
-    if not source.exists():
-        raise SystemExit("缺少规则同步脚本")
+    update_source = Path(__file__).with_name("update_skill_from_git.py")
+    if not source.exists() or not update_source.exists():
+        raise SystemExit("缺少规则或 Skill 更新脚本")
     SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
     target = SIDECAR_DIR / "sync_learning_rules.py"
     shutil.copyfile(source, target)
@@ -54,6 +58,20 @@ def main() -> None:
             "restart_policy": "always",
         },
     )
+    UPDATE_SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
+    update_target = UPDATE_SIDECAR_DIR / "update_skill_from_git.py"
+    shutil.copyfile(update_source, update_target)
+    os.chmod(update_target, 0o700)
+    atomic_json(
+        UPDATE_SIDECAR_CONFIG,
+        {
+            "display_name": "WB Skill 每日静默更新",
+            "description": "每天 06:00 从已验证的官方主分支安全快进全局 WB Skill",
+            "builtin": "schedule",
+            "args": ["0 6 * * *", "python3", str(update_target)],
+            "restart_policy": "always",
+        },
+    )
     try:
         config = json.loads(ANTIGRAVITY_CONFIG.read_text(encoding="utf-8")) if ANTIGRAVITY_CONFIG.exists() else {}
     except json.JSONDecodeError:
@@ -64,8 +82,10 @@ def main() -> None:
     if not isinstance(sidecars, dict):
         raise SystemExit("Antigravity sidecars 配置无效")
     sidecars["wb-skill-rules-sync"] = {"enabled": True}
+    sidecars["wb-skill-auto-update"] = {"enabled": True}
     atomic_json(ANTIGRAVITY_CONFIG, config)
-    print("WB Skill 规则自动更新已安装：每 15 分钟检查一次。")
+    subprocess.run(["python3", str(update_target), "--install"], check=True)
+    print("WB Skill 自动更新已安装：规则每 15 分钟同步，完整 Skill 每天 06:00 静默更新。")
 
 
 if __name__ == "__main__":
